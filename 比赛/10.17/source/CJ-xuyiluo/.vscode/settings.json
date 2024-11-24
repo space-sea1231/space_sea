@@ -1,0 +1,11 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "ostream": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "random": "cpp",
+        "thread": "cpp"
+    },
+    "Codegeex.RepoIndex": true
+}

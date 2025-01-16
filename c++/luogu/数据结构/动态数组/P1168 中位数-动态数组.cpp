@@ -1,10 +1,8 @@
-#include <bits/stydc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-const int N=1e3+10;
+const int N=1e5+10;
 int n;
-struct Binary_Search_Tree{
-
-}tree;
+vector<int> q;
 int main(){
     ios::sync_with_stdio(0);
     cin.tie();
@@ -12,7 +10,10 @@ int main(){
     for (int i=1; i<=n; i++){
         int a;
         cin >> a;
-
+        q.insert(lower_bound(q.begin(), q.end(), a), a);
+        if (i%2){
+            printf("%d\n", q[i/2]);
+        }
     }
     return 0;
 }

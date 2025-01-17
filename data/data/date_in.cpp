@@ -3,7 +3,7 @@ using namespace std;
 const int TEST=30;
 const string problem="P2540";
 const string file="/home/space-sea/桌面/数据/date/"+problem+"/";
-int random_date(int l, int r){
+int Random_Data(int l, int r){
     return rand()%(r-l+1)+l;//生成随机数
 }
 
@@ -16,14 +16,14 @@ void init(){
     cnt=0;
 }
 void date_in(){
-    int t=random_date(1, 10);
-    int n=random_date(1, 23);
+    int t=Random_Data(1, 10);
+    int n=Random_Data(1, 23);
     printf("%d %d\n", t, n);
     while (t--){
         init();
         while (cnt<n){
-            int x=random_date(0, 13);
-            int y=random_date(1, 4);
+            int x=Random_Data(0, 13);
+            int y=Random_Data(1, 4);
             if (x==0){
                 if (vis[0]<2){
                     vis[0]++;

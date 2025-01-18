@@ -1,48 +1,41 @@
 #include <bits/stdc++.h>
+#define int long long
 using namespace std;
-const int N=1e5+10;
-const int INF=0x7fffffff;
-int n;
+const int N=8e4+10;
+const int INF=(1LL<<61);
+const int Mod=1e6;
+int n, ans;
 struct Treap{
-    int num=0, root;
+    int num=0, root, sum=0;
     struct Node{
         int l, r;
         int vis, val;
-        int cnt, size;
+        int cnt;
     }e[N<<1];
-    void Update(int x){
-        e[x].size=e[e[x].l].size+e[e[x].r].size+e[x].cnt;
-    }
     void Zig(int &x){
         int y=e[x].l;
         e[x].l=e[y].r;
         e[y].r=x, x=y;
-        Update(e[x].r);
-        Update(x);
     }
     void Zag(int &x){
         int y=e[x].r;
         e[x].r=e[y].l;
         e[y].l=x, x=y;
-        Update(e[x].l);
-        Update(x);
     }
     int New(int val){
         e[++num].val=val;
         e[num].vis=rand();
-        e[num].size=1;
         e[num].cnt=1;
+        sum++;
         return num;
     }
     void Insert(int &x, int val){
         if (x==0){
             x=New(val);
-            Update(x);
             return ;
         }
         if (val==e[x].val){
             e[x].cnt++;
-            Update(x);
             return ;
         }
         if (val<e[x].val){
@@ -56,7 +49,6 @@ struct Treap{
                 Zag(x);
             }
         }
-        Update(x);
     }
     void Remove(int &x, int val){
         if (x==0){
@@ -65,7 +57,7 @@ struct Treap{
         if (val==e[x].val){
             if (e[x].cnt>1){
                 e[x].cnt--;
-                Update(x);
+                sum--;
                 return ;
             }
             if (e[x].l||e[x].r){
@@ -78,6 +70,7 @@ struct Treap{
                 }
             }else{
                 x=0;
+                sum--;
             }
         }else{
             if (val<e[x].val){
@@ -86,32 +79,6 @@ struct Treap{
                 Remove(e[x].r, val);
             }
         }
-        Update(x);
-    }
-    int Val_Rank(int x, int val){
-        if (x==0){
-            return 1;
-        }
-        if (val==e[x].val){
-            return e[e[x].l].size+1;
-        }
-        if (val<e[x].val){
-            return Val_Rank(e[x].l, val);
-        }else{
-            return Val_Rank(e[x].r, val)+e[e[x].l].size+e[x].cnt;
-        }
-    }
-    int Rank_Val(int x, int rank){
-        if (x==0){
-            return INF;
-        }
-        if (e[e[x].l].size>=rank){
-            return Rank_Val(e[x].l, rank);
-        }
-        if (e[e[x].l].size+e[x].cnt>=rank){
-            return e[x].val;
-        }
-        return Rank_Val(e[x].r, rank-e[e[x].l].size-e[x].cnt);
     }
     int Pre(int x, int val){
         if (x==0){
@@ -133,33 +100,46 @@ struct Treap{
             return Nxt(e[x].r, val);
         }
     }
-}tree;
-int main(){
+}act, pas;
+signed main(){
     ios::sync_with_stdio(0);
     cin.tie();
     cin >> n;
     for (int i=1; i<=n; i++){
-        int opt, x;
+        bool opt;
+        int x;
         cin >> opt >> x;
-        if (opt==1){
-            tree.Insert(tree.root, x);
-        }
-        if (opt==2){
-            tree.Remove(tree.root, x);
-        }
-        if (opt==3){
-            printf("%d\n", tree.Val_Rank(tree.root, x));
-        }
-        if (opt==4){
-            printf("%d\n", tree.Rank_Val(tree.root, x));
-        }
-        if (opt==5){
-            printf("%d\n", tree.Pre(tree.root, x));
-        }
-        if (opt==6){
-            printf("%d\n", tree.Nxt(tree.root, x));
+        if (opt){
+            if (pas.sum){
+                int pre=pas.Pre(pas.root, x);
+                int nxt=pas.Nxt(pas.root, x);
+                if (x-pre<=nxt-x){
+                    pas.Remove(pas.root, pre);
+                    ans=(ans+x-pre)%Mod;
+                }else{
+                    pas.Remove(pas.root, nxt);
+                    ans=(ans+nxt-x)%Mod;
+                }
+            }else{
+                act.Insert(act.root, x);
+            }
+        }else{
+            if (act.sum){
+                int pre=act.Pre(act.root, x);
+                int nxt=act.Nxt(act.root, x);
+                if (x-pre<=nxt-x){
+                    act.Remove(act.root, pre);
+                    ans=(ans+x-pre)%Mod;
+                }else{
+                    act.Remove(act.root, nxt);
+                    ans=(ans+nxt-x)%Mod;
+                }
+            }else{
+                pas.Insert(pas.root, x);
+            }
         }
     }
-    
+    printf("%lld\n", ans);
+
     return 0;
 }

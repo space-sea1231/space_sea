@@ -1,5 +1,4 @@
 #include <bits/stdc++.h>
-#define int long long
 using namespace std;
 const int N=2e6+10;
 const int M=1e4+10;
@@ -27,7 +26,7 @@ struct Sparse_Table{
         return min(dp[l][len], dp[r-(1<<len)+1][len]);
     }
 }st;
-signed main(){
+int main(){
     ios::sync_with_stdio(0);
     cin.tie();
     cin >> n >> m >> k;
@@ -48,7 +47,7 @@ signed main(){
         last[color[i]]=i;
         sum[color[i]]++;
     }
-    printf("%lld\n", ans);
+    printf("%d\n", ans);
 
     return 0;
 }

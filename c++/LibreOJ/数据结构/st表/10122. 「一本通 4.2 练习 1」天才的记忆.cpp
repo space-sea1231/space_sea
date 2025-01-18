@@ -1,6 +1,6 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int N=1e5+10;
+const int N=2e5+10;
 const int Z=32;
 int n, m;
 struct Sparse_Table{
@@ -26,11 +26,12 @@ struct Sparse_Table{
 int main(){
     ios::sync_with_stdio(0);
     cin.tie();
-    cin >> n >> m;
+    cin >> n;
     for (int i=1; i<=n; i++){
         cin >> st.dp[i][0];
     }
     st.init();
+    cin >> m;
     for (int i=1; i<=m; i++){
         int l, r;
         cin >> l >> r;

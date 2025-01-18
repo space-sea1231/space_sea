@@ -1,3 +1,3 @@
-./date
-./std<date.in>std.out
-./baoli<date.in>baoli.out
+./data
+./std<data.in>std.out
+./baoli<data.in>baoli.out

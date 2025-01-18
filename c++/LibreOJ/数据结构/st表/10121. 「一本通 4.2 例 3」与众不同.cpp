@@ -21,27 +21,13 @@ struct Sparse_Table{
         }
     }
     int Query(int l, int r){
+        if (l>r){
+            return 0;
+        }
         int len=lg[r-l+1];
         return max(dp[l][len], dp[r-(1<<len)+1][len]);
     }
 }st;
-int Find(int l, int r){
-    if (pre[l]==r){
-        return l;
-    }
-    if (pre[r]<l){
-        return r+1;
-    }
-    while (l<=r){
-        int mid=(l+r)>>1;
-        if (pre[mid]<l){
-            l=mid+1;
-        }else{
-            r=mid-1;
-        }
-    }
-    return l;
-}
 int main(){
     ios::sync_with_stdio(0);
     cin.tie();
@@ -55,16 +41,11 @@ int main(){
     }
     st.Init();
     for (int i=1; i<=m; i++){
-        int l, r, ans=0;
+        int l, r;
         cin >> l >> r;
-        int mid=Find(++l, ++r);
-        if (mid>l){
-            ans=mid-l;
-        }
-        if(mid<=r){
-            ans=max(ans, st.Query(mid, r));
-        }
-        printf("%d\n", ans);
+        l++, r++;
+        int mid=lower_bound(pre+l+1, pre+r+1, l)-pre-1;
+        printf("%d\n", max(mid-l+1, st.Query(mid+1, r)));
     }
 
     return 0;

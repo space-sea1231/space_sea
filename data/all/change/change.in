@@ -1,20 +1,54 @@
-struct Sparse_Table{
-    int dp[N][Z], lg[N];
-    Sparse_Table(){
-        lg[0]=-1;
-        for (int i=1; i<N; i++){
-            lg[i]=lg[i>>1]+1;
+struct Segment_Tree{
+    struct Node{
+        int sum, vis;
+    }e[N<<2];
+    void Build(int x, int l, int r){
+        if (l==r){
+            e[x].sum=a[l];
+            return ;
         }
+        int mid=(l+r)>>1;
+        Build(x<<1, l, mid);
+        Build(x<<1|1, mid+1, r);
+        e[x].sum=e[x<<1].sum+e[x<<1|1].sum;
     }
-    void init(){
-        for (int j=1; j<=lg[n]; j++){
-            for (int i=1; i+(1<<j)-1<=n; i++){
-                dp[i][j]=max(dp[i][j-1], dp[i+(1<<(j-1))][j-1]);
-            }
+    void Down(int x, int l, int r){
+        int mid=(l+r)>>1;
+        e[x<<1].vis+=e[x].vis;
+        e[x<<1|1].vis+=e[x].vis;
+        e[x<<1].sum+=(mid-l+1)*e[x].vis;
+        e[x<<1|1].sum+=(r-mid)*e[x].vis;
+        e[x].vis=0;
+    }
+    void Add(int x, int l, int r, int L, int R, int w){
+        if (L<=l&&r<=R){
+            e[x].vis+=w;
+            e[x].sum+=(r-l+1)*w;
+            return ;
         }
+        
+        Down(x, l, r);
+        int mid=(l+r)>>1;
+        if (L<=mid){
+            Add(x<<1, l, mid, L, R, w);
+        }
+        if (mid+1<=R){
+            Add(x<<1|1, mid+1, r, L, R, w);
+        }
+        e[x].sum=e[x<<1].sum+e[x<<1|1].sum;
     }
-    int query(int l, int r){
-        int len=lg[r-l+1];
-        return max(dp[l][len], dp[r-(1<<len)+1][len]);
+    int Query(int x, int l, int r, int L, int R){
+        if (L<=l&&r<=R){
+            return e[x].sum;
+        }
+        Down(x, l, r);
+        int mid=(l+r)>>1, ans=0;
+        if (L<=mid){
+            ans+=Query(x<<1, l, mid, L, R);
+        }
+        if (mid+1<=R){
+            ans+=Query(x<<1|1, mid+1, r, L, R);
+        }
+        return ans;
     }
 };

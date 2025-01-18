@@ -83,11 +83,11 @@ signed main(){
         if (x>y){
             swap(x, y);
         }
+        if (opt==0){
+            tree.Change(1, 1, n, x, y);
+        }
         if (opt==1){
             printf("%lld\n", tree.Query(1, 1, n, x, y));
-        }
-        if (opt==2){
-            tree.Change(1, 1, n, x, y);
         }
     }
 

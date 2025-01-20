@@ -21,7 +21,7 @@ struct Union_Find{
     void Merge(int x, int y){
         x=Find(x), y=Find(y);
         fa[x]=y;
-        dis[x]=siz[y];+
+        dis[x]=siz[y];
         siz[y]+=siz[x];
     }
     int Dis(int x, int y){

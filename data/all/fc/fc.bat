@@ -1,1 +1,0 @@
-fc std.txt baoli.txt

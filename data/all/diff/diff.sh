@@ -1,0 +1,1 @@
+diff -Bb std.txt baoli.txt

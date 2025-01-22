@@ -1,110 +1,101 @@
-#include <bits/stdc++.h>
+#pragma GCC optimize(2)
+#pragma GCC optimize(3)
+#pragma GCC optimize("-O2")
+#pragma GCC optimize("-O3")
+#pragma GCC optimize("inline")
+#include<iostream>
+#include<cstdio>
+#include<algorithm>
+#include<cmath>
+#define ll long long
+#define N 100005
 using namespace std;
-const int N=100010;
-const int M=1e7+10;
-const int INF=0x7fffffff;
-int to[N], nxt[N], edge[N];
-int n, m, cnt, head[N], ask[N], ans[N];
-int root, num, siz[N], mxsiz[N], vis[N], tot[M];
-int dis[N], sum[N], top, que[N];
-int l, r;
-void Add(int u, int v, int w){
-	to[++cnt]=v;
-	edge[cnt]=w;
-	nxt[cnt]=head[u];
-	head[u]=cnt;
+int n,m,opt,x,y,p,l[N],r[N],bel[N];
+int c,a[N],add[N],mul[N],s[N];
+void push_down(int x)
+{
+    for (int i=l[x];i<=r[x];i++)
+        a[i]=((ll)a[i]*mul[x]+add[x])%p;
+    add[x]=0,mul[x]=1;
 }
-void Dfs1(int u, int fa){
-	siz[u]=1, mxsiz[u]=0;
-	for (int i=head[u]; i; i=nxt[i]){
-		int v=to[i];
-		if (v==fa||vis[v]){
-			continue;
-		}
-		Dfs1(v, u);
-		siz[u]+=siz[v];
-		mxsiz[u]=max(mxsiz[u], siz[v]);
-	}
-	mxsiz[u]=max(mxsiz[u], num-siz[u]);
-	if (mxsiz[u]<mxsiz[root]){
-		root=u;
-	}
-}
-void Dfs3(int u, int fa){
-	sum[++top]=dis[u];
-	for (int i=head[u]; i; i=nxt[i]){
-		int v=to[i], w=edge[i];
-		if (v==fa||vis[v]){
-			continue;
-		}
-		dis[v]=dis[u]+w;
-		Dfs3(v, u);
+int main()
+{
+    scanf("%d%d%d",&n,&m,&p);
+    for (int i=1;i<=n;i++)
+        scanf("%d",&a[i]),a[i]%=p;
+    int lar=(int)sqrt(n);
+    for (int i=1;i<=n;i++)
+    {
+        bel[i]=(i+lar-1)/lar;
+        if (bel[i]!=bel[i-1])
+            l[bel[i]]=i;
+        r[bel[i]]=i;
+        s[bel[i]]=(s[bel[i]]+a[i])%p;
     }
-}
-void Dfs2(int u, int fa){
-	l=0, r=0;
-	tot[0]=1, vis[u]=1;
-	for (int i=head[u]; i; i=nxt[i]){
-        int v=to[i], w=edge[i];
-		if (v==fa||vis[v]){
-			continue;
-		}
-		dis[v]=w;
-		Dfs3(v, u);
-		for (int j=1; j<=top; j++){
-			for (int k=1; k<=m; k++){
-				if (ask[k]>=sum[j]){
-					ans[k]|=tot[ask[k]-sum[j]];
-				}
-			}
-		}
-		for (int j=1; j<=top; j++){
-			if (sum[j]<M){
-				que[++r]=sum[j];
-				tot[sum[j]]=1;
-			}
-		}
-		top=0;
-	}
-	while (l<=r){
-		tot[que[l++]]=0;
-	}
-	for (int i=head[u]; i; i=nxt[i]){
-        int v=to[i];
-		if (v==fa||vis[v]){
-			continue;
-		}
-		num=siz[v], mxsiz[0]=INF;
-		root=0;
-		Dfs1(v, u);
-		Dfs1(root, 0);
-		Dfs2(root, u);
-	}
-}
-int main(){
-	ios::sync_with_stdio(0);
-	cin.tie();
-    cin >> n >> m;
-	for (int i=1; i<n; i++){
-		int u, v, w;
-		cin >> u >> v >> w;
-		Add(u, v, w);
-		Add(v, u, w);
-	}
-	for (int i=1; i<=m; i++){
-		cin >> ask[i];
-	}
-	num=n, mxsiz[0]=INF;
-	Dfs1(1, 0);
-	Dfs1(root, 0);
-	Dfs2(root, 0);
-	for (int i=1; i<=m; i++){
-		if (ans[i]){
-			printf("AYE\n");
-		}else{
-			printf("NAY\n");
-		}
-	}
-
-	return 0;
+    for (int i=1;i<=bel[n];i++)
+        add[i]=0,mul[i]=1;
+    while (m --> 0)//
+    {
+        scanf("%d%d%d",&opt,&x,&y);
+        int rx=bel[x],ry=bel[y];
+        if (opt==1)
+        {
+            scanf("%d",&c);
+            if (rx==ry)
+            {
+                push_down(rx);
+                for (int i=x;i<=y;i++)
+                    s[rx]=((ll)s[rx]+(ll)a[i]*(c-1)%p),a[i]=(ll)a[i]*c%p;
+                continue;
+            }
+            push_down(rx),push_down(ry);
+            for (int i=x;i<=r[rx];i++)
+                s[rx]=((ll)s[rx]+(ll)a[i]*(c-1)%p),a[i]=(ll)a[i]*c%p;
+            for (int i=rx+1;i<=ry-1;i++)
+                add[i]=(ll)add[i]*c%p,mul[i]=(ll)mul[i]*c%p,s[i]=(ll)s[i]*c%p;
+            for (int i=l[ry];i<=y;i++)
+                s[ry]=((ll)s[ry]+(ll)a[i]*(c-1)%p),a[i]=(ll)a[i]*c%p;
+        } else
+        if (opt==2)
+        {
+            scanf("%d",&c);
+            if (rx==ry)
+            {
+                push_down(rx);
+                for (int i=x;i<=y;i++)
+                    a[i]=(a[i]+c)%p;
+                s[rx]=((ll)s[rx]+(ll)c*(y-x+1))%p;
+                continue;
+            }
+            push_down(rx),push_down(ry);
+            for (int i=x;i<=r[rx];i++)
+                a[i]=(a[i]+c)%p;
+            s[rx]=((ll)s[rx]+(ll)c*(r[rx]-x+1))%p;
+            for (int i=rx+1;i<=ry-1;i++)
+                add[i]=(add[i]+c)%p,s[i]=((ll)s[i]+(ll)c*(r[i]-l[i]+1))%p;
+            for (int i=l[ry];i<=y;i++)
+                a[i]=(a[i]+c)%p;
+            s[ry]=((ll)s[ry]+(ll)c*(y-l[ry]+1))%p;
+        } else
+        {
+            int ans=0;
+            if (rx==ry)
+            {
+                for (int i=x;i<=y;i++)
+                    ans=((ll)ans+(ll)mul[rx]*a[i]+add[rx])%p;
+                ans=(ans%p+p)%p;
+                printf("%d\n",ans);
+                continue;
+            }
+            for (int i=x;i<=r[rx];i++)
+                ans=((ll)ans+(ll)mul[rx]*a[i]+add[rx])%p;
+            for (int i=rx+1;i<=ry-1;i++)
+                ans=(ans+s[i])%p;
+            for (int i=l[ry];i<=y;i++)
+                ans=((ll)ans+(ll)mul[ry]*a[i]+add[ry])%p;
+            ans=(ans%p+p)%p;
+            printf("%d\n",ans);
+        }
+    }
+    return 0;
 }

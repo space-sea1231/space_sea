@@ -13,7 +13,6 @@ struct Blocking{
         for (int i=L[x]; i<=R[x]; i++){
             a[i]=(a[i]*vism[x]+visa[x])%q;
         }
-        // sum[x]=(sum[x]*vism[x]+visa[x]*(L[x]-R[x]+1));
         visa[x]=0, vism[x]=1;
     }
     void Add(int l, int r, int w){

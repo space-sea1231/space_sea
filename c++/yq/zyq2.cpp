@@ -1,33 +1,87 @@
-#include<cstdio>
-#include<iostream>
-#include<cstring>
-#include<string>
-#include<algorithm>
+#include<bits/stdc++.h>
+#define pb push_back
+#define se second
+#define fi first
+#define ll long long
 using namespace std;
-struct cxt{
-    int x,y1,y2,flag;
-}s[800001],t[800001];
-int comp(cxt a,cxt b){ return a.x==b.x?a.flag>b.flag:a.x<b.x;}
-int n,m,x,y,x1,y1,z,tot,a[800001],b[800001],xb=400001,ans;
-int main()
-{
-    scanf("%d",&n);
-    for (int i=1;i<=n;++i)
-    {
-        scanf("%d%d%d%d",&x,&y,&x1,&y1);           
-        s[++tot].x=x;s[tot].y1=y;s[tot].y2=y1;s[tot].flag=1;
-        t[tot].x=y;t[tot].y1=x;t[tot].y2=x1;t[tot].flag=1;
-        s[++tot].x=x1;s[tot].y1=y;s[tot].y2=y1;
-        t[tot].x=y1;t[tot].y1=x;t[tot].y2=x1;
-    }
-    sort(s+1,s+tot+1,comp);
-    sort(t+1,t+tot+1,comp);
-    for (int i=1;i<=tot;++i)
-    {
-        if (s[i].flag) for (int j=s[i].y1;j<s[i].y2;++j) {if (!a[j+xb]) ++ans;++a[j+xb];}
-          else for (int j=s[i].y1;j<s[i].y2;++j) {--a[j+xb];if (!a[j+xb]) ++ans;}
-        if (t[i].flag) for (int j=t[i].y1;j<t[i].y2;++j) {if (!b[j+xb]) ++ans;++b[j+xb];}
-          else for (int j=t[i].y1;j<t[i].y2;++j) {--b[j+xb];if (!b[j+xb]) ++ans;}
-    }
-    printf("%d",ans);
+const int N=2e5+9;
+ll n,q,fa[N][20],jp[N][23][2],num[N][2],dep[N];
+vector<pair<ll,pair<ll,ll> > >e[N];
+inline void dfs(int x,int fat){
+    fa[x][0]=fat;dep[x]=dep[fat]+1;
+    for(int i=1;i<=22;i++)
+        fa[x][i]=fa[fa[x][i-1]][i-1],
+        jp[x][i][0]=jp[x][i-1][0]+jp[fa[x][i-1]][i-1][0],
+        jp[x][i][1]=jp[x][i-1][1]+jp[fa[x][i-1]][i-1][1];
+    for(auto i:e[x])
+        if(i.fi!=fat)
+            jp[i.fi][0][0]=i.se.fi,
+            jp[i.fi][0][1]=i.se.se,
+            dfs(i.fi,x);
 }
+inline bool LCA(int x,int y){
+    int xx=x,yy=y;
+    if(dep[x]<dep[y]) swap(x,y);
+    ll sum1=0,sum2=0;
+    for(int i=22;i>=0;i--)
+        if(dep[fa[x][i]]>=dep[y])
+            sum1+=jp[x][i][0],
+            sum2+=jp[x][i][1],
+            x=fa[x][i];
+    if(x==y) return ((num[xx][0]>=sum1) && (num[xx][1]>=sum2));
+    for(int i=22;i>=0;i--)
+        if(fa[x][i]!=fa[y][i])
+            sum1+=jp[x][i][0]+jp[y][i][0],
+            sum2+=jp[x][i][1]+jp[y][i][1],
+            x=fa[x][i],y=fa[y][i];
+    sum1+=jp[x][0][0]+jp[y][0][0];
+    sum2+=jp[x][0][1]+jp[y][0][1];
+    return ((num[xx][0]>=sum1) && (num[xx][1]>=sum2));
+}
+int main(){
+   // freopen("input.in","r",stdin);
+    cin>>n>>q;
+    for(int i=1;i<=n;i++){
+        int x;cin>>x;
+        if(x==0){
+            num[i][0]=num[i][1]=INT_MAX;
+            continue;
+        }
+        while(x%2==0)x/=2,num[i][0]++;
+        while(x%5==0)x/=5,num[i][1]++;
+    }
+    for(int i=1;i<n;i++){
+        int x,y;double z;
+        cin>>x>>y>>z;
+        int tmp=0;
+        if(z==0){
+            e[x].pb({y,{INT_MIN,INT_MIN}});
+            continue;
+        }
+        while((double)((int)z)!=z)tmp++,z*=10;
+        int tmp1,tmp2,zz=z;tmp1=tmp2=tmp;
+        while(zz%2==0) tmp1--,zz/=2;
+        while(zz%5==0) tmp2--,zz/=5;
+        e[x].pb({y,{tmp1,tmp2}});
+    }
+    dfs(1,1);
+    while(q--){
+        int x,y;
+        cin>>x>>y;
+        if(LCA(x,y)) cout<<"Yes\n";
+        else cout<<"No\n";
+    }
+    return 0;
+}
+/*
+5 3
+1 2 3 4 5
+1 2 0.1
+2 3 0.20
+3 4 0.5
+2 5 0.99
+1 5
+1 4
+4 3
+
+*/

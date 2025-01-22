@@ -56,6 +56,7 @@ int main(){
         int tmp=0;
         if(z==0){
             e[x].pb({y,{INT_MIN,INT_MIN}});
+            e[y].pb({x,{INT_MIN,INT_MIN}});
             continue;
         }
         while((double)((int)z)!=z)tmp++,z*=10;
@@ -63,6 +64,7 @@ int main(){
         while(zz%2==0) tmp1--,zz/=2;
         while(zz%5==0) tmp2--,zz/=5;
         e[x].pb({y,{tmp1,tmp2}});
+        e[y].pb({x,{tmp1,tmp2}});
     }
     dfs(1,1);
     while(q--){

@@ -5,11 +5,11 @@
 #define ll long long
 using namespace std;
 const int N=2e5+9;
-ll n,q,fa[N][20],jp[N][23][2],num[N][2],dep[N];
+ll n,q,fa[N][26],jp[N][26][2],num[N][2],dep[N];
 vector<pair<ll,pair<ll,ll> > >e[N];
 inline void dfs(int x,int fat){
     fa[x][0]=fat;dep[x]=dep[fat]+1;
-    for(int i=1;i<=22;i++)
+    for(int i=1;i<=25;i++)
         fa[x][i]=fa[fa[x][i-1]][i-1],
         jp[x][i][0]=jp[x][i-1][0]+jp[fa[x][i-1]][i-1][0],
         jp[x][i][1]=jp[x][i-1][1]+jp[fa[x][i-1]][i-1][1];
@@ -23,7 +23,7 @@ inline bool LCA(int x,int y){
     int xx=x,yy=y;
     if(dep[x]<dep[y]) swap(x,y);
     ll sum1=0,sum2=0;
-    for(int i=22;i>=0;i--)
+    for(int i=25;i>=0;i--)
         if(dep[fa[x][i]]>=dep[y])
             sum1+=jp[x][i][0],
             sum2+=jp[x][i][1],
@@ -53,14 +53,14 @@ int main(){
     for(int i=1;i<n;i++){
         int x,y;double z;
         cin>>x>>y>>z;
-        int tmp=0;
         if(z==0){
             e[x].pb({y,{INT_MIN,INT_MIN}});
             e[y].pb({x,{INT_MIN,INT_MIN}});
             continue;
         }
-        while((double)((int)z)!=z)tmp++,z*=10;
-        int tmp1,tmp2,zz=z;tmp1=tmp2=tmp;
+        ll tmp=0;
+        while((double)((ll)z)!=z)tmp++,z*=10;
+        ll tmp1,tmp2,zz=z;tmp1=tmp2=tmp;
         while(zz%2==0) tmp1--,zz/=2;
         while(zz%5==0) tmp2--,zz/=5;
         e[x].pb({y,{tmp1,tmp2}});

@@ -1,101 +1,183 @@
-#pragma GCC optimize(2)
-#pragma GCC optimize(3)
-#pragma GCC optimize("-O2")
-#pragma GCC optimize("-O3")
-#pragma GCC optimize("inline")
-#include<iostream>
-#include<cstdio>
-#include<algorithm>
-#include<cmath>
-#define ll long long
-#define N 100005
-using namespace std;
-int n,m,opt,x,y,p,l[N],r[N],bel[N];
-int c,a[N],add[N],mul[N],s[N];
-void push_down(int x)
-{
-    for (int i=l[x];i<=r[x];i++)
-        a[i]=((ll)a[i]*mul[x]+add[x])%p;
-    add[x]=0,mul[x]=1;
-}
-int main()
-{
-    scanf("%d%d%d",&n,&m,&p);
-    for (int i=1;i<=n;i++)
-        scanf("%d",&a[i]),a[i]%=p;
-    int lar=(int)sqrt(n);
-    for (int i=1;i<=n;i++)
-    {
-        bel[i]=(i+lar-1)/lar;
-        if (bel[i]!=bel[i-1])
-            l[bel[i]]=i;
-        r[bel[i]]=i;
-        s[bel[i]]=(s[bel[i]]+a[i])%p;
-    }
-    for (int i=1;i<=bel[n];i++)
-        add[i]=0,mul[i]=1;
-    while (m --> 0)//
-    {
-        scanf("%d%d%d",&opt,&x,&y);
-        int rx=bel[x],ry=bel[y];
-        if (opt==1)
-        {
-            scanf("%d",&c);
-            if (rx==ry)
-            {
-                push_down(rx);
-                for (int i=x;i<=y;i++)
-                    s[rx]=((ll)s[rx]+(ll)a[i]*(c-1)%p),a[i]=(ll)a[i]*c%p;
-                continue;
-            }
-            push_down(rx),push_down(ry);
-            for (int i=x;i<=r[rx];i++)
-                s[rx]=((ll)s[rx]+(ll)a[i]*(c-1)%p),a[i]=(ll)a[i]*c%p;
-            for (int i=rx+1;i<=ry-1;i++)
-                add[i]=(ll)add[i]*c%p,mul[i]=(ll)mul[i]*c%p,s[i]=(ll)s[i]*c%p;
-            for (int i=l[ry];i<=y;i++)
-                s[ry]=((ll)s[ry]+(ll)a[i]*(c-1)%p),a[i]=(ll)a[i]*c%p;
-        } else
-        if (opt==2)
-        {
-            scanf("%d",&c);
-            if (rx==ry)
-            {
-                push_down(rx);
-                for (int i=x;i<=y;i++)
-                    a[i]=(a[i]+c)%p;
-                s[rx]=((ll)s[rx]+(ll)c*(y-x+1))%p;
-                continue;
-            }
-            push_down(rx),push_down(ry);
-            for (int i=x;i<=r[rx];i++)
-                a[i]=(a[i]+c)%p;
-            s[rx]=((ll)s[rx]+(ll)c*(r[rx]-x+1))%p;
-            for (int i=rx+1;i<=ry-1;i++)
-                add[i]=(add[i]+c)%p,s[i]=((ll)s[i]+(ll)c*(r[i]-l[i]+1))%p;
-            for (int i=l[ry];i<=y;i++)
-                a[i]=(a[i]+c)%p;
-            s[ry]=((ll)s[ry]+(ll)c*(y-l[ry]+1))%p;
-        } else
-        {
-            int ans=0;
-            if (rx==ry)
-            {
-                for (int i=x;i<=y;i++)
-                    ans=((ll)ans+(ll)mul[rx]*a[i]+add[rx])%p;
-                ans=(ans%p+p)%p;
-                printf("%d\n",ans);
-                continue;
-            }
-            for (int i=x;i<=r[rx];i++)
-                ans=((ll)ans+(ll)mul[rx]*a[i]+add[rx])%p;
-            for (int i=rx+1;i<=ry-1;i++)
-                ans=(ans+s[i])%p;
-            for (int i=l[ry];i<=y;i++)
-                ans=((ll)ans+(ll)mul[ry]*a[i]+add[ry])%p;
-            ans=(ans%p+p)%p;
-            printf("%d\n",ans);
-        }
-    }
-    return 0;
+#include <cstdio>
+constexpr int N = 100005;
+int rt, tot;
+int fa[N], ch[N][2], val[N], cnt[N], sz[N];
+struct Splay{
+	void maintain(int x) {
+		sz[x] = sz[ch[x][0]] + sz[ch[x][1]] + cnt[x]; 
+	}
+	bool get(int x) { 
+		return x == ch[fa[x]][1]; 
+	}
+	void clear(int x){
+		ch[x][0] = ch[x][1] = fa[x] = val[x] = sz[x] = cnt[x] = 0;
+	}
+	void rotate(int x){
+		int y = fa[x], z = fa[y], chk = get(x);
+		ch[y][chk] = ch[x][chk ^ 1];
+		if (ch[x][chk ^ 1]){
+			fa[ch[x][chk ^ 1]] = y;
+		}
+		ch[x][chk ^ 1] = y;
+		fa[y] = x;
+		fa[x] = z;
+		if (z){
+			ch[z][y == ch[z][1]] = x;
+		}
+		maintain(y);
+		maintain(x);
+	}
+	void splay(int x){
+		for (int f = fa[x]; f = fa[x], f; rotate(x)){
+			if (fa[f]){
+				rotate(get(x) == get(f) ? f : x);
+			}
+		}
+		rt = x;
+	}
+	void ins(int k){
+		if (!rt){
+			val[++tot] = k;
+			cnt[tot]++;
+			rt = tot;
+			maintain(rt);
+			return;
+		}
+		int cur = rt, f = 0;
+		while (1){
+			if (val[cur] == k){
+				cnt[cur]++;
+				maintain(cur);
+				maintain(f);
+				splay(cur);
+				break;
+			}
+			f = cur;
+			cur = ch[cur][val[cur] < k];
+			if (!cur){
+				val[++tot] = k;
+				cnt[tot]++;
+				fa[tot] = f;
+				ch[f][val[f] < k] = tot;
+				maintain(tot);
+				maintain(f);
+				splay(tot);
+				break;
+			}
+		}
+	}
+	int rk(int k){
+		int res = 0, cur = rt;
+		while (1){
+			if (k < val[cur]){
+				cur = ch[cur][0];
+			}else{
+				res += sz[ch[cur][0]];
+				if (!cur){
+					return res + 1;
+				}
+				if (k == val[cur]){
+					splay(cur);
+					return res + 1;
+				}
+				res += cnt[cur];
+				cur = ch[cur][1];
+			}
+		}
+	}
+	int kth(int k){
+		int cur = rt;
+		while (1){
+			if (ch[cur][0] && k <= sz[ch[cur][0]]){
+				cur = ch[cur][0];
+			}else{
+				k -= cnt[cur] + sz[ch[cur][0]];
+				if (k <= 0){
+					splay(cur);
+					return val[cur];
+				}
+				cur = ch[cur][1];
+			}
+		}
+	}
+	int pre(){
+		int cur = ch[rt][0];
+		if (!cur){
+			return cur;
+		}
+		while (ch[cur][1]){
+			cur = ch[cur][1];
+		}
+		splay(cur);
+		return cur;
+	}
+	int nxt(){
+		int cur = ch[rt][1];
+		if (!cur){
+			return cur;
+		}
+		while (ch[cur][0]){
+			cur = ch[cur][0];
+		}
+		splay(cur);
+		return cur;
+	}
+	void del(int k){
+		rk(k);
+		if (cnt[rt] > 1){
+			cnt[rt]--;
+			maintain(rt);
+			return;
+		}
+		if (!ch[rt][0] && !ch[rt][1]){
+			clear(rt);
+			rt = 0;
+			return;
+		}
+		if (!ch[rt][0]){
+			int cur = rt;
+			rt = ch[rt][1];
+			fa[rt] = 0;
+			clear(cur);
+			return;
+		}
+		if (!ch[rt][1]){
+			int cur = rt;
+			rt = ch[rt][0];
+			fa[rt] = 0;
+			clear(cur);
+			return;
+		}
+		int cur = rt;
+		int x = pre();
+		fa[ch[cur][1]] = x;
+		ch[x][1] = ch[cur][1];
+		clear(cur);
+		maintain(rt);
+	}
+} tree;
+int main(){
+	int n, opt, x;
+	for (scanf("%d", &n); n; --n){
+		scanf("%d%d", &opt, &x);
+		if (opt == 1){
+			tree.ins(x);
+		}
+		else if (opt == 2){
+			tree.del(x);
+		}
+		else if (opt == 3){
+			printf("%d\n", tree.rk(x));
+		}
+		else if (opt == 4){
+			printf("%d\n", tree.kth(x));
+		}
+		else if (opt == 5){
+			tree.ins(x), printf("%d\n", val[tree.pre()]), tree.del(x);
+		}else{
+			tree.ins(x), printf("%d\n", val[tree.nxt()]), tree.del(x);
+		}
+	}
+
+	return 0;
 }

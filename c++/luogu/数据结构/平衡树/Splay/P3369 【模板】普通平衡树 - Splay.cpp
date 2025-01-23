@@ -61,7 +61,7 @@ struct Splay{
                 e[cur].cnt++;
                 Update(cur);
                 Update(last);
-                 splay(cur);
+                splay(cur);
                 return ;
             }
             last=cur, cur=e[cur].son[x>e[cur].val];
@@ -137,7 +137,7 @@ struct Splay{
         if (e[root].cnt>1){
             e[root].cnt--;
             Update(root);
-            retuhrn ;
+            return ;
         }
         if (!e[root].lson&&!e[root].rson){
             Clear(root);
@@ -186,16 +186,16 @@ int main(){
             printf("%d\n", tree.Rank_Val(x));
         }
         if (opt==5){
-            tree.Val_Rank(x);
-            // tree.Insert(x);
+            // tree.Val_Rank(x);
+            tree.Insert(x);
             printf("%d\n", tree.e[tree.Pre()].val);
-            // tree.Delete(x);
+            tree.Delete(x);
         }
         if (opt==6){
-            tree.Val_Rank(x);
-            // tree.Insert(x);
+            // tree.Val_Rank(x);
+            tree.Insert(x);
             printf("%d\n", tree.e[tree.Nxt()].val);
-            // tree.Delete(x);
+            tree.Delete(x);
         }
     }
 

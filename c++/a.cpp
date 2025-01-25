@@ -1,317 +1,177 @@
-//avl 数组版，合并相同关键字
-#include<bits/stdc++.h>
+#include<iostream>
+#include<cstdio>
+#include<cstring>
 using namespace std;
-const int maxn=100010;
-struct avlnode{
-    int val;
-    int size;
-    int cnt;
-    int height;
-    int ls;
-    int rs;
-}avl[maxn];
-int root,tot;
-int height(int rt)
+const int MAXN=2*1e6+10;
+#define ls k<<1
+#define rs k<<1|1
+inline char nc()
 {
-    if (rt==0) return 0;
-    return avl[rt].height;
+    static char buf[MAXN],*p1=buf,*p2=buf;
+    return p1==p2&&(p2=(p1=buf)+fread(buf,1,MAXN,stdin),p1==p2)?EOF:*p1++;
 }
-void pushup(int rt)
+inline int read()
 {
-    if (rt==0) return ;
-    avl[rt].size=avl[avl[rt].ls].size+avl[avl[rt].rs].size+avl[rt].cnt;
+    char c=nc();int x=0,f=1;
+    while(c<'0'||c>'9'){if(c=='-')f=-1;c=nc();}
+    while(c>='0'&&c<='9'){x=x*10+c-'0',c=nc();}
+    return x*f;
 }
-void LeftRotation(int &rt)
+struct node
 {
-    int k;
-    k=avl[rt].rs;
-    avl[rt].rs=avl[k].ls;
-    avl[k].ls=rt;
-    avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
-    pushup(rt);
-    avl[k].height=max(height(avl[k].ls),height(avl[k].rs))+1;
-    pushup(k);
-    rt=k;
+    int u,v,nxt;
+}edge[MAXN];
+int head[MAXN];
+int num=1;
+struct Tree
+{
+    int l,r,w,siz,f;
+}T[MAXN];
+int N,M,root,MOD,cnt=0,a[MAXN],b[MAXN];
+inline void AddEdge(int x,int y)
+{
+    edge[num].u=x;
+    edge[num].v=y;
+    edge[num].nxt=head[x];
+    head[x]=num++;
 }
-void RightRotation(int &rt)
+int deep[MAXN],fa[MAXN],son[MAXN],tot[MAXN],top[MAXN],idx[MAXN];
+int dfs1(int now,int f,int dep)
 {
-    int k;
-    k=avl[rt].ls;
-    avl[rt].ls=avl[k].rs;
-    avl[k].rs=rt;
-    avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
-    pushup(rt);
-    avl[k].height=max(height(avl[k].ls),height(avl[k].rs))+1;
-    pushup(k);
-    rt=k;
-}
-int Newavl(int v)
-{
-    tot++;
-    avl[tot].val=v;
-    avl[tot].ls=avl[tot].rs=0;
-    avl[tot].cnt=avl[tot].size=1;
-    avl[tot].height=0;
-    return tot;
-}
-void preorder(int rt)
-{
-    if (rt!=0)
+    deep[now]=dep;
+    fa[now]=f;
+    tot[now]=1;
+    int maxson=-1;
+    for(int i=head[now];i!=-1;i=edge[i].nxt)
     {
-        cout<<rt<<",ls"<<avl[rt].ls<<",rs"<<avl[rt].rs<<",cnt"<<avl[rt].cnt<<",size"<<avl[rt].size<<",height"<<avl[rt].height<<",val"<<avl[rt].val<<endl;
-        preorder(avl[rt].ls);
-        preorder(avl[rt].rs);     
+        if(edge[i].v==f) continue;
+        tot[now]+=dfs1(edge[i].v,now,dep+1);
+        if(tot[edge[i].v]>maxson) maxson=tot[edge[i].v],son[now]=edge[i].v;
     }
+    return tot[now];
 }
-void inorder(int rt)
+void update(int k)
 {
-    if (rt!=0)
-    {
-        inorder(avl[rt].ls);
-        for (int i=1;i<=avl[rt].cnt;++i) cout<<avl[rt].val<<" ";
-        inorder(avl[rt].rs);
-    }
+    T[k].w=(T[ls].w+T[rs].w+MOD)%MOD;
 }
-void insert(int &rt,int v)
+void Build(int k,int ll,int rr)
 {
-    if (rt==0)
+    T[k].l=ll;T[k].r=rr;T[k].siz=rr-ll+1;
+    if(ll==rr)
     {
-        rt=Newavl(v);
-    }
-    else
-    {
-        if (avl[rt].val>v)
-        {
-            insert(avl[rt].ls,v);
-            if (avl[avl[rt].ls].height-avl[avl[rt].rs].height==2)
-            {
-                int& k=avl[rt].ls;
-                if (avl[avl[k].ls].height>avl[avl[k].rs].height)
-                {
-                    RightRotation(rt);
-                }
-                else
-                {
-                    LeftRotation(k);
-                    //LeftRotation(avl[rt].ls);//LeftRotation(k);???
-                    RightRotation(rt);
-                }
-            }
-        }
-        else if (v>avl[rt].val)
-        {
-            insert(avl[rt].rs,v);
-            if (avl[avl[rt].ls].height-avl[avl[rt].rs].height==-2)
-            {
-                int& k=avl[rt].rs;
-                if (avl[avl[k].ls].height<avl[avl[k].rs].height)
-                {
-                    LeftRotation(rt); 
-                }
-                else
-                {
-                    RightRotation(k);
-                    //RightRotation(avl[rt].rs);//RightRotation(k)  ??
-                    LeftRotation(rt);
-                }
-            }
-        }
-        else
-        {
-            avl[rt].cnt++;
-        }
-    }
-    pushup(rt);
-    avl[rt].height=max(avl[avl[rt].ls].height,avl[avl[rt].rs].height)+1;
-}
-int Maximum(int rt)
-{
-    if (rt==0)
-    {
-        return rt;
-    }
-    while(avl[rt].rs!=0)
-    {
-        rt=avl[rt].rs;
-    }
-    return rt;
-}
-int Minimum(int rt)
-{
-    if (rt==0)
-    {
-        return rt;
-    }
-    while(avl[rt].ls!=0)
-    {
-        rt=avl[rt].ls;
-    }
-    return rt;
-}
-void dele(int &rt,int v)
-{
-    if (rt==0)
-    {
+        T[k].w=a[ll];
         return ;
     }
-    if (v<avl[rt].val)
-    {
-        dele(avl[rt].ls,v);
-        avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
-        if (height(avl[rt].ls)-height(avl[rt].rs)==-2)
-        {
-            int &k=avl[rt].rs;
-            if (height(avl[k].ls)>height(avl[k].rs))
-            {
-                RightRotation(k);
-                LeftRotation(rt);
-            }
-            else
-            {
-                LeftRotation(rt);     
-            }
-        }
-    }
-    else if(v>avl[rt].val)
-    {
-        dele(avl[rt].rs,v);
-        avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
-        if (height(avl[rt].ls)-height(avl[rt].rs)==2)
-        {
-            int &k=avl[rt].ls;
-            if (height(avl[k].rs)>height(avl[k].ls))
-            {
-                LeftRotation(k);
-                RightRotation(rt);
-            }
-            else
-            {
-                RightRotation(rt);
-            }
-        }
-    }
-    else
-    {
-        if (avl[rt].ls&&avl[rt].rs)
-        {
-            if (height(avl[rt].ls)>height(avl[rt].rs))
-            {
-                int k=Maximum(avl[rt].ls);
-                avl[rt].val=avl[k].val;
-                avl[rt].cnt=avl[k].cnt;
-                dele(avl[rt].ls,avl[k].val);
-            }
-            else
-            {
-                int k=Minimum(avl[rt].rs);
-                avl[rt].val=avl[k].val;
-                avl[rt].cnt=avl[k].cnt;
-                dele(avl[rt].rs,avl[k].val);
-            }
-        }
-        else
-        {
-            rt=avl[rt].ls+avl[rt].rs;
-        }
-    }
-    pushup(rt);
+    int mid=(ll+rr)>>1;
+    Build(ls,ll,mid);
+    Build(rs,mid+1,rr);
+    update(k);
 }
-void del(int &rt,int v)
+void dfs2(int now,int topf)
 {
-    if (rt==0)
+    idx[now]=++cnt;
+    a[cnt]=b[now];
+    top[now]=topf;
+    if(!son[now]) return ;
+    dfs2(son[now],topf);
+    for(int i=head[now];i!=-1;i=edge[i].nxt)
+        if(!idx[edge[i].v])
+            dfs2(edge[i].v,edge[i].v);
+}
+void pushdown(int k)
+{
+    if(!T[k].f) return ;
+    T[ls].w=(T[ls].w+T[ls].siz*T[k].f)%MOD;
+    T[rs].w=(T[rs].w+T[rs].siz*T[k].f)%MOD;
+    T[ls].f=(T[ls].f+T[k].f)%MOD;
+    T[rs].f=(T[rs].f+T[k].f)%MOD;
+    T[k].f=0;
+}
+void IntervalAdd(int k,int ll,int rr,int val)
+{
+    if(ll<=T[k].l&&T[k].r<=rr)
     {
+        T[k].w+=T[k].siz*val;
+        T[k].f+=val;
         return ;
     }
-    else if(avl[rt].val==v)
+    pushdown(k);
+    int mid=(T[k].l+T[k].r)>>1;
+    if(ll<=mid)    IntervalAdd(ls,ll,rr,val);
+    if(rr>mid)    IntervalAdd(rs,ll,rr,val);
+    update(k);
+}
+void TreeAdd(int x,int y,int val)
+{
+    while(top[x]!=top[y])
     {
-        avl[rt].size--;
-        avl[rt].cnt--;
-        if (avl[rt].cnt==0)
-        {
-            dele(rt,v);
-        }
+        if(deep[top[x]]<deep[top[y]]) swap(x,y);
+        IntervalAdd(1,idx[ top[x] ],idx[x],val);
+        x=fa[ top[x] ];
     }
-    else if(v<avl[rt].val)
+    if(deep[x]>deep[y])    swap(x,y);
+    IntervalAdd(1,idx[x],idx[y],val);
+}
+int IntervalSum(int k,int ll,int rr)
+{
+    int ans=0;
+    if(ll<=T[k].l&&T[k].r<=rr)
+        return T[k].w;
+    pushdown(k);
+    int mid=(T[k].l+T[k].r)>>1;
+    if(ll<=mid) ans=(ans+IntervalSum(ls,ll,rr))%MOD;
+    if(rr>mid)  ans=(ans+IntervalSum(rs,ll,rr))%MOD;
+    return ans;
+}
+void TreeSum(int x,int y)
+{
+    int ans=0;
+    while(top[x]!=top[y])
     {
-        del(avl[rt].ls,v);
+        if(deep[top[x]]<deep[top[y]]) swap(x,y);
+        ans=(ans+IntervalSum(1,idx[ top[x] ],idx[x]))%MOD;
+        x=fa[ top[x] ];
     }
-    else
-    {
-        del(avl[rt].rs,v);
-    }
-    if (rt!=0)
-    avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
-    pushup(rt);
-}
-int kth(int rt,int k)
-{
-    if (avl[avl[rt].ls].size>=k) return kth(avl[rt].ls,k);
-    else if(avl[avl[rt].ls].size+avl[rt].cnt>=k) return avl[rt].val;
-    else return kth(avl[rt].rs,k-avl[avl[rt].ls].size-avl[rt].cnt);
-}
-int Rank(int rt,int val)
-{
-    if (rt==0) return 1;
-    if (avl[rt].val>=val) return Rank(avl[rt].ls,val);
-    else return avl[avl[rt].ls].size+avl[rt].cnt+Rank(avl[rt].rs,val);
-}
-int Pre(int rt,int val)
-{
-    return kth(rt,Rank(rt,val)-1);
-}
-int suc(int rt,int val)
-{
-    return kth(rt,Rank(rt,val+1));
+    if(deep[x]>deep[y]) swap(x,y);
+    ans=(ans+IntervalSum(1,idx[x],idx[y]))%MOD;
+    printf("%d\n",ans);
 }
 int main()
 {
-    int n;
-     
-    cin>>n;
-    for (int i=1;i<=n;++i)
+    memset(head,-1,sizeof(head));
+    N=read();M=read();root=read();MOD=read();
+    for(int i=1;i<=N;i++) b[i]=read();
+    for(int i=1;i<=N-1;i++)
     {
-        int opt,v;
-        cin>>opt;
-        if (opt==1)
-        {
-            cin>>v;
-            insert(root,v);
+        int x=read(),y=read();
+        AddEdge(x,y);AddEdge(y,x);
+    }
+    dfs1(root,0,1);
+    dfs2(root,root);
+    Build(1,1,N);
+    while(M--)
+    {
+        int opt=read(),x,y,z;
+        if(opt==1)
+        {    
+            x=read();y=read();z=read();z=z%MOD;
+            TreeAdd(x,y,z);
         }
         else if(opt==2)
         {
-            cin>>v;
-            del(root,v);
+            x=read();y=read();
+            TreeSum(x,y);
         }
         else if(opt==3)
         {
-            cin>>v;
-            cout<<Rank(root,v)<<endl;
+            x=read(),z=read();
+            IntervalAdd(1,idx[x],idx[x]+tot[x]-1,z%MOD);
         }
-        else if (opt==4)
+        else if(opt==4)
         {
-            cin>>v;
-            cout<<kth(root,v)<<endl;
+            x=read();
+            printf("%d\n",IntervalSum(1,idx[x],idx[x]+tot[x]-1));
         }
-        else if(opt==5)
-        {
-            cin>>v;
-            cout<<Pre(root,v)<<endl;
-        }
-        else if(opt==6)
-        {
-            cin>>v;
-            cout<<suc(root,v)<<endl;
-        }
-        else if(opt==7)
-        {
-            inorder(root);
-            cout<<endl;
-        }
-        else if(opt==8)
-        {
-            preorder(root);
-        }
-          
     }
-   
+    return 0;
 }

@@ -1,68 +1,362 @@
-#include <bits/stdc++.h>
+//avl 数组版，合并相同关键字
+#include<bits/stdc++.h>
 using namespace std;
-const int N=1e5+10;
-int n;
-struct Splay{
-    int root, num;
-    struct Node{
-        int fa, val;
-        int siz, cnt;
-        int lson, rson;
-    }e[N];
-    void Update(int x){
-        e[x].siz=e[e[x].lson].siz+e[e[x].r].siz+e[x].cnt;
+const int maxn=100010;
+struct avlnode{
+    int val;
+    int size;
+    int cnt;
+    int height;
+    int ls;
+    int rs;
+}avl[maxn];
+int root,tot;
+int height(int rt)
+{
+    if (rt==0) return 0;
+    return avl[rt].height;
+}
+void pushup(int rt)
+{
+    if (rt==0) return ;
+    avl[rt].size=avl[avl[rt].ls].size+avl[avl[rt].rs].size+avl[rt].cnt;
+}
+void LeftRotation(int &rt)
+{
+    int k;
+    k=avl[rt].rs;
+    avl[rt].rs=avl[k].ls;
+    avl[k].ls=rt;
+    avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+    pushup(rt);
+    avl[k].height=max(height(avl[k].ls),height(avl[k].rs))+1;
+    pushup(k);
+    rt=k;
+}
+void RightRotation(int &rt)
+{
+    int k;
+    k=avl[rt].ls;
+    avl[rt].ls=avl[k].rs;
+    avl[k].rs=rt;
+    avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+    pushup(rt);
+    avl[k].height=max(height(avl[k].ls),height(avl[k].rs))+1;
+    pushup(k);
+    rt=k;
+}
+int Newavl(int v)
+{
+    tot++;
+    avl[tot].val=v;
+    avl[tot].ls=avl[tot].rs=0;
+    avl[tot].cnt=avl[tot].size=1;
+    avl[tot].height=0;
+    return tot;
+}
+void preorder(int rt)
+{
+    if (rt!=0)
+    {
+        cout<<rt<<",ls"<<avl[rt].ls<<",rs"<<avl[rt].rs<<",cnt"<<avl[rt].cnt<<",size"<<avl[rt].size<<",height"<<avl[rt].height<<",val"<<avl[rt].val<<endl;
+        preorder(avl[rt].ls);
+        preorder(avl[rt].rs);      
     }
-    void New(int x){
-        e[++num].val=x;
-        e[num].cnt++;
+}
+void inorder(int rt)
+{
+    if (rt!=0)
+    {
+        inorder(avl[rt].ls);
+        for (int i=1;i<=avl[rt].cnt;++i) cout<<avl[rt].val<<" ";
+        inorder(avl[rt].rs);
     }
-    void splay(int x){
-        for (int i=e[x].fa, i=e[x].fa; )
+}
+void insert(int &rt,int v)
+{
+    if (rt==0)
+    {
+        rt=Newavl(v);
     }
-    void Insert(int x){
-        if (!root){
-            New(x);
-            Update(num);
-            root=num;
-            return ;
+    else
+    {
+        if (avl[rt].val>v)
+        {
+            insert(avl[rt].ls,v);
+            if (avl[avl[rt].ls].height-avl[avl[rt].rs].height==2)
+            {
+                int& k=avl[rt].ls;
+                if (avl[avl[k].ls].height>avl[avl[k].rs].height)
+                {
+                    RightRotation(rt); 
+                }
+                else
+                {
+                    LeftRotation(k);
+                    //LeftRotation(avl[rt].ls);//LeftRotation(k);???
+                    RightRotation(rt);
+                }
+            }
         }
-        int cur=root, last=0;
-        while (1){
-            if (e[cur].val==x){
-                e[cur].cnt++;
-                Update(cur);
-                Update(last);
-                splay(cur);
-                return ;
+        else if (v>avl[rt].val)
+        {
+            insert(avl[rt].rs,v);
+            if (avl[avl[rt].ls].height-avl[avl[rt].rs].height==-2)
+            {
+                int& k=avl[rt].rs;
+                if (avl[avl[k].ls].height<avl[avl[k].rs].height)
+                {
+                    LeftRotation(rt);  
+                }
+                else
+                {
+                    RightRotation(k);
+                    //RightRotation(avl[rt].rs);//RightRotation(k)  ??
+                    LeftRotation(rt);
+                }
+            }
+        }
+        else
+        {
+            avl[rt].cnt++;
+        }
+    }
+    pushup(rt);
+    avl[rt].height=max(avl[avl[rt].ls].height,avl[avl[rt].rs].height)+1;
+}
+int Maximum(int rt)
+{
+    if (rt==0)
+    {
+        return rt;
+    }
+    while(avl[rt].rs!=0)
+    {
+        rt=avl[rt].rs;
+    }
+    return rt;
+}
+int Minimum(int rt)
+{
+    if (rt==0)
+    {
+        return rt;
+    }
+    while(avl[rt].ls!=0)
+    {
+        rt=avl[rt].ls;
+    }
+    return rt;
+}
+void dele(int &rt,int v)
+{
+    if (rt==0)
+    {
+        return ;
+    }
+    if (v<avl[rt].val)
+    {
+        dele(avl[rt].ls,v);
+        avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+        if (height(avl[rt].ls)-height(avl[rt].rs)==-2)
+        {
+            int &k=avl[rt].rs;
+            if (height(avl[k].ls)>height(avl[k].rs))
+            {
+                RightRotation(k);
+                LeftRotation(rt);
+            }
+            else
+            {
+                LeftRotation(rt);      
             }
         }
     }
-}tree;
-int main(){
-    ios::sync_with_stdio(0);
-    cin.tie();
-    cin >> n;
-    for (int i=1; i<=n; i++){
-        int opt, x;
-        cin >> opt >> x;
-        if (opt==1){
-            tree.Insert(x);
-        }
-        if (opt==2){
-
-        }
-        if (opt==3){
-
-        }
-        if (opt==4){
-
-        }
-        if (opt==5){
-
-        }
-        if (opt==6){
-
+    else if(v>avl[rt].val)
+    {
+        dele(avl[rt].rs,v);
+        avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+        if (height(avl[rt].ls)-height(avl[rt].rs)==2)
+        {
+            int &k=avl[rt].ls;
+            if (height(avl[k].rs)>height(avl[k].ls))
+            {
+                LeftRotation(k);
+                RightRotation(rt);
+            }
+            else
+            {
+                RightRotation(rt);
+            }
         }
     }
-    return 0;
+    else
+    {
+        if (avl[rt].ls&&avl[rt].rs)
+        {
+            if (height(avl[rt].ls)>height(avl[rt].rs))
+            {
+                int k=Maximum(avl[rt].ls);
+                avl[rt].val=avl[k].val;
+                avl[rt].cnt=avl[k].cnt;
+                dele(avl[rt].ls,avl[k].val);
+            }
+            else
+            {
+                int k=Minimum(avl[rt].rs);
+                avl[rt].val=avl[k].val;
+                avl[rt].cnt=avl[k].cnt;
+                dele(avl[rt].rs,avl[k].val);
+            }
+        }
+        else
+        {
+            rt=avl[rt].ls+avl[rt].rs;
+        }
+    }
+    pushup(rt);
+}
+void del(int &rt,int v)
+{
+    if (rt==0)
+    {
+        return ;
+    }
+    else if(avl[rt].val==v)
+    {
+        avl[rt].size--;
+        avl[rt].cnt--;
+        if (avl[rt].cnt==0)
+        {
+            dele(rt,v);
+        }
+    }
+    else if(v<avl[rt].val)
+    {
+        del(avl[rt].ls,v);
+    }
+    else
+    {
+        del(avl[rt].rs,v);
+    }
+    if (rt!=0)
+    avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+    pushup(rt);
+}
+int kth(int rt,int k)
+{
+    while(rt!=0)
+    {
+        if (avl[avl[rt].ls].size<k&&k<=avl[avl[rt].ls].size+avl[rt].cnt)
+        {
+            return avl[rt].val;
+        }  
+        else if(avl[avl[rt].ls].size>=k)
+        {
+            rt=avl[rt].ls;
+        }
+        else
+        {
+            k=k-avl[avl[rt].ls].size-avl[rt].cnt;
+            rt=avl[rt].rs;
+        }
+    }
+}
+int Rank(int rt,int val)
+{
+    int ans=0;
+    while(rt!=0)
+    {
+        if (avl[rt].val==val) return ans+avl[avl[rt].ls].size+1;
+        if (avl[rt].val>val) rt=avl[rt].ls;
+        else
+        {
+            ans+=avl[avl[rt].ls].size+avl[rt].cnt;
+            rt=avl[rt].rs;
+        }
+    }
+    return ans+1;
+}
+int Pre(int rt,int val)
+{
+    int ans=0x80000000;
+    while(rt!=0)
+    {
+        if (val<=avl[rt].val) rt=avl[rt].ls;
+        else
+        {
+            ans=avl[rt].val;
+            rt=avl[rt].rs;
+        }
+    }
+    return ans;
+}
+int suc(int rt,int val)
+{
+    int ans=0x7fffffff;
+    while(rt!=0)
+    {
+        if (val>=avl[rt].val) rt=avl[rt].rs;
+        else
+        {
+            ans=avl[rt].val;
+            rt=avl[rt].ls;
+        }
+    }
+    return ans;
+}
+int main()
+{
+    int n;
+    cin>>n;
+    for (int i=1;i<=n;++i)
+    {
+        int opt,v;
+        cin>>opt;
+        if (opt==1)
+        {
+            cin>>v;
+            insert(root,v);
+        }
+        else if(opt==2)
+        {
+            cin>>v;
+            del(root,v);
+        }
+        else if(opt==3)
+        {
+            cin>>v;
+            cout<<Rank(root,v)<<endl;
+        }
+        else if (opt==4)
+        {
+            cin>>v;
+            cout<<kth(root,v)<<endl;
+        }
+        else if(opt==5)
+        {
+            cin>>v;
+            cout<<Pre(root,v)<<endl;
+        }
+        else if(opt==6)
+        {
+            cin>>v;
+            cout<<suc(root,v)<<endl;
+        }
+        else if(opt==7)
+        {
+            inorder(root);
+            cout<<endl;
+        }
+        else if(opt==8)
+        {
+            preorder(root);
+        }
+         
+    }
+    /*
+    inorder(root);
+    cout<<endl;
+    preorder(root);
+    */
 }

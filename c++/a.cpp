@@ -1,95 +1,317 @@
-#include <iostream>
-constexpr int MOD1 = 39989;
-constexpr int MOD2 = 1000000000;
-constexpr int MAXT = 40000;
+//avl 数组版，合并相同关键字
+#include<bits/stdc++.h>
 using namespace std;
-using pdi = pair<double, int>;
-
-constexpr double eps = 1e-9;
-
-int cmp(double x, double y) {
-  if (x - y > eps) return 1;
-  if (y - x > eps) return -1;
-  return 0;
+const int maxn=100010;
+struct avlnode{
+    int val;
+    int size;
+    int cnt;
+    int height;
+    int ls;
+    int rs;
+}avl[maxn];
+int root,tot;
+int height(int rt)
+{
+    if (rt==0) return 0;
+    return avl[rt].height;
 }
-
-struct line {
-  double k, b;
-} p[100005];
-
-int s[160005];
-int cnt;
-
-double calc(int id, int d) { return p[id].b + p[id].k * d; }
-
-void add(int x0, int y0, int x1, int y1) {
-  cnt++;
-  if (x0 == x1)  // 特判直线斜率不存在的情况
-    p[cnt].k = 0, p[cnt].b = max(y0, y1);
-  else
-    p[cnt].k = 1.0 * (y1 - y0) / (x1 - x0), p[cnt].b = y0 - p[cnt].k * x0;
+void pushup(int rt)
+{
+    if (rt==0) return ;
+    avl[rt].size=avl[avl[rt].ls].size+avl[avl[rt].rs].size+avl[rt].cnt;
 }
-
-void upd(int root, int cl, int cr, int u) {  // 对线段完全覆盖到的区间进行修改
-  int &v = s[root], mid = (cl + cr) >> 1;
-  int bmid = cmp(calc(u, mid), calc(v, mid));
-  if (bmid == 1 || (!bmid && u < v)) swap(u, v);
-  int bl = cmp(calc(u, cl), calc(v, cl)), br = cmp(calc(u, cr), calc(v, cr));
-  if (bl == 1 || (!bl && u < v)) upd(root << 1, cl, mid, u);
-  if (br == 1 || (!br && u < v)) upd(root << 1 | 1, mid + 1, cr, u);
+void LeftRotation(int &rt)
+{
+    int k;
+    k=avl[rt].rs;
+    avl[rt].rs=avl[k].ls;
+    avl[k].ls=rt;
+    avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+    pushup(rt);
+    avl[k].height=max(height(avl[k].ls),height(avl[k].rs))+1;
+    pushup(k);
+    rt=k;
 }
-
-void update(int root, int cl, int cr, int l, int r,
-            int u) {  // 定位插入线段完全覆盖到的区间
-  if (l <= cl && cr <= r) {
-    upd(root, cl, cr, u);
-    return;
-  }
-  int mid = (cl + cr) >> 1;
-  if (l <= mid) update(root << 1, cl, mid, l, r, u);
-  if (mid < r) update(root << 1 | 1, mid + 1, cr, l, r, u);
+void RightRotation(int &rt)
+{
+    int k;
+    k=avl[rt].ls;
+    avl[rt].ls=avl[k].rs;
+    avl[k].rs=rt;
+    avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+    pushup(rt);
+    avl[k].height=max(height(avl[k].ls),height(avl[k].rs))+1;
+    pushup(k);
+    rt=k;
 }
-
-pdi pmax(pdi x, pdi y) {  // pair max函数
-  if (cmp(x.first, y.first) == -1)
-    return y;
-  else if (cmp(x.first, y.first) == 1)
-    return x;
-  else
-    return x.second < y.second ? x : y;
+int Newavl(int v)
+{
+    tot++;
+    avl[tot].val=v;
+    avl[tot].ls=avl[tot].rs=0;
+    avl[tot].cnt=avl[tot].size=1;
+    avl[tot].height=0;
+    return tot;
 }
-
-pdi query(int root, int l, int r, int d) {  // 查询
-  if (r < d || d < l) return {0, 0};
-  int mid = (l + r) >> 1;
-  double res = calc(s[root], d);
-  if (l == r) return {res, s[root]};
-  return pmax({res, s[root]}, pmax(query(root << 1, l, mid, d),query(root << 1 | 1, mid + 1, r, d)));
-}
-
-int main() {
-  ios::sync_with_stdio(false);
-  int n, lastans = 0;
-  cin >> n;
-  while (n--) {
-    int op;
-    cin >> op;
-    if (op == 1) {
-      int x0, y0, x1, y1;
-      cin >> x0 >> y0 >> x1 >> y1;
-      x0 = (x0 + lastans - 1 + MOD1) % MOD1 + 1,
-      x1 = (x1 + lastans - 1 + MOD1) % MOD1 + 1;
-      y0 = (y0 + lastans - 1 + MOD2) % MOD2 + 1,
-      y1 = (y1 + lastans - 1 + MOD2) % MOD2 + 1;
-      if (x0 > x1) swap(x0, x1), swap(y0, y1);
-      add(x0, y0, x1, y1);
-      update(1, 1, MOD1, x0, x1, cnt);
-    } else {
-      int x;
-      cin >> x;
-      x = (x + lastans - 1 + MOD1) % MOD1 + 1;
-      cout << (lastans = query(1, 1, MOD1, x).second) << endl;
+void preorder(int rt)
+{
+    if (rt!=0)
+    {
+        cout<<rt<<",ls"<<avl[rt].ls<<",rs"<<avl[rt].rs<<",cnt"<<avl[rt].cnt<<",size"<<avl[rt].size<<",height"<<avl[rt].height<<",val"<<avl[rt].val<<endl;
+        preorder(avl[rt].ls);
+        preorder(avl[rt].rs);     
     }
-  }
-  return 0;
+}
+void inorder(int rt)
+{
+    if (rt!=0)
+    {
+        inorder(avl[rt].ls);
+        for (int i=1;i<=avl[rt].cnt;++i) cout<<avl[rt].val<<" ";
+        inorder(avl[rt].rs);
+    }
+}
+void insert(int &rt,int v)
+{
+    if (rt==0)
+    {
+        rt=Newavl(v);
+    }
+    else
+    {
+        if (avl[rt].val>v)
+        {
+            insert(avl[rt].ls,v);
+            if (avl[avl[rt].ls].height-avl[avl[rt].rs].height==2)
+            {
+                int& k=avl[rt].ls;
+                if (avl[avl[k].ls].height>avl[avl[k].rs].height)
+                {
+                    RightRotation(rt);
+                }
+                else
+                {
+                    LeftRotation(k);
+                    //LeftRotation(avl[rt].ls);//LeftRotation(k);???
+                    RightRotation(rt);
+                }
+            }
+        }
+        else if (v>avl[rt].val)
+        {
+            insert(avl[rt].rs,v);
+            if (avl[avl[rt].ls].height-avl[avl[rt].rs].height==-2)
+            {
+                int& k=avl[rt].rs;
+                if (avl[avl[k].ls].height<avl[avl[k].rs].height)
+                {
+                    LeftRotation(rt); 
+                }
+                else
+                {
+                    RightRotation(k);
+                    //RightRotation(avl[rt].rs);//RightRotation(k)  ??
+                    LeftRotation(rt);
+                }
+            }
+        }
+        else
+        {
+            avl[rt].cnt++;
+        }
+    }
+    pushup(rt);
+    avl[rt].height=max(avl[avl[rt].ls].height,avl[avl[rt].rs].height)+1;
+}
+int Maximum(int rt)
+{
+    if (rt==0)
+    {
+        return rt;
+    }
+    while(avl[rt].rs!=0)
+    {
+        rt=avl[rt].rs;
+    }
+    return rt;
+}
+int Minimum(int rt)
+{
+    if (rt==0)
+    {
+        return rt;
+    }
+    while(avl[rt].ls!=0)
+    {
+        rt=avl[rt].ls;
+    }
+    return rt;
+}
+void dele(int &rt,int v)
+{
+    if (rt==0)
+    {
+        return ;
+    }
+    if (v<avl[rt].val)
+    {
+        dele(avl[rt].ls,v);
+        avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+        if (height(avl[rt].ls)-height(avl[rt].rs)==-2)
+        {
+            int &k=avl[rt].rs;
+            if (height(avl[k].ls)>height(avl[k].rs))
+            {
+                RightRotation(k);
+                LeftRotation(rt);
+            }
+            else
+            {
+                LeftRotation(rt);     
+            }
+        }
+    }
+    else if(v>avl[rt].val)
+    {
+        dele(avl[rt].rs,v);
+        avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+        if (height(avl[rt].ls)-height(avl[rt].rs)==2)
+        {
+            int &k=avl[rt].ls;
+            if (height(avl[k].rs)>height(avl[k].ls))
+            {
+                LeftRotation(k);
+                RightRotation(rt);
+            }
+            else
+            {
+                RightRotation(rt);
+            }
+        }
+    }
+    else
+    {
+        if (avl[rt].ls&&avl[rt].rs)
+        {
+            if (height(avl[rt].ls)>height(avl[rt].rs))
+            {
+                int k=Maximum(avl[rt].ls);
+                avl[rt].val=avl[k].val;
+                avl[rt].cnt=avl[k].cnt;
+                dele(avl[rt].ls,avl[k].val);
+            }
+            else
+            {
+                int k=Minimum(avl[rt].rs);
+                avl[rt].val=avl[k].val;
+                avl[rt].cnt=avl[k].cnt;
+                dele(avl[rt].rs,avl[k].val);
+            }
+        }
+        else
+        {
+            rt=avl[rt].ls+avl[rt].rs;
+        }
+    }
+    pushup(rt);
+}
+void del(int &rt,int v)
+{
+    if (rt==0)
+    {
+        return ;
+    }
+    else if(avl[rt].val==v)
+    {
+        avl[rt].size--;
+        avl[rt].cnt--;
+        if (avl[rt].cnt==0)
+        {
+            dele(rt,v);
+        }
+    }
+    else if(v<avl[rt].val)
+    {
+        del(avl[rt].ls,v);
+    }
+    else
+    {
+        del(avl[rt].rs,v);
+    }
+    if (rt!=0)
+    avl[rt].height=max(height(avl[rt].ls),height(avl[rt].rs))+1;
+    pushup(rt);
+}
+int kth(int rt,int k)
+{
+    if (avl[avl[rt].ls].size>=k) return kth(avl[rt].ls,k);
+    else if(avl[avl[rt].ls].size+avl[rt].cnt>=k) return avl[rt].val;
+    else return kth(avl[rt].rs,k-avl[avl[rt].ls].size-avl[rt].cnt);
+}
+int Rank(int rt,int val)
+{
+    if (rt==0) return 1;
+    if (avl[rt].val>=val) return Rank(avl[rt].ls,val);
+    else return avl[avl[rt].ls].size+avl[rt].cnt+Rank(avl[rt].rs,val);
+}
+int Pre(int rt,int val)
+{
+    return kth(rt,Rank(rt,val)-1);
+}
+int suc(int rt,int val)
+{
+    return kth(rt,Rank(rt,val+1));
+}
+int main()
+{
+    int n;
+     
+    cin>>n;
+    for (int i=1;i<=n;++i)
+    {
+        int opt,v;
+        cin>>opt;
+        if (opt==1)
+        {
+            cin>>v;
+            insert(root,v);
+        }
+        else if(opt==2)
+        {
+            cin>>v;
+            del(root,v);
+        }
+        else if(opt==3)
+        {
+            cin>>v;
+            cout<<Rank(root,v)<<endl;
+        }
+        else if (opt==4)
+        {
+            cin>>v;
+            cout<<kth(root,v)<<endl;
+        }
+        else if(opt==5)
+        {
+            cin>>v;
+            cout<<Pre(root,v)<<endl;
+        }
+        else if(opt==6)
+        {
+            cin>>v;
+            cout<<suc(root,v)<<endl;
+        }
+        else if(opt==7)
+        {
+            inorder(root);
+            cout<<endl;
+        }
+        else if(opt==8)
+        {
+            preorder(root);
+        }
+          
+    }
+   
 }

@@ -1,6 +1,9 @@
 #include <bits/stdc++.h>
 using namespace std;
-int n;
+const int N=5e3+10;
+const int M=5e4+10;
+const int INF=0x7fffffff;
+int n, m, s, t, maxn, minn;
 struct Primal_Dual{
     int cnt=1;
     int head[N], dist[N], ans[N], pre[N];
@@ -60,9 +63,16 @@ struct Primal_Dual{
 int main(){
     ios::sync_with_stdio(0);
     cin.tie();
-    cin >> n;
-    for (int i=1; i<=n; i++){
-        
+    cin >> n >> m >> s >> t;
+    for (int i=1; i<=m; i++){
+        int u, v, f, d;
+        cin >> u >> v >> f >> d;
+        graph.Insert(u, v, f, d);
     }
+    while (graph.SPFA()){
+        graph.Update();
+    }
+    printf("%d %d\n", maxn, minn);
+
     return 0;
 }

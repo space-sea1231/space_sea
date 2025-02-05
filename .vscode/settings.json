@@ -74,7 +74,8 @@
         "valarray": "cpp",
         "any": "cpp",
         "bit": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "queue": "cpp"
     },
     "C_Cpp.dimInactiveRegions": false
 }

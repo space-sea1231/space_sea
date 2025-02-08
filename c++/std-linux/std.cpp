@@ -1,193 +1,134 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int N=4e5+10;
-int n, m, r, q;
-int a[N];
-struct Segment_Tree{
-    struct Node{
-        int sum, vis;
-    }e[N<<1];
-    void Build(int x, int l, int r, int rev[]){
-        if (l==r){
-            e[x].sum=a[rev[l]]%q;
-            return ;
-        }
-        int mid=(l+r)>>1;
-        Build(x<<1, l, mid, rev);
-        Build(x<<1|1, mid+1, r, rev);
-        e[x].sum=(e[x<<1].sum+e[x<<1|1].sum)%q;
-    }
-    void Down(int x, int l, int r){
-        int mid=(l+r)>>1;
-        e[x<<1].vis=(e[x<<1].vis+e[x].vis)%q;
-        e[x<<1|1].vis=(e[x<<1|1].vis+e[x].vis)%q;
-        e[x<<1].sum=(e[x<<1].sum+(mid-l+1)*e[x].vis)%q;
-        e[x<<1|1].sum=(e[x<<1|1].sum+(r-mid)*e[x].vis)%q;
-        e[x].vis=0;
-    }
-    void Add(int x, int l, int r, int L, int R, int w){
-        if (L<=l&&r<=R){
-            e[x].vis=(e[x].vis+w)%q;
-            e[x].sum=(e[x].sum+(r-l+1)*w)%q;
-            return ;
-        }
-        Down(x, l, r);
-        int mid=(l+r)>>1;
-        if (L<=mid){
-            Add(x<<1, l, mid, L, R, w);
-        }
-        if (mid+1<=R){
-            Add(x<<1|1, mid+1, r, L, R, w);
-        }
-        e[x].sum=(e[x<<1].sum+e[x<<1|1].sum)%q;
-    }
-    int Query(int x, int l, int r, int L, int R){
-        if (L<=l&&r<=R){
-            return e[x].sum;
-        }
-        Down(x, l, r);
-        int mid=(l+r)>>1, ans=0;
-        if (L<=mid){
-            ans=(ans+Query(x<<1, l, mid, L, R))%q;
-        }
-        if (mid+1<=R){
-            ans=(ans+Query(x<<1|1, mid+1, r, L, R))%q;
-        }
-        return ans;
-    }
-};
-struct Chain_Tree{
-    Segment_Tree Seg;
-    int cnt, num=1, root;
-    int father[N], son[N], top[N];
-    int size[N], dep[N];
-    int seg[N], rev[N];
-    int head[N], to[N<<1], nxt[N<<1];
-    void Add(int u, int v){
+const int N=1e4+10;
+const int M=1e5+10;
+const int INF=1061109567;
+int n, m, l, s, t, d;
+bool vis[N];
+int Change(int x, int y){
+    return (x-1)*m+y;
+}
+struct Successive_Shortest_Path{
+    int cnt=1;
+    int head[N], dist[N], ans[N], pre[N];
+    int to[M<<1], nxt[M<<1], flow[M<<1], dis[M<<1];
+    bool vis[N];
+    void Add(int u, int v, int f, int d){
         to[++cnt]=v;
+        flow[cnt]=f;
+        dis[cnt]=d;
         nxt[cnt]=head[u];
         head[u]=cnt;
     }
-    void Dfs1(int u, int fa){
-        father[u]=fa;
-        dep[u]=dep[fa]+1;
-        size[u]=1;
-        for (int i=head[u]; i; i=nxt[i]){
-            int v=to[i];
-            if (v==fa){
+    void Insert(int u, int v, int f, int d){
+        Add(u, v, f, d);
+        Add(v, u, 0, -d);
+    }
+    bool SPFA(){
+        memset(dist, 0x3f, sizeof(dist));
+        queue<int> q;
+        q.push(s);
+        dist[s]=0, ans[s]=INF;
+        while (!q.empty()){
+            int u=q.front();
+            q.pop();
+            vis[u]=0;
+            for (int i=head[u]; i; i=nxt[i]){
+                int v=to[i], w=dis[i], f=flow[i];
+                if (f>0&&dist[v]>dist[u]+w){
+                    dist[v]=dist[u]+w;
+                    ans[v]=min(ans[u], f);
+                    pre[v]=i;
+                    if (!vis[v]){
+                        vis[v]=1;
+                        q.push(v);
+                    }
+                }
+            }
+        }
+        if (dist[t]==INF){
+            return 0;
+        }
+        return 1;
+    }
+    void Update(){
+        int x=t;
+        while (x!=s){
+            int last=pre[x];
+            flow[last]-=ans[t];
+            flow[last^1]+=ans[t];
+            x=to[last^1];
+        }
+    }
+    void New(){
+        for (int u=d+1; u<=(d<<1); u++){
+            if (vis[u]){
                 continue;
             }
-            Dfs1(v, u);
-            size[u]+=size[v];
-            if (size[v]>size[son[u]]){
-                son[u]=v;
+            for (int i=head[u]; i; i=nxt[i]){
+                int v=to[i], w=flow[i];
+                if (v+d!=u&&w!=INF&&v!=t){
+                    Insert(u+d, v+(d<<1), INF-w, 0);
+                }
             }
         }
     }
-    void Dfs2(int u, int fa){
-        if (son[u]){
-            int v=son[u];
-            top[v]=top[u];
-            seg[v]=++num;
-            rev[num]=v;
-            Dfs2(v, u);
-        }
+    void Out(int u, int id){
+        int realu=u-(d<<1);
         for (int i=head[u]; i; i=nxt[i]){
-            int v=to[i];
-            if (v==fa||v==son[u]){
+            int v=to[i], w=flow[i];
+            int realv=v-(d<<1);
+            if (!w){
                 continue;
             }
-            top[v]=v;
-            seg[v]=++num;
-            rev[num]=v;
-            Dfs2(v, u);
-        }
-    }
-    void Add_Line(int x, int y, int z){
-        int fx=top[x], fy=top[y];
-        while (fx!=fy){
-            if (dep[fx]<dep[fy]){
-                swap(fx, fy);
-                swap(x, y);
+            if (realu+1==realv){
+                printf("%d 1\n", id);
+            }else{
+                printf("%d 0\n", id);
             }
-            Seg.Add(1, 1, n, seg[fx], seg[x], z);
-            x=father[top[x]], fx=top[x];
+            flow[i]--;
+            Out(v, id);
+            return ;
         }
-        if (dep[x]>dep[y]){
-            swap(x, y);
-        }
-        Seg.Add(1, 1, n, seg[x], seg[y], z);
     }
-    void Add_Tree(int x, int z){
-        Seg.Add(1, 1, n, seg[x], seg[x]+size[x]-1, z);
-    }
-    int Query_Tree(int x){
-        return Seg.Query(1, 1, n, seg[x], seg[x]+size[x]-1);
-    }
-    int Query_Line(int x, int y){
-        int fx=top[x], fy=top[y], ans=0;
-        while (fx!=fy){
-            if (dep[fx]<dep[fy]){
-                swap(fx, fy);
-                swap(x, y);
-            }
-            ans=(ans+Seg.Query(1, 1, n, seg[fx], seg[x]))%q;
-            x=father[top[x]], fx=top[x];
-        }
-        if (dep[x]>dep[y]){
-            swap(x, y);
-        }
-        ans=(ans+Seg.Query(1, 1, n, seg[x], seg[y]))%q;
-        return ans;
-    }
-    void Init(){
-        root=r;
-        seg[root]=1;
-        top[root]=root;
-        rev[1]=root;
-        Dfs1(root, 0);
-        Dfs2(root, 0);
-        Seg.Build(1, 1, n, rev);
-    }
-}tree;
+}Graph;
 int main(){
     ios::sync_with_stdio(0);
     cin.tie();
-    cin >> n >> m >> r >> q;
+    cin >> l >> n >> m;
+    d=n*m, s=0, t=d*3+1;
+    Graph.Insert(s, Change(1, 1), l, 0);
+    Graph.Insert(Change(n, m)<<1, t, l, 0);
     for (int i=1; i<=n; i++){
-        cin >> a[i];
-    }
-    for (int i=1; i<n; i++){
-        int u, v;
-        cin >> u >> v;
-        tree.Add(u, v);
-        tree.Add(v, u);
-    }
-    tree.Init();
-    for (int i=1; i<=m; i++){
-        int opt;
-        cin >> opt;
-        if (opt==1){
-            int x, y, z;
-            cin >> x >> y >> z;
-            tree.Add_Line(x, y, z);
-        }
-        if (opt==2){
-            int x, y;
-            cin >> x >> y;
-            printf("%d\n", tree.Query_Line(x, y));
-        }
-        if (opt==3){
-            int x, z;
-            cin >> x >> z;
-            tree.Add_Tree(x, z);
-        }
-        if (opt==4){
-            int x;
-            cin >> x;
-            printf("%d\n", tree.Query_Tree(x));
+        for (int j=1; j<=m; j++){
+            int opt;
+            cin >> opt;
+            if (i==opt){
+                Graph.Insert(Change(i, j), Change(i, j)+d, 1, -1);
+            }
+            if (i!=1){
+                Graph.Insert(Change(i, j), Change(i, j)+d, INF, 0);
+            }else{
+                vis[Change(i, j)]=1;
+            }
         }
     }
-
+    for (int i=1; i<=n; i++){
+        for (int j=1; j<m; j++){
+            if (i+1<=n){
+                Graph.Insert(Change(i, j)+d, Change(i+1, j), INF, 0);
+            }
+            if (j+1<=m){
+                Graph.Insert(Change(i, j)+d, Change(i, j+1), INF, 0);
+            }
+        }
+    }
+    while (Graph.SPFA()){
+        Graph.Update();
+    }
+    Graph.New();
+    for (int i=1; i<=l; i++){
+        Graph.Out(1+(d<<1), 1);
+    }
     return 0;
 }

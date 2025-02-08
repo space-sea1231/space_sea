@@ -53,6 +53,8 @@ struct Least_Common_Ancestors{
                 x=father[x][i], y=father[y][i];
             }
         }
+        ans=min(ans, dp[x][0]);
+        ans=min(ans, dp[y][0]);
         return ans;
     }
     Least_Common_Ancestors(){
@@ -113,7 +115,7 @@ int main(){
     Kru.kruskal();
     for (int i=1; i<=n; i++){
         int fi=Uf.Find(i);
-        if (fi){
+        if (!vis[fi]){
             Lca.Dfs(i, 0);
             vis[fi]=1;
         }

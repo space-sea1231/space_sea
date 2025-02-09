@@ -130,5 +130,6 @@ int main(){
     for (int i=1; i<=l; i++){
         Graph.Out(1+(d<<1), 1);
     }
+
     return 0;
 }

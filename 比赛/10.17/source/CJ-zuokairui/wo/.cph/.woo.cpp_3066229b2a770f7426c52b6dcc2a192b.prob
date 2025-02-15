@@ -1,1 +1,0 @@
-{"name":"Local: woo","url":"/home/lovelyrex/桌面/CJ-zuokairui/wo/woo.cpp","tests":[{"id":1729135875844,"input":"1 \n7 \n0 6 0 2 8 5 0 1 11 0 4 0 13 9 ","output":"24"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/lovelyrex/桌面/CJ-zuokairui/wo/woo.cpp","group":"local","local":true}

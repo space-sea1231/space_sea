@@ -22,6 +22,8 @@
 `git config --global user.name "space_sea"`  
 **我的远程仓库ssh**  
 `git@github.com:space-sea1231/space_sea.git`  
+**安装lfs**  
+`sudo apt-get install git-lfs`  
 **lfs建立跟踪**  
 `git lfs track "*.文件后缀"`  
 >在此之后要重新`git add .`  

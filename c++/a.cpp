@@ -1,118 +1,147 @@
-#include <cstring>
-#include <iostream>
-#include <queue>
-#define INF 1e9
+#include <bits/stdc++.h>
 using namespace std;
-struct edge
-{
-	int v, w, next;
-} e[10005];
-struct node
-{
-	int dis, id;
-	bool operator<(const node &a) const { return dis > a.dis; }
-	node(int d, int x) { dis = d, id = x; }
-};
-int head[5005], vis[5005], t[5005];
-int cnt, n, m;
-long long h[5005], dis[5005];
-void addedge(int u, int v, int w)
-{
-	e[++cnt].v = v;
-	e[cnt].w = w;
-	e[cnt].next = head[u];
-	head[u] = cnt;
+const int N=1e4+10;
+const int M=1e5+10;
+const int INF=0x3f3f3f3f;
+int S, T;
+int n, m, s, t;
+int ans;
+int Change(int x, int y){
+    return (x-1)*m+y;
 }
-bool spfa(int s)
-{
-	queue<int> q;
-	memset(h, 63, sizeof(h));
-	h[s] = 0, vis[s] = 1;
-	q.push(s);
-	while (!q.empty())
-	{
-		int u = q.front();
-		q.pop();
-		vis[u] = 0;
-		for (int i = head[u]; i; i = e[i].next)
-		{
-			int v = e[i].v;
-			if (h[v] > h[u] + e[i].w)
-			{
-				h[v] = h[u] + e[i].w;
-				if (!vis[v])
-				{
-					vis[v] = 1;
-					q.push(v);
-					t[v]++;
-					if (t[v] == n + 1)
-						return false;
-				}
-			}
-		}
-	}
-	return true;
-}
-void dijkstra(int s)
-{
-	priority_queue<node> q;
-	for (int i = 1; i <= n; i++)
-		dis[i] = INF;
-	memset(vis, 0, sizeof(vis));
-	dis[s] = 0;
-	q.push(node(0, s));
-	while (!q.empty())
-	{
-		int u = q.top().id;
-		q.pop();
-		if (vis[u])
-			continue;
-		vis[u] = 1;
-		for (int i = head[u]; i; i = e[i].next)
-		{
-			int v = e[i].v;
-			if (dis[v] > dis[u] + e[i].w)
-			{
-				dis[v] = dis[u] + e[i].w;
-				if (!vis[v])
-					q.push(node(dis[v], v));
-			}
-		}
-	}
-	return;
-}
-int main()
-{
-	ios::sync_with_stdio(false);
-	cin >> n >> m;
-	for (int i = 1; i <= m; i++)
-	{
-		int u, v, w;
-		cin >> u >> v >> w;
-		addedge(u, v, w);
-	}
-	for (int i = 1; i <= n; i++)
-		addedge(0, i, 0);
-	if (!spfa(0))
-	{
-		cout << -1 << endl;
-		return 0;
-	}
-	for (int u = 1; u <= n; u++)
-		for (int i = head[u]; i; i = e[i].next)
-			e[i].w += h[u] - h[e[i].v];
-	for (int i = 1; i <= n; i++)
-	{
-		dijkstra(i);
-		long long ans = 0;
-		for (int j = 1; j <= n; j++)
-		{
-			if (dis[j] == INF)
-				ans += j * INF;
-			else
-				ans += j * (dis[j] + h[j] - h[i]);
-		}
-		cout << ans << endl;
-	}
-	return 0;
+struct Primal_Dual{
+    int cnt=1;
+    int head[N], dis[N], dist[N], pre[N];
+    int to[M<<1], nxt[M<<1], flow[M<<1], cost[M<<1];
+    bool vis[N];
+    struct Node{
+        int u, dis;
+        bool operator<(const Node &a)const{
+            return dis>a.dis;
+        }
+    };
+    void Add(int u, int v, int f, int c){
+        to[++cnt]=v;
+        flow[cnt]=f;
+        cost[cnt]=c;
+        nxt[cnt]=head[u];
+        head[u]=cnt;
+    }
+    void Insert(int u, int v, int f, int c){
+        Add(u, v, f, c);
+        Add(v, u, 0, -c);
+    }
+    void SPFA(){
+        queue<int> q;
+        memset(dist, 0x3f, sizeof(dist));
+        q.push(s);
+        dist[s]=0;
+        while (!q.empty()){
+            int u=q.front();
+            q.pop(), vis[u]=0;
+            for (int i=head[u]; i; i=nxt[i]){
+                int v=to[i], f=flow[i], c=cost[i];
+                if (f&&dist[v]>dist[u]+c){
+                    dist[v]=dist[u]+c;
+                    if (!vis[v]){
+                        vis[v]=1;
+                        q.push(v);
+                    }
+                }
+            }
+        }
+    }
+    bool Dijkstra(){
+        priority_queue<Node> q;
+        memset(dis, 0x3f, sizeof(dis));
+        memset(vis, 0, sizeof(vis));
+        q.push({s, 0});
+        dis[s]=0;
+        while (!q.empty()){
+            int u=q.top().u;
+            q.pop();
+            if (vis[u]){
+                continue;
+            }
+            vis[u]=1;
+            for (int i=head[u]; i; i=nxt[i]){
+                int v=to[i], f=flow[i], c=cost[i]+dist[u]-dist[v];
+                if (f&&dis[v]>dis[u]+c){
+                    dis[v]=dis[u]+c;
+                    pre[v]=i;
+                    if (!vis[v]){
+                        q.push({v, dis[v]});
+                    }
+                }
+            }
+        }
+        if (dis[t]==INF){
+            return 0;
+        }
+        return 1;
+    }
+    int Update(){
+        for (int i=1; i<=n; i++){
+            dist[i]+=dis[i];
+        }
+        int x=t, minn=INF;
+        while (x!=s){
+            int last=pre[x];
+            minn=min(minn, flow[last]);
+            x=to[last^1];
+        }
+        x=t;
+        while (x!=s){
+            int last=pre[x];
+            flow[last]-=minn;
+            flow[last^1]+=minn;
+            x=to[last^1];
+        }
+        return minn*dist[t];
+    }
+}Graph;
+int main(){
+    ios::sync_with_stdio(0);
+    cin.tie();
+    cin >> S >> T >> n >> m;
+    n++, m++;
+    s=0, t=((n*m)<<2)+2;
+    for (int i=1; i<=n; i++){
+        for (int j=1; j<m; j++){
+            int x;
+            cin >> x;
+            Graph.Insert(Change(i, j), Change(i, j+1), 1, x);
+            Graph.Insert(Change(i, j), Change(i, j+1), INF, 0);
+        }
+    }
+    for (int j=1; j<=m; j++){
+        for (int i=1; i<n; i++){
+            int x;
+            cin >> x;
+            Graph.Insert(Change(i, j), Change(i+1, j), 1, x);
+            Graph.Insert(Change(i, j), Change(i+1, j), INF, 0);
+        }
+    }
+    for (int i=1; i<=S; i++){
+        int z, x, y;
+        cin >> z >> x >> y;
+        x++, y++;
+        Graph.Insert(s, Change(x, y), z, 0);
+    }
+    for (int i=1; i<=T; i++){
+        int z, x, y;
+        cin >> z >> x >> y;
+        x++, y++;
+        Graph.Insert(Change(x, y), t, z, 0);
+    }
+    // while (Graph.SPFA()){
+    //     ans+=Graph.Update();
+    // }
+    Graph.SPFA();
+    while (Graph.Dijkstra()){
+        ans+=Graph.Update();
+    }
+    printf("%d\n", ans);
+
+    return 0;
 }

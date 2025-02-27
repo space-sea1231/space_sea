@@ -1,147 +1,45 @@
-#include <bits/stdc++.h>
+#include<iostream>
 using namespace std;
-const int N=1e4+10;
-const int M=1e5+10;
-const int INF=0x3f3f3f3f;
-int S, T;
-int n, m, s, t;
-int ans;
-int Change(int x, int y){
-    return (x-1)*m+y;
+int n,m,ans,dp[(1<<10)][(1<<10)][3]/*滚动数组*/,a[105],Sum[(1<<10)];
+char x;
+int getsum(int S)	//当前状态 S 里面包含几个 1
+{
+	int tot=0;
+	while(S) {if(S&1) tot++; S>>=1;}
+	return tot;
 }
-struct Primal_Dual{
-    int cnt=1;
-    int head[N], dis[N], dist[N], pre[N];
-    int to[M<<1], nxt[M<<1], flow[M<<1], cost[M<<1];
-    bool vis[N];
-    struct Node{
-        int u, dis;
-        bool operator<(const Node &a)const{
-            return dis>a.dis;
-        }
-    };
-    void Add(int u, int v, int f, int c){
-        to[++cnt]=v;
-        flow[cnt]=f;
-        cost[cnt]=c;
-        nxt[cnt]=head[u];
-        head[u]=cnt;
-    }
-    void Insert(int u, int v, int f, int c){
-        Add(u, v, f, c);
-        Add(v, u, 0, -c);
-    }
-    void SPFA(){
-        queue<int> q;
-        memset(dist, 0x3f, sizeof(dist));
-        q.push(s);
-        dist[s]=0;
-        while (!q.empty()){
-            int u=q.front();
-            q.pop(), vis[u]=0;
-            for (int i=head[u]; i; i=nxt[i]){
-                int v=to[i], f=flow[i], c=cost[i];
-                if (f&&dist[v]>dist[u]+c){
-                    dist[v]=dist[u]+c;
-                    if (!vis[v]){
-                        vis[v]=1;
-                        q.push(v);
-                    }
-                }
-            }
-        }
-    }
-    bool Dijkstra(){
-        priority_queue<Node> q;
-        memset(dis, 0x3f, sizeof(dis));
-        memset(vis, 0, sizeof(vis));
-        q.push({s, 0});
-        dis[s]=0;
-        while (!q.empty()){
-            int u=q.top().u;
-            q.pop();
-            if (vis[u]){
-                continue;
-            }
-            vis[u]=1;
-            for (int i=head[u]; i; i=nxt[i]){
-                int v=to[i], f=flow[i], c=cost[i]+dist[u]-dist[v];
-                if (f&&dis[v]>dis[u]+c){
-                    dis[v]=dis[u]+c;
-                    pre[v]=i;
-                    if (!vis[v]){
-                        q.push({v, dis[v]});
-                    }
-                }
-            }
-        }
-        if (dis[t]==INF){
-            return 0;
-        }
-        return 1;
-    }
-    int Update(){
-        for (int i=1; i<=n; i++){
-            dist[i]+=dis[i];
-        }
-        int x=t, minn=INF;
-        while (x!=s){
-            int last=pre[x];
-            minn=min(minn, flow[last]);
-            x=to[last^1];
-        }
-        x=t;
-        while (x!=s){
-            int last=pre[x];
-            flow[last]-=minn;
-            flow[last^1]+=minn;
-            x=to[last^1];
-        }
-        return minn*dist[t];
-    }
-}Graph;
-int main(){
-    ios::sync_with_stdio(0);
-    cin.tie();
-    cin >> S >> T >> n >> m;
-    n++, m++;
-    s=0, t=((n*m)<<2)+2;
-    for (int i=1; i<=n; i++){
-        for (int j=1; j<m; j++){
-            int x;
-            cin >> x;
-            Graph.Insert(Change(i, j), Change(i, j+1), 1, x);
-            Graph.Insert(Change(i, j), Change(i, j+1), INF, 0);
-        }
-    }
-    for (int j=1; j<=m; j++){
-        for (int i=1; i<n; i++){
-            int x;
-            cin >> x;
-            Graph.Insert(Change(i, j), Change(i+1, j), 1, x);
-            Graph.Insert(Change(i, j), Change(i+1, j), INF, 0);
-        }
-    }
-    for (int i=1; i<=S; i++){
-        int z, x, y;
-        cin >> z >> x >> y;
-        x++, y++;
-        Graph.Insert(s, Change(x, y), z, 0);
-    }
-    for (int i=1; i<=T; i++){
-        int z, x, y;
-        cin >> z >> x >> y;
-        x++, y++;
-        Graph.Insert(Change(x, y), t, z, 0);
-    }
-    // while (Graph.SPFA()){
-    //     ans+=Graph.Update();
-    // }
-    Graph.SPFA();
-    while (Graph.Dijkstra()){
-        ans+=Graph.Update();
-    }
-    printf("%d\n", ans);
-
-    return 0;
+int main()
+{
+	cin>>n>>m;
+	for(int i=0;i<n;i++)
+		for(int j=0;j<m;j++)
+			cin>>x,a[i]<<=1,a[i]+=(x=='H'?1:0);	//转成二进制数
+	for(int i=0;i<(1<<m);i++)
+		Sum[i]=getsum(i);	//初始化 Sum 数组
+	for(int S=0;S<(1<<m);S++)
+		if(!(S&a[0] || (S&(S<<1)) || (S&(S<<2))))
+			dp[0][S][0]=Sum[S];	//初始化
+	for(int L=0;L<(1<<m);L++)
+		for(int S=0;S<(1<<m);S++)
+			if(!(L&S || L&a[0] || S&a[1] || (L&(L<<1)) || (L&(L<<2)) || (S&(S<<1)) || (S&(S<<2))))	//谜之一长串特判
+				dp[L][S][1]=Sum[S]+Sum[L];
+	for(int i=2;i<n;i++)
+		for(int L=0;L<(1<<m);L++)
+		{
+			if(L&a[i-1] || (L&(L<<1)) || (L&(L<<2))) continue;	//特判
+			for(int S=0;S<(1<<m);S++)
+			{
+				if(S&a[i] || L&S || (S&(S<<1)) || (S&(S<<2))) continue;
+				for(int FL=0;FL<(1<<m);FL++)
+				{
+					if(FL&L || FL&S || FL&a[i-2] || (FL&(FL<<1)) || (FL&(FL<<2)))	continue;
+					dp[L][S][i%3]=max(dp[L][S][i%3],dp[FL][L][(i-1)%3]+Sum[S]);		//滚动数组的实现方法
+				}
+			}
+		}
+	for(int L=0;L<(1<<m);L++)
+		for(int S=0;S<(1<<m);S++)
+			ans=max(ans,dp[L][S][(n-1)%3]);	//结束状态可以是最后一行的任何状态
+	cout<<ans;
+	return 0;
 }

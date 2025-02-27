@@ -1,38 +1,26 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int N=110;
-const int M=15;
-int n, m;
-int cnt;
-int sit[M<<1];
-int dp[N][M<<1];
-void Dfs(int x, int cur){
-    if (cur>=n){
-        sit[++cnt]=x;
-        return ;
-    }
-    Dfs(x, cur+1);
-    Dfs(x+(cur<<1), cur+3);
-}
-bool Check(int x, int y){
-    
-}
+const int N=3e5+10;
+int n;
+int ans;
+int a[N];
+priority_queue<int, vector<int> greter<int> > q;
 int main(){
     ios::sync_with_stdio(0);
     cin.tie();
-    cin >> n >> m;
-    Dfs(0, 0);
-    for (int i=1; i<=cnt; i++){
-        dp[1][i]=1;
+    cin >> n;
+    for (int i=1; i<=n; i++){
+        cin >> a[i];
     }
-    for (int i=2; i<=n; i++){
-        for (int u=1; u<=cnt; u++){
-            for (int v=1; v<=cnt; v++){
-                if (Check(sit[u], sit[v])){
-
-                }
-            }
+    for (int i=1; i<=n; i++){
+        q.push(a[i]);
+        if (q.top()<a[i]){
+            ans+=a[i]-q.top();
+            q.pop();
+            q.push(a[i]);
         }
     }
+    printf("%d\n", ans);
+
     return 0;
 }

@@ -1,1 +1,1 @@
-diff -Bb std.txt baoli.txt
+diff -Bb std.txt ans.txt

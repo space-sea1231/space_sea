@@ -4,7 +4,7 @@ const int N=3e5+10;
 int n;
 int ans;
 int a[N];
-priority_queue<int, vector<int> greter<int> > q;
+priority_queue<int, vector<int>, greater<int> > q;
 int main(){
     ios::sync_with_stdio(0);
     cin.tie();

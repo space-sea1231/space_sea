@@ -1,147 +1,72 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int N=1e4+10;
-const int M=1e5+10;
-const int INF=0x3f3f3f3f;
-int S, T;
-int n, m, s, t;
-int ans;
-int Change(int x, int y){
-    return (x-1)*m+y;
+typedef long long ll;
+typedef pair<ll,ll> PLL;
+const ll N=1e5+10;
+priority_queue<PLL,vector<PLL>,greater<PLL>> q;
+vector<PLL> e1[N],e2[N];
+ll t,n,m,K,p,d[N],dp[N][60];
+bool flg,vis1[N],vis2[N][60];
+void dij() {
+	memset(vis1,0,sizeof(vis1));
+	memset(d,0x3f,sizeof(d));
+	d[1]=0;
+	q.push({0,1});
+	while(!q.empty()) {
+		ll u=q.top().second;
+		q.pop();
+		if(vis1[u]) continue;
+		vis1[u]=1;
+		for(auto x:e1[u]) {
+			ll v=x.first,w=x.second;
+			if(d[v]>d[u]+w) d[v]=d[u]+w,q.push({d[v],v});
+		}
+	}
 }
-struct Primal_Dual{
-    int cnt=1;
-    int head[N], dis[N], dist[N], pre[N];
-    int to[M<<1], nxt[M<<1], flow[M<<1], cost[M<<1];
-    bool vis[N];
-    struct Node{
-        int u, dis;
-        bool operator<(const Node &a)const{
-            return dis>a.dis;
-        }
-    };
-    void Add(int u, int v, int f, int c){
-        to[++cnt]=v;
-        flow[cnt]=f;
-        cost[cnt]=c;
-        nxt[cnt]=head[u];
-        head[u]=cnt;
-    }
-    void Insert(int u, int v, int f, int c){
-        Add(u, v, f, c);
-        Add(v, u, 0, -c);
-    }
-    void SPFA(){
-        queue<int> q;
-        memset(dist, 0x3f, sizeof(dist));
-        q.push(s);
-        dist[s]=0;
-        while (!q.empty()){
-            int u=q.front();
-            q.pop(), vis[u]=0;
-            for (int i=head[u]; i; i=nxt[i]){
-                int v=to[i], f=flow[i], c=cost[i];
-                if (f&&dist[v]>dist[u]+c){
-                    dist[v]=dist[u]+c;
-                    if (!vis[v]){
-                        vis[v]=1;
-                        q.push(v);
-                    }
-                }
-            }
-        }
-    }
-    bool Dijkstra(){
-        priority_queue<Node> q;
-        memset(dis, 0x3f, sizeof(dis));
-        memset(vis, 0, sizeof(vis));
-        q.push({s, 0});
-        dis[s]=0;
-        while (!q.empty()){
-            int u=q.top().u;
-            q.pop();
-            if (vis[u]){
-                continue;
-            }
-            vis[u]=1;
-            for (int i=head[u]; i; i=nxt[i]){
-                int v=to[i], f=flow[i], c=cost[i]+dist[u]-dist[v];
-                if (f&&dis[v]>dis[u]+c){
-                    dis[v]=dis[u]+c;
-                    pre[v]=i;
-                    if (!vis[v]){
-                        q.push({v, dis[v]});
-                    }
-                }
-            }
-        }
-        if (dis[t]==INF){
-            return 0;
-        }
-        return 1;
-    }
-    int Update(){
-        for (int i=1; i<=n; i++){
-            dist[i]+=dis[i];
-        }
-        int x=t, minn=INF;
-        while (x!=s){
-            int last=pre[x];
-            minn=min(minn, flow[last]);
-            x=to[last^1];
-        }
-        x=t;
-        while (x!=s){
-            int last=pre[x];
-            flow[last]-=minn;
-            flow[last^1]+=minn;
-            x=to[last^1];
-        }
-        return minn*dist[t];
-    }
-}Graph;
-int main(){
-    ios::sync_with_stdio(0);
-    cin.tie();
-    cin >> S >> T >> n >> m;
-    n++, m++;
-    s=0, t=((n*m)<<2)+2;
-    for (int i=1; i<=n; i++){
-        for (int j=1; j<m; j++){
-            int x;
-            cin >> x;
-            Graph.Insert(Change(i, j), Change(i, j+1), 1, x);
-            Graph.Insert(Change(i, j), Change(i, j+1), INF, 0);
-        }
-    }
-    for (int j=1; j<=m; j++){
-        for (int i=1; i<n; i++){
-            int x;
-            cin >> x;
-            Graph.Insert(Change(i, j), Change(i+1, j), 1, x);
-            Graph.Insert(Change(i, j), Change(i+1, j), INF, 0);
-        }
-    }
-    for (int i=1; i<=S; i++){
-        int z, x, y;
-        cin >> z >> x >> y;
-        x++, y++;
-        Graph.Insert(s, Change(x, y), z, 0);
-    }
-    for (int i=1; i<=T; i++){
-        int z, x, y;
-        cin >> z >> x >> y;
-        x++, y++;
-        Graph.Insert(Change(x, y), t, z, 0);
-    }
-    // while (Graph.SPFA()){
-    //     ans+=Graph.Update();
-    // }
-    Graph.SPFA();
-    while (Graph.Dijkstra()){
-        ans+=Graph.Update();
-    }
-    printf("%d\n", ans);
-
-    return 0;
+ll dfs(ll u,ll x) {
+	if(vis2[u][x]) {
+		flg=1;
+		return 0;
+	}
+	if(~dp[u][x]) return dp[u][x];
+	vis2[u][x]=1;
+	dp[u][x]=0;
+	for(auto x:e2[u]) {
+		ll v=x.first,w=x.second,nk=d[u]-d[v]+x-w;
+		if(nk<0 || nk>K) continue;
+		dp[u][x]=(dp[u][x]+dfs(v,nk))%p;
+		if(flg) {
+			vis2[u][x]=0;
+			return 0;
+		}
+	}
+	if(u==1 && x==0) dp[u][x]=1;
+	vis2[u][x]=0;
+	return dp[u][x];
+}
+int main() {
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin>>t;
+	while(t--) {
+		cin>>n>>m>>K>>p;
+		for(ll i=1; i<N; i++) e1[i].clear(),e2[i].clear();
+		for(ll i=1,a,b,c; i<=m; i++) {
+			cin>>a>>b>>c;
+			e1[a].push_back({b,c});
+			e2[b].push_back({a,c});
+		}
+		dij();
+		flg=0;
+		memset(dp,-1,sizeof(dp));
+		ll ans=0;
+		for(ll i=0; i<=K; i++) {
+			ans=(ans+dfs(n,i))%p;
+			if(flg) break;
+		}
+		if(flg) cout<<"-1\n";
+		else cout<<ans<<"\n";
+	}
+	return 0;
 }

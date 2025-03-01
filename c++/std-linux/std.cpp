@@ -1,92 +1,77 @@
 #include <bits/stdc++.h>
+#define int long long
 using namespace std;
-const int N=1e5+10;
-const int M=2e5+10;
-const int K=1e2;
-int T, n, m, k, p, s, t;
-int cnt, ans;
-int head[N], to[M<<1], val[M<<1], nxt[M<<1];
-int dis[N], dp[N][K];
-bool flag;
-bool vis1[N], vis2[N][K];
-void Add(int u, int v, int w){
-    to[++cnt]=v;
-    val[cnt]=w;
-    nxt[cnt]=head[u];
-    head[u]=cnt;
+const int N=15;
+const int M=12;
+const int INF=0x7fffffff;
+int n, m, U;
+int ans=INF;
+int val[N][N], cost[1<<M][1<<M];
+int dp[N][1<<M];
+inline int subset(int x, int y){
+    return x&(y-1);
 }
-struct Node{
-    int u, w;
-    bool operator<(const Node &a)const{
-        return w>a.w;
-    }
-};
-void Dijkstra(int s){
-    priority_queue<Node> q;
-    memset(vis1, 0, sizeof(vis1));
-    memset(dis, 0x3f, sizeof(dis));
-    dis[s]=0, q.push({s, 0});
-    while (!q.empty()){
-        int u=q.top().u;
-        q.pop();
-        if (vis1[u]) continue;
-        vis1[u]=1;
-        for (int i=head[u]; i; i=nxt[i]){
-            int v=to[i], w=val[i];
-            if (dis[v]>dis[u]+w){
-                dis[v]=dis[u]+w;
-                q.push({v, dis[v]});
+void Init(){
+    for (int i=1; i<=U; i++){
+        for (int j=subset(i, i); j; j=subset(i, j)){
+            for (int k=0; k<n; k++){
+                if (i>>k&1&&!(j>>k&1)){
+                    int tmp=INF;
+                    for (int l=0; l<n; l++){
+                        if (j>>l&1){
+                            tmp=min(tmp, val[k][l]);
+                        }
+                    }
+                    if (tmp==INF){
+                        cost[j][i]=INF;
+                        break;
+                    }
+                    cost[j][i]+=tmp;
+                }
             }
         }
     }
 }
-int Dfs(int u, int x){
-    if (vis2[u][x]){
-        flag=1;
-        return 0;
-    }
-    if (~dp[u][x]) return dp[u][x];
-    vis2[u][x]=1, dp[u][x]=0;
-    for (int i=head[u]; i; i=nxt[i]){
-        int v=to[i], w=val[i], y=dis[u]-dis[v]+x-w;
-        if (y<0||y>k) continue;
-        dp[u][x]=(dp[u][x]+Dfs(v, y))%p;
-        if (flag){
-            vis2[u][x]=0;
-            return 0;
+void DP(int s){
+    for(int i=1; i<=n; i++){
+        for(int j=1; j<=U; j++){
+            dp[i][j]=INF;
         }
     }
-    if (u==1&&x==0) dp[u][x]=1;
-    vis2[u][x]=0;
-    return dp[u][x];
+    dp[1][1<<s]=0;
+    for (int i=2; i<=n; i++){
+        for (int j=1; j<=U; j++){
+            for (int k=subset(j, j); k; k=subset(j, k)){
+                if (dp[i-1][k]!=INF){
+                    dp[i][j]=min(dp[i][j], dp[i-1][k]+cost[k][j]*(i-1));
+                }
+            }
+        }
+        ans=min(ans, dp[i][U]);
+    }
 }
-inline void Init(){
-    flag=0, ans=0, cnt=0;
-    memset(head, 0, sizeof(head));
-    memset(dp, -1, sizeof(dp));
-}
-int main(){
+signed main(){
     ios::sync_with_stdio(0);
     cin.tie();
-    cin >> T;
-    while (T--){
-        Init();
-        cin >> n >> m >> k >> p;
-        s=1, t=n;
-        for (int i=1; i<=m; i++){
-            int u, v, w;
-            cin >> u >> v >> w;
-            Add(u, v, w);
-            Add(v, u, w);
-        }
-        Dijkstra(s);
-        for (int i=0; i<=k; i++){
-            ans=(ans+Dfs(t, i))%p;
-            if (flag) break;
-        }
-        if (flag) printf("-1\n");
-        else printf("%d\n", ans);
+    cin >> n >> m;
+    if (n==1){
+        printf("0\n");
+        return 0;
     }
+    U=(1<<n)-1;
+    memset(val, 0x3f, sizeof(val));
+    for (int i=1; i<=m; i++){
+        int u, v, w;
+        cin >> u >> v >> w;
+        u--, v--;
+        val[u][v]=min(val[u][v], w);
+        val[v][u]=val[u][v];
+    }
+    Init();
+    for (int i=0; i<n; i++){
+        DP(i);
+    }
+    printf("%lld\n", ans);
 
     return 0;
 }

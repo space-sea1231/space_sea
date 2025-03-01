@@ -23,26 +23,26 @@ void dij() {
 		}
 	}
 }
-ll dfs(ll u,ll x) {
-	if(vis2[u][x]) {
+ll dfs(ll u,ll k) {
+	if(vis2[u][k]) {
 		flg=1;
 		return 0;
 	}
-	if(~dp[u][x]) return dp[u][x];
-	vis2[u][x]=1;
-	dp[u][x]=0;
+	if(~dp[u][k]) return dp[u][k];
+	vis2[u][k]=1;
+	dp[u][k]=0;
 	for(auto x:e2[u]) {
-		ll v=x.first,w=x.second,nk=d[u]-d[v]+x-w;
+		ll v=x.first,w=x.second,nk=d[u]-d[v]+k-w;
 		if(nk<0 || nk>K) continue;
-		dp[u][x]=(dp[u][x]+dfs(v,nk))%p;
+		dp[u][k]=(dp[u][k]+dfs(v,nk))%p;
 		if(flg) {
-			vis2[u][x]=0;
+			vis2[u][k]=0;
 			return 0;
 		}
 	}
-	if(u==1 && x==0) dp[u][x]=1;
-	vis2[u][x]=0;
-	return dp[u][x];
+	if(u==1 && k==0) dp[u][k]=1;
+	vis2[u][k]=0;
+	return dp[u][k];
 }
 int main() {
 	ios::sync_with_stdio(0);

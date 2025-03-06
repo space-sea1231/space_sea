@@ -1,53 +1,72 @@
 #include <iostream>
 using namespace std;
-int n, m, ans, dp[(1 << 10)][(1 << 10)][3] /*滚动数组*/, a[105], Sum[(1 << 10)];
-char x;
-int getsum(int S) // 当前状态 S 里面包含几个 1
-{
-    int tot = 0;
-    while (S)
-    {
-        if (S & 1)
-            tot++;
-        S >>= 1;
-    }
-    return tot;
+typedef long long ll;
+typedef pair<ll,ll> PLL;
+const ll N=1e5+10;
+priority_queue<PLL,vector<PLL>,greater<PLL>> q;
+vector<PLL> e1[N],e2[N];
+ll t,n,m,K,p,d[N],dp[N][60];
+bool flg,vis1[N],vis2[N][60];
+void dij() {
+	memset(vis1,0,sizeof(vis1));
+	memset(d,0x3f,sizeof(d));
+	d[1]=0;
+	q.push({0,1});
+	while(!q.empty()) {
+		ll u=q.top().second;
+		q.pop();
+		if(vis1[u]) continue;
+		vis1[u]=1;
+		for(auto x:e1[u]) {
+			ll v=x.first,w=x.second;
+			if(d[v]>d[u]+w) d[v]=d[u]+w,q.push({d[v],v});
+		}
+	}
 }
-int main()
-{
-    cin >> n >> m;
-    for (int i = 0; i < n; i++)
-        for (int j = 0; j < m; j++)
-            cin >> x, a[i] <<= 1, a[i] += (x == 'H' ? 1 : 0); // 转成二进制数
-    for (int i = 0; i < (1 << m); i++)
-        Sum[i] = getsum(i); // 初始化 Sum 数组
-    for (int S = 0; S < (1 << m); S++)
-        if (!(S & a[0] || (S & (S << 1)) || (S & (S << 2))))
-            dp[0][S][0] = Sum[S]; // 初始化
-    for (int L = 0; L < (1 << m); L++)
-        for (int S = 0; S < (1 << m); S++)
-            if (!(L & S || L & a[0] || S & a[1] || (L & (L << 1)) || (L & (L << 2)) || (S & (S << 1)) || (S & (S << 2)))) // 谜之一长串特判
-                dp[L][S][1] = Sum[S] + Sum[L];
-    for (int i = 2; i < n; i++)
-        for (int L = 0; L < (1 << m); L++)
-        {
-            if (L & a[i - 1] || (L & (L << 1)) || (L & (L << 2)))
-                continue; // 特判
-            for (int S = 0; S < (1 << m); S++)
-            {
-                if (S & a[i] || L & S || (S & (S << 1)) || (S & (S << 2)))
-                    continue;
-                for (int FL = 0; FL < (1 << m); FL++)
-                {
-                    if (FL & L || FL & S || FL & a[i - 2] || (FL & (FL << 1)) || (FL & (FL << 2)))
-                        continue;
-                    dp[L][S][i % 3] = max(dp[L][S][i % 3], dp[FL][L][(i - 1) % 3] + Sum[S]); // 滚动数组的实现方法
-                }
-            }
-        }
-    for (int L = 0; L < (1 << m); L++)
-        for (int S = 0; S < (1 << m); S++)
-            ans = max(ans, dp[L][S][(n - 1) % 3]); // 结束状态可以是最后一行的任何状态
-    cout << ans;
-    return 0;
+ll dfs(ll u,ll k) {
+	if(vis2[u][k]) {
+		flg=1;
+		return 0;
+	}
+	if(~dp[u][k]) return dp[u][k];
+	vis2[u][k]=1;
+	dp[u][k]=0;
+	for(auto x:e2[u]) {
+		ll v=x.first,w=x.second,nk=d[u]-d[v]+k-w;
+		if(nk<0 || nk>K) continue;
+		dp[u][k]=(dp[u][k]+dfs(v,nk))%p;
+		if(flg) {
+			vis2[u][k]=0;
+			return 0;
+		}
+	}
+	if(u==1 && k==0) dp[u][k]=1;
+	vis2[u][k]=0;
+	return dp[u][k];
+}
+int main() {
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cout.tie(0);
+	cin>>t;
+	while(t--) {
+		cin>>n>>m>>K>>p;
+		for(ll i=1; i<N; i++) e1[i].clear(),e2[i].clear();
+		for(ll i=1,a,b,c; i<=m; i++) {
+			cin>>a>>b>>c;
+			e1[a].push_back({b,c});
+			e2[b].push_back({a,c});
+		}
+		dij();
+		flg=0;
+		memset(dp,-1,sizeof(dp));
+		ll ans=0;
+		for(ll i=0; i<=K; i++) {
+			ans=(ans+dfs(n,i))%p;
+			if(flg) break;
+		}
+		if(flg) cout<<"-1\n";
+		else cout<<ans<<"\n";
+	}
+	return 0;
 }

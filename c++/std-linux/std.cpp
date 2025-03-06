@@ -1,58 +1,77 @@
 #include <bits/stdc++.h>
+#define int long long
 using namespace std;
-const int N=13;
-const int Mod=1e8;
-int n, m;
-int cnt=1;
-int vis[N];
-int sit[1<<N];
-int dp[N][1<<N];
-inline int lowbit(int x){
-    return x&-x;
+const int N=15;
+const int M=12;
+const int INF=0x7fffffff;
+int n, m, U;
+int ans=INF;
+int val[N][N], cost[1<<M][1<<M];
+int dp[N][1<<M];
+inline int subset(int x, int y){
+    return x&(y-1);
 }
-int main(){
+void Init(){
+    for (int i=1; i<=U; i++){
+        for (int j=subset(i, i); j; j=subset(i, j)){
+            for (int k=0; k<n; k++){
+                if (i>>k&1&&!(j>>k&1)){
+                    int tmp=INF;
+                    for (int l=0; l<n; l++){
+                        if (j>>l&1){
+                            tmp=min(tmp, val[k][l]);
+                        }
+                    }
+                    if (tmp==INF){
+                        cost[j][i]=INF;
+                        break;
+                    }
+                    cost[j][i]+=tmp;
+                }
+            }
+        }
+    }
+}
+void DP(int s){
+    for(int i=1; i<=n; i++){
+        for(int j=1; j<=U; j++){
+            dp[i][j]=INF;
+        }
+    }
+    dp[1][1<<s]=0;
+    for (int i=2; i<=n; i++){
+        for (int j=1; j<=U; j++){
+            for (int k=subset(j, j); k; k=subset(j, k)){
+                if (dp[i-1][k]!=INF){
+                    dp[i][j]=min(dp[i][j], dp[i-1][k]+cost[k][j]*(i-1));
+                }
+            }
+        }
+        ans=min(ans, dp[i][U]);
+    }
+}
+signed main(){
     ios::sync_with_stdio(0);
     cin.tie();
     cin >> n >> m;
-    for (int i=1; i<=n; i++){
-        for (int j=1; j<=m; j++){
-            int x;
-            cin >> x;
-            vis[i]=(vis[i]<<1)+x;
-        }
+    if (n==1){
+        printf("0\n");
+        return 0;
     }
-    for (int i=1; i<(1<<m); i++){
-        if (i&(i<<1)||i&(i>>1)){
-            continue;
-        }
-        sit[++cnt]=i;
-        int tmp=i;
+    U=(1<<n)-1;
+    memset(val, 0x3f, sizeof(val));
+    for (int i=1; i<=m; i++){
+        int u, v, w;
+        cin >> u >> v >> w;
+        u--, v--;
+        val[u][v]=min(val[u][v], w);
+        val[v][u]=val[u][v];
     }
-    for (int j=1; j<=cnt; j++){
-        if ((sit[j]&vis[1])==sit[j]){
-            dp[1][j]=1;
-        }
+    Init();
+    for (int i=0; i<n; i++){
+        DP(i);
     }
-    for (int i=2; i<=n; i++){
-        for (int j=1; j<=cnt; j++){
-            if ((sit[j]&vis[i])!=sit[j]){
-                continue;
-            }
-            for (int k=1; k<=cnt; k++){
-                if ((sit[k]&vis[i-1])!=sit[k]){
-                    continue;
-                }
-                if ((sit[j]&sit[k])==0){
-                    dp[i][j]=(dp[i][j]+dp[i-1][k])%Mod;
-                }
-            }
-        }
-    }
-    int ans=0;
-    for (int i=1; i<=cnt; i++){
-        ans=(ans+dp[n][i])%Mod;
-    }
-    printf("%d\n", ans);
-    
+    printf("%lld\n", ans);
+
     return 0;
 }

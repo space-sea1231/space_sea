@@ -3,9 +3,6 @@ using namespace std;
 int main(){
     ios::sync_with_stdio(0);
     cin.tie();
-    int a=1;
-    if (~a) printf("1:%d\n", ~a);
-    else printf("0\n");
-
+    printf("%d %d\n", -27/-3, -27/-3/-3);
     return 0;
 }

@@ -1,37 +1,19 @@
-struct Dijkstra{
-    int cnt;
-    int head[N], to[M], val[M], nxt[M];
-    int dis[N];
-    bool vis[N];
-    void Add(int u, int v, int w){
-        to[++cnt]=v;
-        val[cnt]=w;
-        nxt[cnt]=head[u];
-        head[u]=cnt;
+struct Binary_Indexed_Tree{
+    const int M=6e5+10;
+    int num[M];
+    int lowbit(int x){
+        return x&-x;
     }
-    struct Node{
-        int u, w;
-        bool operator<(const Node &a)const{
-            return w>a.w;
+    void Add(int x, int w){
+        for (int i=x; i<=M; i+=lowbit(i)){
+            num[i]+=w;
         }
-    };
-    void dijkstra(int s){
-        priority_queue<Node> q;
-        memset(vis, 0, sizeof(vis));
-        memset(dis, 0x3f, sizeof(dis));
-        dis[s]=0, q.push({s, 0});
-        while (!q.empty()){
-            int u=q.front().u;
-            q.pop();
-            if (vis[u]) continue;
-            vis[u]=1;
-            for (int i=head[u]; i; i=nxt[i]){
-                int v=to[i], w=val[i];
-                if (dis[v]>dis[u]+w){
-                    dis[v]=dis[u]+w;
-                    q.push(v, dis[v]);
-                }
-            }
+    }
+    int Query(int x){
+        int ans=0;
+        for (int i=x; i>=1; i-=lowbit(i)){
+            ans+=num[i];
         }
+        return ans;
     }
 };

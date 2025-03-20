@@ -55,7 +55,7 @@ struct Chain_tree{
     Segment_Tree Seg;
     int cnt, num;
     int head[N], nxt[N<<1], to[N<<1];
-    int dep[N], size[N], son[N];
+    int dep[N], size[N], son[N], fa[N];
     int seg[N], rev[N], top[N], end[N];
     int dp[N][2];
     void Add(int u, int v){

@@ -3,11 +3,11 @@
 using namespace std;
 const int N = 3e5 + 10;
 const int INF = 1e15;
-int n, m, s, t, tot, top;
+int n, m, s;
 int cnt, num, ans=INF;
 int head[N], nxt[N << 1], to[N << 1], val[N << 1];
-int dis[N], dis1[N], pre[N], prv[N], sum[N], que[N];
-queue<pair<int, int> > q;
+int dis[N], father[N], sit[N], sat[N], sats[N];
+bool vis[N];
 void Add(int u, int v, int w) {
     to[++cnt] = v;
     val[cnt] = w;
@@ -15,13 +15,13 @@ void Add(int u, int v, int w) {
     head[u] = cnt;
 }
 void Dfs(int u, int fa) {
+    father[u]=fa;
     for (int i = head[u]; i; i = nxt[i]) {
         int v = to[i], w = val[i];
-        if (v == fa) {
+        if (v == fa || vis[v]) {
             continue;
         }
         dis[v] = dis[u] + w;
-        pre[v] = u, prv[v] = w;
         if (dis[s] < dis[v]) {
             s = v;
         }
@@ -29,25 +29,14 @@ void Dfs(int u, int fa) {
     }
 }
 void Bfs() {
-    memset(dis, 0x3f, sizeof(dis));
-    t=s;
-    while (pre[s]) {
-        q.push(make_pair(s, s));
-        dis[s] = 0;
-        sum[pre[s]] = sum[s] + prv[s];
-        s = pre[s];
+    for (int i = s; i; i = father[i]) {
+        sit[++num] = i;
+        sat[num] = dis[i];
     }
-    while (!q.empty()) {
-        int root = q.front().first, u = q.front().second;
-        q.pop();
-        for (int i = head[u]; i; i=nxt[i]) {
-            int v = to[i], w = val[i];
-            if (dis[v] >= INF) {
-                dis[v] = dis[u] + w;
-                dis1[root] = max(dis1[root], dis[v]);
-                q.push(make_pair(root, v));
-            }
-        }
+    reverse(sit + 1, sit + num + 1);
+    reverse(sat + 1, sat + num + 1);
+    for (int i = 1; i <= num; i++) {
+        sats[i] = sat[num] - sat[i];
     }
 }
 signed main() {
@@ -60,26 +49,25 @@ signed main() {
         Add(u, v, w), Add(v, u, w);
     }
     Dfs(1, 0);
-    dis[s] = 0, pre[s] = 0;
+    dis[s] = 0;
     Dfs(s, 0);
     Bfs();
-    for (int l = t, r = t; l && r != s; l = pre[l]) {
-        int last=r;
-        tot++;
-        while (sum[r] - sum[l] <= m && r) {
-            last = r, r = pre[r];
-            if (r && sum[r] - sum[l] <= m) {
-                while (dis1[r] >= que[top] && top >= tot) {
-                    top--;
-                }
-                que[++top]=dis1[r];
-            }
+    for (int i = 1; i <= num; i++) {
+        vis[sit[i]] = 1;
+    }
+    int maxn=0;
+    for (int i = 1; i <= num; i++) {
+        dis[sit[i]] = 0, s = 0;
+        Dfs(sit[i], 0);
+        maxn = max(maxn, dis[s]);
+    }
+    int l = 1, r = 1;
+    while (l <= num) {
+        while (r <= num && sat[r + 1] - sat[l] <= m) {
+            r++;
         }
-        if (r == 0 || sum[r] - sum[l] > m) {
-            r = last;
-        }
-        int tmp = max(sum[l], max(sum[s] - sum[r], que[tot]));
-        ans = min(ans, tmp);
+        ans = min(ans, max(maxn, max(sat[l], sats[r])));
+        l++;
     }
     printf("%lld\n", ans);
 

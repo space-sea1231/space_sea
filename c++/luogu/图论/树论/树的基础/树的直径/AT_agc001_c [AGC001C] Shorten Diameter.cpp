@@ -43,7 +43,6 @@ signed main() {
         for (int i = 1; i <= n; i++) {
             tot = 0;
             Dfs(i, m >> 1, 0);
-            // printf("Debug 1: %d %d\n", i, tot);
             ans = min(ans, n - tot);
         }
     }

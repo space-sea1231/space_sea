@@ -22,20 +22,20 @@ void add(int u, int v){
     e[cnt].next=head[u];
     head[u]=cnt;
 }
-void Tarjan(int u, int in_edge){
+void Tarjan(int u, int fa){
     dfn[u]=low[u]=++num;
     int v;
     for (int i=head[u]; i; i=e[i].next){
         v=e[i].to;
         if (!dfn[v]){//目标节点未被访问过
-            Tarjan(v, i);
+            Tarjan(v, u);
             low[u]=min(low[u], low[v]);//更新时间戳
             if (low[v]>dfn[u]){//子树无法访问到u和u的祖先节点
                 bridge[i]=bridge[i^1]=1;//i^1==i%2?i-1:i+1
                 //(双向边是一起建的，一条单边对应着一条双边)
             }
         }
-        if (i==(in_edge^1)){//反祖边（来时的路）不处理
+        if (v == fa){//反祖边（来时的路）不处理
             continue;
         }
         low[u]=min(low[u], dfn[v]);

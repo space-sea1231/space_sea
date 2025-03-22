@@ -30,7 +30,7 @@ class Least_Common_Ancestors {
             }
         }
         int Lca(int x, int y) {
-            if (x == y) return 1;
+            if (x == y) return ru[x];
             if (dep[x] < dep[y]) {
                 swap(x, y);
             }
@@ -58,14 +58,14 @@ signed main() {
     ios::sync_with_stdio(0);
     cin.tie(0);
     cin >> n >> m;
-    for (int i = 1; i < n; i ++) {
+    for (int i = 1; i < n; i++) {
         int u, v;
         cin >> u >> v;
         Add(u, v), Add(v, u);
     }
     sat[1][0] = ru[1];
     Tree.Dfs(1, 0);
-    for (int i = 1; i <= m; i ++) {
+    for (int i = 1; i <= m; i++) {
         int x, y;
         cin >> x >> y;
         printf("%lld\n", Tree.Lca(x, y));

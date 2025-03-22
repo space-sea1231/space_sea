@@ -1,68 +1,46 @@
-#include <algorithm>
-#include <cstring>
-#include <iostream>
-#include <vector>
-using namespace std;
-struct edge {
-  int v, w;
-  edge(int v = 0, int w = 0) {
-    this->v = v;
-    this->w = w;
-  }
+struct Least_Common_Ancestors{
+    int cnt;
+    int head[N], to[M<<1], nxt[M<<1];
+    int dep[N], dp[N][K];
+    void Add(int u, int v){
+        to[++cnt]=v;
+        nxt[cnt]=head[u];
+        head[u]=cnt;
+    }
+    void Dfs(int u, int fa){
+        for (int i=head[u]; i; i=nxt[i]){
+            int v=to[i];
+            if (v==fa){
+                continue;
+            }
+            dep[v]=dep[u]+1;
+            dp[v][0]=u;
+            for (int j=1; j<K; j++){
+                dp[v][j]=dp[dp[v][j-1]][j-1];
+            }
+            Dfs(v, u);
+        }
+    }
+    int lca(int x, int y){
+        if (dep[x]<dep[y]){
+            swap(x, y);
+        }
+        for (int i=K-1; i>=0; i--){
+            if (dep[dp[x][i]]>=dep[y]){
+                x=dp[x][i];
+            }
+        }
+        if (x==y){
+            return x;
+        }
+        for (int i=K-1; i>=0; i--){
+            if (dp[x][i]!=dp[y][i]){
+                x=dp[x][i], y=dp[y][i];
+            }
+        }
+        return dp[x][0];
+    }
+    Least_Common_Ancestors(){
+        dep[0]=-1;
+    }
 };
-const int maxn = 300000 + 5;
-vector<edge> e[maxn];
-int dep[maxn], f[maxn], c;
-int dia[maxn], cnt, pres[maxn], posts[maxn];
-bool vis[maxn];
-int n, s;
-void dfs(int u, int fa) {
-  f[u] = fa;
-  for (auto ed : e[u]) {
-    if (ed.v == fa || vis[ed.v]) continue;
-    dep[ed.v] = dep[u] + ed.w;
-    if (dep[ed.v] > dep[c]) c = ed.v;
-    dfs(ed.v, u);
-  }
-}
-void get_diameter() {
-  dfs(1, 0);
-  dep[c] = 0;
-  dfs(c, 0);
-  for (int u = c; u; u = f[u]) {
-    dia[++cnt] = u;
-    pres[cnt] = dep[u];
-  }
-  reverse(dia + 1, dia + cnt + 1);
-  reverse(pres + 1, pres + cnt + 1);
-  for (int i = cnt; i > 0; i--) posts[i] = pres[cnt] - pres[i];
-}
-void solve() {
-  for (int i = 1; i <= cnt; i++) vis[dia[i]] = true;
-  int maxd = 0;
-  for (int i = 1; i <= cnt; i++) {
-    dep[dia[i]] = 0, c = 0;
-    dfs(dia[i], 0);
-    maxd = max(dep[c], maxd);
-  }
-  int l = 1, r = 1;
-  int minecc = 1 << 30;
-  for (; l <= cnt; l++) {
-    while (r <= cnt && pres[r + 1] - pres[l] <= s) r++;
-    minecc = min(max(maxd, max(pres[l], posts[r])), minecc);
-  }
-  cout << minecc << endl;
-}
-int main() {
-  ios::sync_with_stdio(false);
-  cin >> n >> s;
-  for (int i = 1; i < n; i++) {
-    int u, v, w;
-    cin >> u >> v >> w;
-    e[u].emplace_back(v, w);
-    e[v].emplace_back(u, w);
-  }
-  get_diameter();
-  solve();
-  return 0;
-}

@@ -4,19 +4,19 @@ using namespace std;
 const int N = 1e5 + 10;
 const int K = 33;
 int n, m;
-int ans;
-set <int> s;
+int ans, cnt;
+int head[N], to[N << 1], nxt[N << 1], val[N << 1];
+void Add(int u, int v, int w) {
+    to[++cnt] = v;
+    val[cnt] = w;
+    nxt[cnt] = head[u];
+    head[u] = cnt;
+}
 struct Least_Common_Ancestors {
-    int cnt;
-    int head[N], to[N << 1], nxt[N << 1], val[N << 1];
-    int dep[N], dis[N], dp[N][K];
-    void Add(int u, int v, int w) {
-        to[++cnt] = v;
-        val[cnt] = w;
-        nxt[cnt] = head[u];
-        head[u] = cnt;
-    }
+    int num;
+    int dep[N], dis[N], dfn[N], dp[N][K];
     void Dfs(int u, int fa) {
+        dfn[u] = ++num;
         for (int i = head[u]; i; i = nxt[i]) {
             int v = to[i], w = val[i];
             if (v == fa) continue;
@@ -51,6 +51,12 @@ struct Least_Common_Ancestors {
         dep[0] = -1;
     }
 } Tree;
+struct Cmp {
+    bool operator()(int a, int b) {
+        return Tree.dfn[a] < Tree.dfn[b];
+    }
+};
+set <int, Cmp> s;
 signed main(){
     ios::sync_with_stdio(0);
     cin.tie();
@@ -58,12 +64,11 @@ signed main(){
     for (int i = 1; i < n; i++) {
         int u, v, w;
         cin >> u >> v >> w;
-        Tree.Add(u, v, w);
-        Tree.Add(v, u, w);
+        Add(u, v, w), Add(v, u, w);
     }
     Tree.Dfs(1, 0);
     cin >> m;
-    for (int i = 1; i <= m; i ++) {
+    for (int i = 1; i <= m; i++) {
         char opt;
         cin >> opt;
         if (opt == '+') {

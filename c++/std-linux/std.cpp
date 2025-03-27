@@ -1,74 +1,193 @@
-# 【模板】重链剖分/树链剖分
+#include <bits/stdc++.h>
+using namespace std;
+const int N=4e5+10;
+int n, m, r, q;
+int a[N];
+struct Segment_Tree{
+    struct Node{
+        int sum, vis;
+    }e[N<<1];
+    void Build(int x, int l, int r, int rev[]){
+        if (l==r){
+            e[x].sum=a[rev[l]]%q;
+            return ;
+        }
+        int mid=(l+r)>>1;
+        Build(x<<1, l, mid, rev);
+        Build(x<<1|1, mid+1, r, rev);
+        e[x].sum=(e[x<<1].sum+e[x<<1|1].sum)%q;
+    }
+    void Down(int x, int l, int r){
+        int mid=(l+r)>>1;
+        e[x<<1].vis=(e[x<<1].vis+e[x].vis)%q;
+        e[x<<1|1].vis=(e[x<<1|1].vis+e[x].vis)%q;
+        e[x<<1].sum=(e[x<<1].sum+(mid-l+1)*e[x].vis)%q;
+        e[x<<1|1].sum=(e[x<<1|1].sum+(r-mid)*e[x].vis)%q;
+        e[x].vis=0;
+    }
+    void Add(int x, int l, int r, int L, int R, int w){
+        if (L<=l&&r<=R){
+            e[x].vis=(e[x].vis+w)%q;
+            e[x].sum=(e[x].sum+(r-l+1)*w)%q;
+            return ;
+        }
+        Down(x, l, r);
+        int mid=(l+r)>>1;
+        if (L<=mid){
+            Add(x<<1, l, mid, L, R, w);
+        }
+        if (mid+1<=R){
+            Add(x<<1|1, mid+1, r, L, R, w);
+        }
+        e[x].sum=(e[x<<1].sum+e[x<<1|1].sum)%q;
+    }
+    int Query(int x, int l, int r, int L, int R){
+        if (L<=l&&r<=R){
+            return e[x].sum;
+        }
+        Down(x, l, r);
+        int mid=(l+r)>>1, ans=0;
+        if (L<=mid){
+            ans=(ans+Query(x<<1, l, mid, L, R))%q;
+        }
+        if (mid+1<=R){
+            ans=(ans+Query(x<<1|1, mid+1, r, L, R))%q;
+        }
+        return ans;
+    }
+};
+struct Chain_Tree{
+    Segment_Tree Seg;
+    int cnt, num=1, root;
+    int father[N], son[N], top[N];
+    int size[N], dep[N];
+    int seg[N], rev[N];
+    int head[N], to[N<<1], nxt[N<<1];
+    void Add(int u, int v){
+        to[++cnt]=v;
+        nxt[cnt]=head[u];
+        head[u]=cnt;
+    }
+    void Dfs1(int u, int fa){
+        father[u]=fa;
+        dep[u]=dep[fa]+1;
+        size[u]=1;
+        for (int i=head[u]; i; i=nxt[i]){
+            int v=to[i];
+            if (v==fa){
+                continue;
+            }
+            Dfs1(v, u);
+            size[u]+=size[v];
+            if (size[v]>size[son[u]]){
+                son[u]=v;
+            }
+        }
+    }
+    void Dfs2(int u, int fa){
+        if (son[u]){
+            int v=son[u];
+            top[v]=top[u];
+            seg[v]=++num;
+            rev[num]=v;
+            Dfs2(v, u);
+        }
+        for (int i=head[u]; i; i=nxt[i]){
+            int v=to[i];
+            if (v==fa||v==son[u]){
+                continue;
+            }
+            top[v]=v;
+            seg[v]=++num;
+            rev[num]=v;
+            Dfs2(v, u);
+        }
+    }
+    void Add_Line(int x, int y, int z){
+        int fx=top[x], fy=top[y];
+        while (fx!=fy){
+            if (dep[fx]<dep[fy]){
+                swap(fx, fy);
+                swap(x, y);
+            }
+            Seg.Add(1, 1, n, seg[fx], seg[x], z);
+            x=father[top[x]], fx=top[x];
+        }
+        if (dep[x]>dep[y]){
+            swap(x, y);
+        }
+        Seg.Add(1, 1, n, seg[x], seg[y], z);
+    }
+    void Add_Tree(int x, int z){
+        Seg.Add(1, 1, n, seg[x], seg[x]+size[x]-1, z);
+    }
+    int Query_Tree(int x){
+        return Seg.Query(1, 1, n, seg[x], seg[x]+size[x]-1);
+    }
+    int Query_Line(int x, int y){
+        int fx=top[x], fy=top[y], ans=0;
+        while (fx!=fy){
+            if (dep[fx]<dep[fy]){
+                swap(fx, fy);
+                swap(x, y);
+            }
+            ans=(ans+Seg.Query(1, 1, n, seg[fx], seg[x]))%q;
+            x=father[top[x]], fx=top[x];
+        }
+        if (dep[x]>dep[y]){
+            swap(x, y);
+        }
+        ans=(ans+Seg.Query(1, 1, n, seg[x], seg[y]))%q;
+        return ans;
+    }
+    void Init(){
+        root=r;
+        seg[root]=1;
+        top[root]=root;
+        rev[1]=root;
+        Dfs1(root, 0);
+        Dfs2(root, 0);
+        Seg.Build(1, 1, n, rev);
+    }
+}tree;
+int main(){
+    ios::sync_with_stdio(0);
+    cin.tie();
+    cin >> n >> m >> r >> q;
+    for (int i=1; i<=n; i++){
+        cin >> a[i];
+    }
+    for (int i=1; i<n; i++){
+        int u, v;
+        cin >> u >> v;
+        tree.Add(u, v);
+        tree.Add(v, u);
+    }
+    tree.Init();
+    for (int i=1; i<=m; i++){
+        int opt;
+        cin >> opt;
+        if (opt==1){
+            int x, y, z;
+            cin >> x >> y >> z;
+            tree.Add_Line(x, y, z);
+        }
+        if (opt==2){
+            int x, y;
+            cin >> x >> y;
+            printf("%d\n", tree.Query_Line(x, y));
+        }
+        if (opt==3){
+            int x, z;
+            cin >> x >> z;
+            tree.Add_Tree(x, z);
+        }
+        if (opt==4){
+            int x;
+            cin >> x;
+            printf("%d\n", tree.Query_Tree(x));
+        }
+    }
 
-## 题目描述
-
-如题，已知一棵包含 $N$ 个结点的树（连通且无环），每个节点上包含一个数值，需要支持以下操作：
-
-- `1 x y z`，表示将树从 $x$ 到 $y$ 结点最短路径上所有节点的值都加上 $z$。
-
-- `2 x y`，表示求树从 $x$ 到 $y$ 结点最短路径上所有节点的值之和。
-
-- `3 x z`，表示将以 $x$ 为根节点的子树内所有节点值都加上 $z$。
-
-- `4 x` 表示求以 $x$ 为根节点的子树内所有节点值之和
-
-## 输入格式
-
-第一行包含 $4$ 个正整数 $N,M,R,P$，分别表示树的结点个数、操作个数、根节点序号和取模数（**即所有的输出结果均对此取模**）。
-
-接下来一行包含 $N$ 个非负整数，分别依次表示各个节点上初始的数值。
-
-接下来 $N-1$ 行每行包含两个整数 $x,y$，表示点 $x$ 和点 $y$ 之间连有一条边（保证无环且连通）。
-
-接下来 $M$ 行每行包含若干个正整数，每行表示一个操作。
-
-## 输出格式
-
-输出包含若干行，分别依次表示每个操作 $2$ 或操作 $4$ 所得的结果（**对 $P$ 取模**）。
-
-## 样例 #1
-
-### 样例输入 #1
-
-```
-5 5 2 24
-7 3 7 8 0 
-1 2
-1 5
-3 1
-4 1
-3 4 2
-3 2 2
-4 5
-1 5 1 3
-2 1 3
-```
-
-### 样例输出 #1
-
-```
-2
-21
-```
-
-## 提示
-
-**【数据规模】**
-
-对于 $30\%$ 的数据： $1 \leq N \leq 10$，$1 \leq M \leq 10$；
-
-对于 $70\%$ 的数据： $1 \leq N \leq {10}^3$，$1 \leq M \leq {10}^3$；
-
-对于 $100\%$ 的数据： $1\le N \leq {10}^5$，$1\le M \leq {10}^5$，$1\le R\le N$，$1\le P \le 2^{30}$。所有输入的数均在 `int` 范围内。
-
-**【样例说明】**
-
-树的结构如下：
-
-![](https://cdn.luogu.com.cn/upload/pic/2319.png)
-
-各个操作如下：
-
-![](https://cdn.luogu.com.cn/upload/pic/2320.png)
-
-故输出应依次为 $2$ 和 $21$。
+    return 0;
+}

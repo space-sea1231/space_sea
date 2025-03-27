@@ -1,7 +1,8 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int N = 1e5 + 10;
-int main() {
+int main(){
+    // freopen("std.in", "r", stdin);
+    // freopen("std.out", "w", stdout);
     ios::sync_with_stdio(0);
     cin.tie();
 

@@ -26,8 +26,11 @@
 `sudo apt-get install git-lfs`  
 **lfs建立跟踪**  
 `git lfs track "*.文件后缀"`  
+<<<<<<< HEAD
 **GPaste**  
 `sudo apt install gnome-shell-extensions-gpaste gpaste`  
 **GNone** 
 `sudo apt install gnome-tweaks`  
+=======
+>>>>>>> 412b2f074a728478cdf55eaebe8c01c66b44c62c
 >在此之后要重新`git add .`  

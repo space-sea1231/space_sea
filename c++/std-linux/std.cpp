@@ -60,5 +60,6 @@ int main() {
         Tree.sum[y]++;
         Tree.sum[Tree.Lca(x, y)] -= 2;
     }
+    
     return 0;
 }

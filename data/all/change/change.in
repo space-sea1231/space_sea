@@ -1,0 +1,19 @@
+struct Binary_Indexed_Tree{
+    const int M=6e5+10;
+    int num[M];
+    int lowbit(int x){
+        return x&-x;
+    }
+    void Add(int x, int w){
+        for (int i=x; i<=M; i+=lowbit(i)){
+            num[i]+=w;
+        }
+    }
+    int Query(int x){
+        int ans=0;
+        for (int i=x; i>=1; i-=lowbit(i)){
+            ans+=num[i];
+        }
+        return ans;
+    }
+};

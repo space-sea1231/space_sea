@@ -1,0 +1,1 @@
+{"name":"Local: ge","url":"/home/zzy/Code/CJ-zhouziyi/ge/ge.cpp","tests":[{"id":1729135559624,"input":"1\n1 3\n1\n-1\n3\n1 1 1","output":""}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/zzy/Code/CJ-zhouziyi/ge/ge.cpp","group":"local","local":true}

@@ -1,0 +1,1 @@
+{"name":"Local: ge","url":"c:\\Users\\Administrator\\Desktop\\!!CJ-yaohancheng\\ge.cpp","tests":[{"id":1729133096401,"input":"2\n2 2\n-1 1\n1 -1\n1 1\n1 3\n-41719\n100\n41719","output":"NIE\nNIE"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"c:\\Users\\Administrator\\Desktop\\!!CJ-yaohancheng\\ge.cpp","group":"local","local":true}

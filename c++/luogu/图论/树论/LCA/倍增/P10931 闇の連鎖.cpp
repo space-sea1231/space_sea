@@ -46,9 +46,9 @@ class Least_Common_Ancestors {
                 if (v == fa) continue;
                 Update(v, u);
                 sum[u] += sum[v];
+                if (sum[v] == 0) ans += m;
+                if (sum[v] == 1) ans++;
             }
-            if (sum[u] == 0) ans += m;
-            if (sum[u] == 1) ans++;
         }
     Least_Common_Ancestors() {
         dep[0] = -1;
@@ -63,6 +63,7 @@ int main() {
         cin >> u >> v;
         Add(u, v), Add(v, u);
     }
+    Tree.Dfs(1, 0);
     for (int i = 1; i <= m; i++) {
         int x, y;
         cin >> x >> y;
@@ -72,6 +73,6 @@ int main() {
     }
     Tree.Update(1, 0);
     printf("%d\n", ans);
-
+    
     return 0;
 }

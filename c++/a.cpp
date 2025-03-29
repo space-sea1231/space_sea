@@ -1,174 +1,89 @@
-<<<<<<< HEAD
-#include <bits/stdc++.h>
-using namespace std;
-const int N = 3e5 + 10;
-const int INF = 0x3f3f3f3f;
-int n, m;
-int cnt = 1, tot;
-int maxn, maxx, maxw;
-int a[N], b[N], dis1[N];
-int head[N], nxt[N << 1], to[N << 1], val[N << 1];
-void Add(int u, int v, int w) {
-    to[++cnt] = v;
-    val[cnt] = w;
-    nxt[cnt] = head[u];
-    head[u] = cnt;
-}
-class Least_Common_Ancestors {
-    static const int K = 33;
-    public:
-        int dep[N], dis[N], dp[N][K], sum[N];
-        void Dfs(int u, int fa) {
-            for (int i = head[u]; i; i = nxt[i]) {
-                int v = to[i], w = val[i];
-                if (v == fa) continue;
-                dep[v] = dep[u] + 1;
-                dis[v] = dis[u] + w;
-                dp[v][0] = u;
-                for (int i = 1; i < K; i ++) {
-                    dp[v][i] = dp[dp[v][i - 1]][i - 1];
-                }
-                Dfs(v, u);
-            }
-        }
-        int Lca(int x, int y) {
-            if (dep[x] < dep[y]) swap(x, y);
-            for (int i = K - 1; i >= 0; i --) {
-                if (dep[dp[x][i]] >= dep[y]) {
-                    x = dp[x][i];
-                }
-            }
-            if (x == y) return x;
-            for (int i = K - 1; i >= 0; i --) {
-                if (dp[x][i] != dp[y][i]) {
-                    x = dp[x][i], y = dp[y][i];
-                }
-            }
-            return dp[x][0];
-        }
-        int Dist(int x, int y) {
-            if (dep[x] < dep[y]) swap(x, y);
-            int srcx = x, srcy = y;
-            for (int i = K - 1; i >= 0; i --) {
-                if (dep[dp[x][i]] >= dep[y]) {
-                    x = dp[x][i];
-                }
-            }
-            if (x == y) return dis[srcx] - dis[srcy];
-            for (int i = K - 1; i >= 0; i --) {
-                if (dp[x][i] != dp[y][i]) {
-                    x = dp[x][i], y = dp[y][i];
-                }
-            }
-            return dis[srcx] + dis[srcy] - (dis[dp[x][0]] << 1);
-        }
-        void Update(int u, int edge) {
-            for (int i = head[u]; i; i = nxt[i]) {
-                int v = to[i], w = val[i];
-                if (i == (edge ^ 1)) continue;
-                Update(v, i);
-                sum[u] += sum[v];
-            }
-            if (sum[u] == tot) maxn = max(maxn, val[edge]);
-        }
-        void Init() {
-            tot = 0, maxn = 0;
-            memset(sum, 0, sizeof(sum));
-        }
-    Least_Common_Ancestors() {
-        dep[0] = -1;
+struct Chain_Tree {
+    Segment_Tree Seg;
+    int cnt, num = 1, root;
+    int father[N], son[N], top[N];
+    int size[N], dep[N];
+    int seg[N], rev[N];
+    int head[N], to[N << 1], nxt[N << 1];
+    void Add(int u, int v) {
+        to[++cnt] = v;
+        nxt[cnt] = head[u];
+        head[u] = cnt;
     }
-} Tree;
-int main() {
-    ios::sync_with_stdio(0);
-    cin.tie();
-    cin >> n >> m;
-    for (int i = 1; i < n; i ++) {
-        int u, v, w;
-        cin >> u >> v >> w;
-        Add(u, v, w), Add(v, u, w);
-        maxw = max(maxw, w);
-    }
-    Tree.Dfs(1, 0);
-    for (int i = 1; i <= m; i ++) {
-        cin >> a[i] >> b[i];
-        dis1[i] = Tree.Dist(a[i], b[i]);
-        maxx = max(maxx, dis1[i]);
-    }
-    int l = maxx - maxw, r = 3e8, ans = INF;
-    while (l <= r) {
-        Tree.Init();
-        int mid = (l + r) >> 1;
-        for (int i = 1; i <= m; i ++) {
-            if (dis1[i] > mid) {
-                Tree.sum[a[i]]++;
-                Tree.sum[b[i]]++;
-                Tree.sum[Tree.Lca(a[i], b[i])] -= 2;
-                tot++;
-            }
-        }
-        if (tot == 0) {
-            ans = min(ans, mid);
-            r = mid - 1;
-            continue;
-        }
-        Tree.Update(1, 0);
-        if (maxx - maxn <= mid) {
-            ans = min(ans, mid);
-            r = mid - 1;
-        } else {
-            l = mid + 1;
-        }
-    }
-    printf("%d\n", ans);
-    
-    return 0;
-}
-=======
-struct Least_Common_Ancestors{
-    int cnt;
-    int head[N], to[M<<1], nxt[M<<1];
-    int dep[N], dp[N][K];
-    void Add(int u, int v){
-        to[++cnt]=v;
-        nxt[cnt]=head[u];
-        head[u]=cnt;
-    }
-    void Dfs(int u, int fa){
-        for (int i=head[u]; i; i=nxt[i]){
-            int v=to[i];
-            if (v==fa){
+    void Dfs1(int u, int fa) {
+        father[u] = fa;
+        dep[u] = dep[fa] + 1;
+        size[u] = 1;
+        for (int i = head[u]; i; i = nxt[i]) {
+            int v = to[i];
+            if (v == fa)
                 continue;
-            }
-            dep[v]=dep[u]+1;
-            dp[v][0]=u;
-            for (int j=1; j<K; j++){
-                dp[v][j]=dp[dp[v][j-1]][j-1];
-            }
-            Dfs(v, u);
+            Dfs1(v, u);
+            size[u] += size[v];
+            if (size[v] > size[son[u]])
+                son[u] = v;
         }
     }
-    int lca(int x, int y){
-        if (dep[x]<dep[y]){
+    void Dfs2(int u, int fa) {
+        if (son[u]) {
+            int v = son[u];
+            top[v] = top[u];
+            seg[v] = ++num;
+            rev[num] = v;
+            Dfs2(v, u);
+        }
+        for (int i = head[u]; i; i = nxt[i]) {
+            int v = to[i];
+            if (v == fa || v == son[u])
+                continue;
+            top[v] = v;
+            seg[v] = ++num;
+            rev[num] = v;
+            Dfs2(v, u);
+        }
+    }
+    void Add_Line(int x, int y, int z) {
+        int fx = top[x], fy = top[y];
+        while (fx != fy) {
+            if (dep[fx] < dep[fy]) {
+                swap(fx, fy);
+                swap(x, y);
+            }
+            Seg.Add(1, 1, n, seg[fx], seg[x], z);
+            x = father[top[x]], fx = top[x];
+        }
+        if (dep[x] > dep[y])
             swap(x, y);
-        }
-        for (int i=K-1; i>=0; i--){
-            if (dep[dp[x][i]]>=dep[y]){
-                x=dp[x][i];
-            }
-        }
-        if (x==y){
-            return x;
-        }
-        for (int i=K-1; i>=0; i--){
-            if (dp[x][i]!=dp[y][i]){
-                x=dp[x][i], y=dp[y][i];
-            }
-        }
-        return dp[x][0];
+        Seg.Add(1, 1, n, seg[x], seg[y], z);
     }
-    Least_Common_Ancestors(){
-        dep[0]=-1;
+    void Add_Tree(int x, int z) {
+        Seg.Add(1, 1, n, seg[x], seg[x] + size[x] - 1, z);
+    }
+    int Query_Tree(int x) {
+        return Seg.Query(1, 1, n, seg[x], seg[x] + size[x] - 1);
+    }
+    int Query_Line(int x, int y) {
+        int fx = top[x], fy = top[y], ans = 0;
+        while (fx != fy) {
+            if (dep[fx] < dep[fy]) {
+                swap(fx, fy);
+                swap(x, y);
+            }
+            ans += Seg.Query(1, 1, n, seg[fx], seg[x]);
+            x = father[top[x]], fx = top[x];
+        }
+        if (dep[x] > dep[y])
+            swap(x, y);
+        ans += Seg.Query(1, 1, n, seg[x], seg[y]);
+        return ans;
+    }
+    void Init() {
+        root = 1;
+        seg[root] = 1;
+        top[root] = root;
+        rev[1] = root;
+        Dfs1(root, 0);
+        Dfs2(root, 0);
+        Seg.Build(1, 1, n, rev);
     }
 };
->>>>>>> 412b2f074a728478cdf55eaebe8c01c66b44c62c

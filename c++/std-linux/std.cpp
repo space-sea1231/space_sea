@@ -56,7 +56,9 @@ int main() {
     for (int i = 1; i <= m; i++) {
         int x, y;
         cin >> x >> y;
-        Tree.sum[x]
+        Tree.sum[x]++;
+        Tree.sum[y]++;
+        Tree.sum[Tree.Lca(x, y)] -= 2;
     }
     return 0;
 }

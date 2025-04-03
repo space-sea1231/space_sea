@@ -7,7 +7,9 @@ signed main(){
     cin.tie(0);
     string s;
     while (getline(cin, s)){
-        s.erase(s.end()-1);
+        if (*s.end()=='\n'){
+            s.erase(s.end()-1);
+        }
         s='"'+s+'"'+',';
         cout << s << endl;
     }

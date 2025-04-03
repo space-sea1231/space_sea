@@ -1,77 +1,42 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int N = 8e3 + 10;
-int n, m, k;
-int cnt;
-int a[N];
-int head[N], to[N << 1], nxt[N << 1];
-void Add(int u, int v) {
-    to[++cnt] = v;
-    nxt[cnt] = head[u];
-    head[u] = cnt;
+const int N=1e5+10;
+const int K=4;
+int n, m;
+int val[N], opt[N];
+int calc(int bit, int ans){
+    for (int i=1; i<=n; i++){
+        int x=(val[i]>>bit)&1;
+        if (opt[i]==1) ans&=x;
+        if (opt[i]==2) ans^=x;
+        if (opt[i]==3) ans|=x;
+    }
+    return ans;
 }
-struct Least_Common_Ancestors {
-    static const int K = 33;
-    int dep[N], dp[N][K], sum[N];
-    void Dfs(int u, int fa) {
-        for (int i = head[u]; i; i = nxt[i]) {
-            int v = to[i];
-            if (v == fa) continue;
-            dep[v] = dep[u] + 1;
-            dp[v][0] = u;
-            for (int j = 1; j < K; j++) {
-                dp[v][j] = dp[dp[v][j - 1]][j - 1];
-            }
-            Dfs(v, u);
-        }
-    }
-    int Lca(int x, int y) {
-        if (dep[x] < dep[y]) swap(x, y);
-        for (int i = K - 1; i >= 0; i--) {
-            if (dep[dp[x][i]] >= dep[y]) {
-                x = dp[x][i];
-            }
-        }
-        if (x == y) return x;
-        for (int i = K - 1; i >= 0; i--) {
-            if (dp[x][i] != dp[y][i]) {
-                x = dp[x][i], y = dp[y][i];
-            }
-        }
-        return dp[x][0];
-    }
-    void Update(int u, int fa) {
-        for (int i = head[u]; i; i = nxt[i]) {
-            int v = to[i];
-            if (v == fa)
-                continue;
-            Update(v, u);
-            sum[u] += sum[v];
-        }
-    }
-    Least_Common_Ancestors() {
-        dep[0] = -1;
-    }
-} Tree;
-int main() {
+signed main(){
     ios::sync_with_stdio(0);
     cin.tie(0);
-    cin >> n >> m >> k;
-    for (int i = 1; i <= n; i ++)
-        cin >> a[i];
-    for (int i = 1; i < n; i ++) {
-        int u, v;
-        cin >> u >> v;
-        Add(u, v), Add(v, u);
+    cin >> n >> m;
+    for (int i=1; i<=n; i++){
+        char c[4];
+        cin >> c >> val[i];
+        if (c=="AND") opt[i]=1;
+        if (c=="XOR") opt[i]=2;
+        if (c=="OR") opt[i]=3;
     }
-    for (int i = 1; i <= m; i ++) {
-        int x, y;
-        cin >> x >> y;
-        Tree.sum[x] ++;
-        Tree.sum[y] ++;
-        Tree.sum[Tree.Lca(x, y)] -= 2;
+    int sum=0, ans=0;
+    for (int i=30; i>=0; i--){
+        int res0=calc(i, 0);
+        int res1=calc(i, 1);
+        if (sum+(1<<i)<=m&&res1>res0){
+            sum+=(1<<i);
+            ans+=(res1<<i);
+        }
+        else{
+            ans+=(res0<<i);
+        }
     }
-    Tree.Update(1, 0);
-    
+    printf("%d\n", ans);
+
     return 0;
 }

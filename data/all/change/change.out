@@ -1,11 +1,26 @@
-"int Power(int a, int b, int p){",
-"    int sum=1;",
-"    while (b){",
-"        if (b&1){",
-"            sum=(sum*a)%p;",
-"        }",
-"        a=(a*a)%p;",
-"        b>>=1;",
-"    }",
-"    return sum;",
+"namespace Pseudotree{",
+"    int num;",
+"    int dfn[N], father[N];",
+"    bool vis[N];",
+"    void Dfs(int u, int fa){",
+"        dfn[u]=++num;",
+"        father[u]=fa;",
+"        for (int i=head[u]; i; i=nxt[i]){",
+"            int v=to[i];",
+"            if (v==fa){",
+"                continue;",
+"            }",
+"            if (dfn[v]){",
+"                if (dfn[v]>dfn[u]){",
+"                    while (v!=u){",
+"                        vis[v]=1;",
+"                        v=father[v];",
+"                    }",
+"                    vis[v]=1;",
+"                }",
+"            }else{",
+"                Dfs(v, u);",
+"            }",
+"        }",
+"    }",
 "}",

@@ -9,47 +9,46 @@
 		"body": [
 			"#include <bits/stdc++.h>",
 			"using namespace std;",
-			"int main() {",
+			"int main(){",
 			"    // freopen(\"std.in\", \"r\", stdin);",
 			"    // freopen(\"std.out\", \"w\", stdout);",
 			"    ios::sync_with_stdio(0);",
 			"    cin.tie(0);",
 			"",
 			"    return 0;",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Graph":{
 		"prefix": "#Graph",
 		"body": [
 			"int cnt;",
-			"int head[N], to[N << 1], nxt[N << 1];",
+			"int head[N], to[N<<1], nxt[N<<1];",
 			"void Add(int u, int v) {",
-			"    to[++cnt] = v;",
-			"    nxt[cnt] = head[u];",
-			"    head[u] = cnt;",
-			"}",
-		],
+			"    to[++cnt]=v;",
+			"    nxt[cnt]=head[u];",
+			"    head[u]=cnt;",
+			"}"
+		]
 	},
 	"C++ Union_Find":{
 		"prefix": "#Union_Find",
 		"body": [
-			"struct Union_Find {",
+			"struct Union_Find{",
 			"    int fa[N];",
-			"    inline int Find(int x) {",
-			"        if (x==fa[x]) return x;",
-			"        return fa[x] = Find(fa[x]);",
+			"    inline int Find(int x){",
+			"        if (x==fa[x]){",
+			"            return x;",
+			"        }",
+			"        return fa[x]=Find(fa[x]);",
 			"    }",
-			"    inline void Insert(int x, int y) {",
-			"        fa[Find(x)] = Find(y);",
-			"    }",
-			"    inline void Init() {",
-			"        for (int i = 1; i < N; i++) {",
-			"            fa[i] = i;",
+			"    Union_Find(){",
+			"        for (int i=1; i<N; i++) {",
+			"            fa[i]=i;",
 			"        }",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Binary_Indexed_Tree":{
 		"prefix": "#Binary_Indexed_Tree",
@@ -69,8 +68,8 @@
 			"            ans += sum[i];",
 			"        return ans;",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Segment_Tree_Add":{
 		"prefix": "#Segment_Tree_Add",
@@ -122,8 +121,8 @@
 			"            ans += Query(x << 1 | 1, mid + 1, r, L, R);",
 			"        return ans;",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Segment_Tree_Mul":{
 		"prefix": "#Segment_Tree_Mul",
@@ -200,8 +199,8 @@
 			"        }",
 			"        return ans;",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Li_Chao_Segment_Tree":{
 		"prefix": "#Li_Chao_Segment_Tree",
@@ -286,8 +285,8 @@
 			"        }",
 			"        return Max({vis[root], ans}, Max(Query(root<<1, l, mid, x), Query(root<<1|1, mid+1, r, x)));",
 			"    }",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Blocking_Add":{
 		"prefix": "#Blocking_Add",
@@ -356,8 +355,8 @@
 			"            }",
 			"        }",
 			"    }",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Blocking_Mul":{
 		"prefix": "#Blocking_Mul",
@@ -462,8 +461,8 @@
 		"            vism[i]=1;",
 		"        }",
 		"    }",
-		"}",
-		],
+		"}"
+		]
 	},
 	"C++ Trie_Tree":{
 		"prefix": "#Trie_Tree",
@@ -510,8 +509,8 @@
 			"        }",
 			"        return sum[u];",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Sparse_Table":{
 		"prefix": "#Sparse_Table",
@@ -535,8 +534,8 @@
 			"        int len=lg[r-l+1];",
 			"        return max(dp[l][len], dp[r-(1<<len)+1][len]);",
 			"    }",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Treap":{
 		"prefix": "#Treap",
@@ -671,8 +670,8 @@
 			"            return Nxt(e[x].r, val);",
 			"        }",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Splay":{
 		"prefix": "#Splay",
@@ -838,7 +837,7 @@
 			"        Clear(cur);",
 			"        Update(root);",
 			"    }",
-			"}",
+			"}"
 		]
 	},
 	"C++ Pairing_Heap":{
@@ -897,8 +896,8 @@
 			"            e[i].fa=i, e[i].flag=1;",
 			"        }",
 			"    }",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Leftist_Tree":{
 		"prefix": "#Leftist_Tree",
@@ -975,7 +974,7 @@
 			"            e[i].fa=i, e[i].id=i;",
 			"        }",
 			"    }",
-			"}",
+			"}"
 		]
 	},
 	"C++ Chain_Tree":{
@@ -1069,8 +1068,8 @@
 			"        Dfs2(root, 0);",
 			"        Seg.Build(1, 1, n, rev);",
 			"    }",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Johnson":{
 		"prefix": "#Johnson",
@@ -1148,7 +1147,7 @@
 			"            }",
 			"        }",
 			"    }",
-			"};",
+			"};"
 		]
 	},
 	"C++ Kruskal":{
@@ -1180,8 +1179,8 @@
 			"            }",
 			"        }",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Prim":{
 		"prefix": "#Prim",
@@ -1230,8 +1229,8 @@
 			"            }",
 			"        }",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Least_Common_Ancestors":{
 		"prefix": "#Least_Common_Ancestors",
@@ -1269,8 +1268,8 @@
 			"    Least_Common_Ancestors() {",
 			"        dep[0] = -1;",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Binary_Graph":{
 		"prefix":"#Binary_Graph",
@@ -1289,8 +1288,8 @@
 			"        }",
 			"    }",
 			"    return 0;",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Edmonds_Karp":{
 		"prefix": "#Edmonds_Karp",
@@ -1348,7 +1347,7 @@
 			"        }",
 			"        ans+=dis[t];",
 			"    }",
-			"};",
+			"};"
 		]
 	},
 	"C++ Dinic":{
@@ -1410,8 +1409,8 @@
 			"        }",
 			"        return res;",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Successive_Shortest_Path":{
 		"prefix": "#Successive_Shortest_Path",
@@ -1469,8 +1468,8 @@
 			"        }",
 			"        return dist[t]*ans[t];",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Primal_Dual":{
 		"prefix": "#Primal_Dual",
@@ -1565,8 +1564,8 @@
 			"        }",
 			"        return minn*dist[t];",
 			"    }",
-			"};",
-		],
+			"};"
+		]
 	},
 	"C++ Add":{
 		"prefix": "#Add",
@@ -1604,8 +1603,8 @@
 			"            printf(\"%d\", sum[i]);",
 			"        }",
 			"    }",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Sub":{
 		"prefix": "#Sub",
@@ -1679,8 +1678,8 @@
 			"            printf(\"%d\", sum[i]);",
 			"        }",
 			"    }",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Mul":{
 		"prefix": "#Mul",
@@ -1735,8 +1734,8 @@
 			"            printf(\"%d\", sum[i]);",
 			"        }",
 			"    }",
-			"}",
-		],
+			"}"
+		]
 	},
 	"C++ Div":{
 		"prefix": "#Div",
@@ -1767,7 +1766,7 @@
 			"            printf(\"%d\", sum[i]);",
 			"        }",
 			"    }",
-			"}",
-		],
-	},
+			"}"
+		]
+	}
 }

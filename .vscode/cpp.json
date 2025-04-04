@@ -12,7 +12,7 @@
 			"int main(){",
 			"    // freopen(\"std.in\", \"r\", stdin);",
 			"    // freopen(\"std.out\", \"w\", stdout);",
-			"    ios::sync_with_stdio(0);",
+			"    ios::sync_with_stdio(false);",
 			"    cin.tie(0);",
 			"",
 			"    return 0;",
@@ -23,9 +23,10 @@
 		"prefix": "#Graph",
 		"body": [
 			"int cnt;",
-			"int head[N], to[N<<1], nxt[N<<1];",
-			"void Add(int u, int v) {",
+			"int head[N], to[N<<1], nxt[N<<1], val[N<<1];",
+			"void Add(int u, int v, int w=1){",
 			"    to[++cnt]=v;",
+			"    val[cnt]=w;",
 			"    nxt[cnt]=head[u];",
 			"    head[u]=cnt;",
 			"}"
@@ -1767,6 +1768,38 @@
 			"        }",
 			"    }",
 			"}"
+		]
+	},
+	"C++ Pseudotree":{
+		"prefix": "#Pseudotree",
+		"body": [
+			"namespace Pseudotree{",
+			"    int num;",
+			"    int dfn[N], father[N];",
+			"    bool vis[N];",
+			"    void Dfs(int u, int fa){",
+			"        dfn[u]=++num;",
+			"        father[u]=fa;",
+			"        for (int i=head[u]; i; i=nxt[i]){",
+			"            int v=to[i];",
+			"            if (v==fa){",
+			"                continue;",
+			"            }",
+			"            if (dfn[v]){",
+			"                if (dfn[v]>dfn[u]){",
+			"                    while (v!=u){",
+			"                        vis[v]=1;",
+			"                        v=father[v];",
+			"                    }",
+			"                    vis[v]=1;",
+			"                }",
+			"            }else{",
+			"                Dfs(v, u);",
+			"            }",
+			"        }",
+			"    }",
+			"}using namespace Pseudotree;",
+			""
 		]
 	}
 }

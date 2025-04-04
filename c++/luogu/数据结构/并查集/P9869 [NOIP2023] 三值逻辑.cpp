@@ -4,7 +4,7 @@ using namespace std;
 const int N=1e5+10;
 const int T=N-9, F=-N+9, U=0;
 int c, t, n, m;
-bool vis[N<<1];
+bool vis[300005];
 
 int fa[N];
 int Find(int x) {

@@ -7,8 +7,8 @@ signed main(){
     cin.tie(0);
     string s;
     while (getline(cin, s)){
-        s.erase(s.end()-1);
-        s='"'+s+'"'+',';
+        s.insert(0, "\"");
+        s.insert(s.size()-1, "\",");
         cout << s << endl;
     }
 

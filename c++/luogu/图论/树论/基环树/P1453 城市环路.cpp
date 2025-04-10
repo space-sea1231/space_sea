@@ -1,73 +1,56 @@
 #include <bits/stdc++.h>
 using namespace std;
-const int N=1e5+10;
-int n, s, t;
-double k;
-int cnt=1, ans;
-int a[N], dp[N][2];
-int head[N], nxt[N<<1], to[N<<1], val[N<<1];
+const int N=1e6+10;
+const int INF=0x3f3f3f3f;
+int n;
+int cnt, ans, root;
+int f[N][2];
+int father[N];
+int head[N], to[N<<1], nxt[N<<1], val[N<<1];
+bool vis[N];
 void Add(int u, int v, int w=1){
     to[++cnt]=v;
     val[cnt]=w;
     nxt[cnt]=head[u];
     head[u]=cnt;
 }
-namespace Pseduotree{
-    int num;
-    int father[N], dfn[N];
-    void Dfs(int u, int fa){
-        father[u]=fa;
-        dfn[u]=++num;
-        for (int i=head[u]; i; i=nxt[i]){
-            int v=to[i];
-            if (v==fa){
-                continue;
-            }
-            if (dfn[v]){
-                if (dfn[v]>dfn[u]){
-                    to[i]=to[i^1]=0;
-                    s=u, t=v;
-                }
-            }else{
-                Dfs(v, u);
-            }
-        }
-    }
-
-}using namespace Pseduotree;
-
-void Dp(int u, int fa){
-    dp[u][0]=0, dp[u][1]=a[u];
+int Dfs(int u, bool d){
+    f[u][0]=f[u][1]=0;
+    vis[u]=1;
+    int c=INF;
     for (int i=head[u]; i; i=nxt[i]){
         int v=to[i];
-        if (v==fa){
-            continue;
-        }
-        Dp(v, u);
-        dp[u][0]+=max(dp[v][0], dp[v][1]);
-        dp[u][1]+=dp[v][0];
+        if (v==d) continue;
+        int res=Dfs(v, d);
+        f[u][0]+=res;
+        c=min(c, res-f[v][0]);
     }
+    f[u][1]=f[u][0]-c+1;
+    if (d&&father[u]==root) f[u][1]+=c;
+    return max(f[u][0], f[u][1]);
 }
-int main(){
+int Solve(int x){
+    for (root=x; !vis[root]; vis[root]=1){
+        root=father[root];
+    }
+    int tmp=Dfs(root, 0);
+    Dfs(root, 1);
+    return (tmp, f[root][0]);
+}
+signed main(){
     ios::sync_with_stdio(false);
     cin.tie(0);
     cin >> n;
     for (int i=1; i<=n; i++){
-        cin >> a[i];
+        cin >> father[i];
+        Add(father[i], i);
     }
     for (int i=1; i<=n; i++){
-        int u, v;
-        cin >> u >> v;
-        u++, v++;
-        Add(u, v), Add(v, u);
+        if (!vis[i]){
+            ans+=Solve(i);
+        }
     }
-    cin >> k;
-    Dfs(1, 0);
-    Dp(s, 0);
-    ans=max(ans, dp[s][0]);
-    Dp(t, 0);
-    ans=max(ans, dp[t][0]);
-    printf("%.1lf\n", ans*k);
-
+    printf("%d\n", ans);
+    
     return 0;
 }

@@ -30,4 +30,6 @@
 `sudo apt install gnome-shell-extensions-gpaste gpaste`  
 **GNone** 
 `sudo apt install gnome-tweaks`  
+**Pinta**  
+`sudo apt install pinta`  
 >在此之后要重新`git add .`  

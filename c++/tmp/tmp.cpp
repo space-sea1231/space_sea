@@ -1,16 +1,20 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <stdio.h>
+
 using namespace std;
-int main(){
-	ios::sync_with_stdio(0);
-	cin.tie(0);
-	vector<int> q;
-	q.push_back(1);
-	q.push_back(2);
-	for (int &v:q){
-		printf("%d\n", ++v);
-	}
-	for (int v:q){
-		printf("%d\n", v);
-	}
+
+signed main(){
+	ios::sync_with_stdio(false);
+	cin.tie(nullptr);
+	string sa="abc";
+	char *sptr=&sa[0];
+	int ia=1, *iptr=&ia;
+	*(sptr)++;
+	printf("Debug1: %p\n", sptr);
+	*(sptr)++;
+
+	printf("%s %p->%s\n", sa.c_str(), sptr, sptr);
+	printf("%d %p->%d\n", ia, iptr, *iptr);
+
 	return 0;
 }

@@ -28,6 +28,6 @@
 `git lfs track "*.文件后缀"`  
 **GPaste**  
 `sudo apt install gnome-shell-extensions-gpaste gpaste`  
-**GNone** 
+**GNone**  
 `sudo apt install gnome-tweaks`  
 >在此之后要重新`git add .`  

@@ -1,19 +1,13 @@
-#include <iostream>
-#include <stdio.h>
-#include <string>
-
-using namespace std;
-
-const int Mod=998244353;
-
-int n;
-string s;
-
-signed main(){
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    
-    cin >> n >> s;
-    
-    return 0;
+#include <algorithm>
+#include <cstdio>
+using std::min;
+long long n,k,ans;
+int main(int argc,char *argv[])
+{
+	scanf("%lld %lld",&n,&k);
+	for(long long l=1,r,t;l<=n;l=r+1)
+		r=(t=k/l) ? min(k/t,n) : n;
+        ans-=t*(r-l+1)*(l+r)>>1;
+	printf("%lld\n",ans+n*k);
+	return 0;
 }

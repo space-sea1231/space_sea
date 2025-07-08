@@ -1,7 +1,6 @@
 #include <iostream>
 #include <stdio.h>
-#include <vector>
-// #define __Debug
+#define __Debug
 
 using namespace std;
 typedef long long ll;
@@ -10,17 +9,16 @@ const int N=1e5+10;
 
 int t;
 int a, b, c, d;
-int siz, top, ans;
+int cnt, sum;
 int prime[N], factor[N];
-vector<pair<int, int> > fac;
 
 void Primes(){
     for (int i=2; i<N; i++){
         if (factor[i]==0){
             factor[i]=i;
-            prime[++top]=i;
+            prime[++cnt]=i;
         }
-        for (int j=1; j<=top; j++){
+        for (int j=1; j<=cnt; j++){
             if (prime[j]>factor[i]||prime[j]*i>=N){
                 break;
             }
@@ -28,66 +26,68 @@ void Primes(){
         }
     }
 }
-int Gcd(int a, int b){
-    while (b^=a^=b^=a%=b);
-    return a;
+int PrimeNum(int x, int prime){
+    int cnt=0;
+    while (x%prime==0){
+        cnt++;
+        x/=prime;
+    }
+    return cnt;
 }
-ll Lcm(ll a, ll b){
-    return a*b/Gcd(a, b);
-}
-void Search(int dep, int sum){
-    if (dep==siz){
-        if (Gcd(sum, a)==b&&Lcm(sum, c)==(ll)d){
-            #ifdef __Debug
-                printf("Debug3: %d\n", sum);
-            #endif
-            ans++;
+int Pow(int a, int b){
+    int sum=1;
+    while (b){
+        if (b&1){
+            sum*=a;
         }
-        return;
+        a*=a;
+        b>>=1;
     }
-    int tmp=1;
-    for (int i=0; i<=fac[dep].second; i++){
-        Search(dep+1, sum*tmp);
-        tmp*=fac[dep].first;
-    }
+    return sum;
 }
 void Init(){
-    fac.clear();
-    ans=0;
+    sum=1;
 }
 signed main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-
+    
     Primes();
     cin >> t;
     while (t--){
         Init();
-        cin >> a >> b >> c >> d;
-        int tmp=d;
-        for (int i=1; i<=top&&prime[i]<=tmp; i++){
-            int cnt=0;
-            while (tmp%prime[i]==0&&tmp>0){
-                cnt++;
-                tmp/=prime[i];
-            }
-            if (cnt>0){
-                fac.push_back(make_pair(prime[i], cnt));
+        cin >> a >> c >> b >> d;
+        for (int i=1; i<=cnt&&prime[i]<=d; i++){
+            if (d%prime[i]==0){
+                int ma=PrimeNum(a, prime[i]);
+                int mb=PrimeNum(b, prime[i]);
+                int mc=PrimeNum(c, prime[i]);
+                int md=PrimeNum(d, prime[i]);
                 #ifdef __Debug
-                    // printf("Debug1: %d %d\n", prime[i], cnt);
+                    printf("Debug1: %d %d %d %d %d\n", prime[i], ma, mc, mb, md);
                 #endif
+                if (ma==mc&&mb==md&&mc<=md){
+                    sum*=(md-mc+1);
+                }
+                if (ma<mc||mb>md||mc>md){
+                    sum=0;
+                }
+                d/=Pow(prime[i], md);
             }
-            #ifdef __Debug
-                // printf("Debug2: %d %d %d\n", i, prime[i], tmp);
-            #endif
         }
-        if (tmp>1){
-            fac.push_back(make_pair(tmp, 1));
+        if (d>1){
+            int ma=PrimeNum(a, d);
+            int mb=PrimeNum(b, d);
+            int mc=PrimeNum(c, d);
+            int md=PrimeNum(d, d);
+            if (ma==mc&&mb==md&&mc<=md){
+                sum*=(md-mc+1);
+            }
+            if (ma<mc||mb>md||mc>md){
+                sum=0;
+            }
         }
-        siz=fac.size();
-        Search(0, 1);
-        printf("%d\n", ans);
+        printf("%d\n", sum);
     }
-
     return 0;
 }

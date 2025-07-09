@@ -7,87 +7,57 @@ typedef long long ll;
 
 const int N=1e5+10;
 
-int t;
-int a, b, c, d;
-int cnt, sum;
-int prime[N], factor[N];
+int n, m, q;
+int cnt, top, ans;
+int head[N], to[N<<1], nxt[N<<1];
 
-void Primes(){
-    for (int i=2; i<N; i++){
-        if (factor[i]==0){
-            factor[i]=i;
-            prime[++cnt]=i;
-        }
-        for (int j=1; j<=cnt; j++){
-            if (prime[j]>factor[i]||prime[j]*i>=N){
-                break;
-            }
-            factor[prime[j]*i]=prime[j];
-        }
-    }
+struct Node{
+    int x, y;
+    bool vis;
+}e[N];
+
+void Add(int u, int v){
+    to[++cnt]=v;
+    nxt[cnt]=head[u];
+    head[u]=cnt;
 }
-int PrimeNum(int x, int prime){
-    int cnt=0;
-    while (x%prime==0){
-        cnt++;
-        x/=prime;
+void Dfs(int u, int fa, int f){
+    if ()
+    for (int i=head[u]; i; i=nxt[i]){
+        int v=to[i];
+        if (v==fa) continue;
+
     }
-    return cnt;
-}
-int Pow(int a, int b){
-    int sum=1;
-    while (b){
-        if (b&1){
-            sum*=a;
-        }
-        a*=a;
-        b>>=1;
-    }
-    return sum;
-}
-void Init(){
-    sum=1;
 }
 signed main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    
-    Primes();
-    cin >> t;
-    while (t--){
-        Init();
-        cin >> a >> c >> b >> d;
-        for (int i=1; i<=cnt&&prime[i]<=d; i++){
-            if (d%prime[i]==0){
-                int ma=PrimeNum(a, prime[i]);
-                int mb=PrimeNum(b, prime[i]);
-                int mc=PrimeNum(c, prime[i]);
-                int md=PrimeNum(d, prime[i]);
-                #ifdef __Debug
-                    printf("Debug1: %d %d %d %d %d\n", prime[i], ma, mc, mb, md);
-                #endif
-                if (ma==mc&&mb==md&&mc<=md){
-                    sum*=(md-mc+1);
-                }
-                if (ma<mc||mb>md||mc>md){
-                    sum=0;
-                }
-                d/=Pow(prime[i], md);
+
+    cin >> n >> m >> q;
+    for (int i=1; i<n; i++){
+        int u, v;
+        cin >> u >> v;
+        Add(u, v);
+        Add(v, u);
+    }
+    if (n<=5000&&m<=5000&&q<=5000){
+        for (int i=1; i<=m; i++){
+            int x, y;
+            cin >> x >> y;
+            e[++top].x=x;
+            e[top].y=y;
+        }
+        for (int i=1; i<=q; i++){
+            int opt, x, y;
+            cin >> opt >> x >> y;
+            switch (opt){
+                case 1:
+                    ans=0;
+                    Dfs(x, 0, y);
+                    printf("%d\n", ans);
+                case 2:
             }
         }
-        if (d>1){
-            int ma=PrimeNum(a, d);
-            int mb=PrimeNum(b, d);
-            int mc=PrimeNum(c, d);
-            int md=PrimeNum(d, d);
-            if (ma==mc&&mb==md&&mc<=md){
-                sum*=(md-mc+1);
-            }
-            if (ma<mc||mb>md||mc>md){
-                sum=0;
-            }
-        }
-        printf("%d\n", sum);
     }
     return 0;
 }

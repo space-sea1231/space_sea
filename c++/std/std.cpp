@@ -1,17 +1,18 @@
 #include <iostream>
 #include <stdio.h>
+#include <cstring>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N=1e5+10;
-const int M=1e8+N;
+const int N=2e3+10;
+// const int M=1e8+10;
 
 int n, m;
-int cnt, root;
-int weight[N], siz[N];
-int f[M];
+int cnt;
+int siz[N];
+int f[N][N];
 int head[N], to[N], nxt[N];
 
 void Add(int u, int v){
@@ -21,13 +22,13 @@ void Add(int u, int v){
 }
 void Dfs(int u){
     siz[u]=1;
-    f[u*m+1]=weight[u];
+    f[u][1]=1;
     for (int i=head[u]; i; i=nxt[i]){
         int v=to[i];
         Dfs(v);
-        for (int j=min(m, siz[u]+siz[v]); j>=1; j--){
-            for (int k=max(1, j-siz[u]); k<=j-1&&k<=siz[v]; k++){
-                f[u*m+j]=max(f[u*m+j], f[u*m+j-k]+f[v*m+k]);
+        for (int j=siz[u]+siz[v]; j>=1; j--){
+            for (int k=1; k<j; k++){
+                f[u][j]=min(f[u][j], f[u][j-k]+f[v][k]);
             }
         }
         siz[u]+=siz[v];
@@ -37,16 +38,15 @@ signed main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
+    memset(f, 0x3f, sizeof(f));
     cin >> n >> m;
-    m++;
-    for (int i=1; i<=n; i++){
-        int p;
-        cin >> p >> weight[i];
-        Add(p, i);
+    for (int i=1; i<n; i++){
+        int u, v;
+        cin >> u >> v;
+        Add(u, v);
     }
-    Dfs(0);
-    printf("%d\n", f[m]);
+    Dfs(1);
+    printf("%d\n", f[1][m]);
 
     return 0;
 }
-//f[i][j]->f[i*m+j]

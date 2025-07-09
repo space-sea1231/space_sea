@@ -5,8 +5,8 @@
 using namespace std;
 typedef long long ll;
 
-const int N=1e5+10;
-const int M=1e8+N;
+const int N=1e3+10;
+const int M=1e5+N;
 
 int n, m;
 int cnt, root;

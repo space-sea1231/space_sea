@@ -1,0 +1,50 @@
+root=1
+u=4 top=4 dep=3
+u=6 top=6 dep=13
+u=7 top=4 dep=5
+u=2 top=4 dep=23
+u=3 top=6 dep=22
+u=5 top=6 dep=29
+
+Debug4:
+1 4 7 6 3 2 5 
+Debug5: r=2 l=0 0
+Debug5: depl=0 depr=5
+Debug5: r=2 l=1 1
+Debug5: depl=3 depr=5
+root=4
+u=7 top=7 dep=2
+u=2 top=2 dep=20
+
+Debug4:
+4 7 2 
+Debug5: r=1 l=0 0
+Debug5: depl=0 depr=2
+root=7
+
+Debug4:
+7 
+root=2
+
+Debug4:
+2 
+root=6
+u=3 top=3 dep=9
+u=5 top=3 dep=16
+
+Debug4:
+6 3 5 
+Debug5: r=1 l=0 0
+Debug5: depl=0 depr=9
+root=3
+u=5 top=5 dep=7
+
+Debug4:
+3 5 
+Debug5: r=1 l=0 0
+Debug5: depl=0 depr=7
+root=5
+
+Debug4:
+5 
+5

@@ -26,13 +26,13 @@ bool Check(int l, int r){
 int Search(int cur){//3 5 6
     int l=id[cur], r=id[cur];
     if (Check((id[cur]-1)*siz+1, cur)){
-        l--;
+        l=max(1, l-1);
         while (l>1&&sum[l]==0){
             l--;
         }
     }
     if (Check(cur, id[cur]*siz)){
-        r++;
+        r=min(num, r+1);
         while (r<num&&sum[r]==0){
             r++;
         }

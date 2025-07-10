@@ -1,10 +1,8 @@
 #include <iostream>
 #include <stdio.h>
-#include <algorithm>
-#include <cmath>
+#include <random>
 #include <vector>
-#include <queue>
-// #define __Debug
+#define __Debug
 
 using namespace std;
 typedef long long ll;
@@ -13,125 +11,194 @@ const int N=4e4+10;
 const int INF=0x3f3f3f3f;
 
 int n, m;
-int cnt, ans, root, minn;
-int siz[N], top[N], dep[N], tot[N];
-int head[N], to[N<<1], val[N<<1], nxt[N<<1];
-vector<int> node;
-
-bool cmp(int srcx, int srcy){
-    return dep[srcx]<dep[srcy];
-}
-void Add(int u, int v, int w){
-    to[++cnt]=v;
-    val[cnt]=w;
-    nxt[cnt]=head[u];
-    head[u]=cnt;
-}
-void Dfs1(int u, int fa){
-    siz[u]=1;
-    int tmp=0;
-    bool flag=false;
-    for (int i=head[u]; i; i=nxt[i]){
-        int v=to[i];
-        if (v==fa) continue;
-        Dfs1(v, u);
-        siz[u]+=siz[v];
-        tmp=max(tmp, siz[v]);
-        flag=true;
+int ans;
+#ifdef __Debug
+    bool flagg;
+    int cntt;
+#endif
+struct Treap{
+    int num=0, root=0;
+    struct Node{
+        int l, r;
+        int vis, val;
+        int cnt, size;
+    }e[N];
+    void Update(int x){
+        e[x].size=e[e[x].l].size+e[e[x].r].size+e[x].cnt;
     }
-    tmp=max(tmp, n-siz[u]);
-    if (tmp<minn){
-        minn=tmp;
-        root=u;
+    void Zig(int &x){
+        int y=e[x].l;
+        e[x].l=e[y].r;
+        e[y].r=x, x=y;
+        Update(e[x].r);
+        Update(x);
     }
-}
-void Dfs3(int u, int fa){
-    node.push_back(u);
-    for (int i=head[u]; i; i=nxt[i]){
-        int v=to[i], w=val[i];
-        if (v==fa) continue;
-        top[v]=top[u];
-        tot[top[v]]++;
-        dep[v]=dep[u]+w;
-        Dfs3(v, u);
+    void Zag(int &x){
+        int y=e[x].r;
+        e[x].r=e[y].l;
+        e[y].r=x, x=y;
+        Update(e[x].l);
+        Update(x);
     }
-}
-void Dfs2(int u, int fa){
-    node.clear();
-    node.push_back(u);
-    top[u]=u;
-    dep[u]=0;
-    tot[top[u]]=1;
-    for (int i=head[u]; i; i=nxt[i]){
-        int v=to[i], w=val[i];
-        if (v==fa) continue;
-        top[v]=v;
-        tot[top[v]]++;
-        dep[v]=w;
-        // #ifdef __Debug
-        //     printf("Debug6: dep[%d]=%d\n", v, dep[v]);
-        // #endif
-        Dfs3(v, u);
+    int New(int val){
+        num++;
+        e[num].l=0, e[num].r=0;
+        e[num].val=val;
+        e[num].vis=rand();
+        e[num].size=1;
+        e[num].cnt=1;
+        return num;
     }
-    #ifdef __Debug
-        queue<pair<int, int> >q;
-        printf("root=%d\n", u);
-        q.push(make_pair(u, fa));
-        while (q.empty()==false){
-            int qu=q.front().first;
-            int qfa=q.front().second;
-            q.pop();
-            for (int i=head[qu]; i; i=nxt[i]){
-                int v=to[i];
-                if (v==qfa) continue;
-                printf("u=%d top=%d dep=%d\n", v, top[v], dep[v]);
-                q.push(make_pair(v, qu));
+    void Insert(int &x, int val){
+        if (x==0){
+            x=New(val);
+            Update(x);
+            return;
+        }
+        if (val==e[x].val){
+            e[x].cnt++;
+            Update(x);
+        }
+        else if (val<e[x].val){
+            Insert(e[x].l, val);
+            if (e[x].vis<e[e[x].l].vis){
+                Zig(x);
             }
         }
-        printf("\n");
-    #endif
-    sort(node.begin(), node.end(), cmp);
-    #ifdef __Debug
-        printf("Debug4:\n");
-        for (auto idx:node){
-            printf("%d ", idx);
+        else if (val>e[x].val){
+            Insert(e[x].r, val);
+            if (e[x].vis<e[e[x].r].vis){
+                Zag(x);
+            }
         }
-        printf("\n");
-    #endif
-    // #ifdef __Debug
-    //     for (int i=1; i<=n; i++){
-    //         printf("Debug7: dep[%d]=%d", i, dep[i]);
-    //     }
-    // #endif
-    int l=0, r=node.size()-1;
-    while (l<r){
-        tot[top[node[l]]]--;
-        while (l<r&&dep[node[l]]+dep[node[r]]>m){
-            tot[top[node[r]]]--;
-            r--;
+        Update(x);
+    }
+    int ValRank(int x, int val){
+        if (x==0){
+            return 0;
         }
-        if (dep[node[l]]+dep[node[r]]>m||l==r) break;
+        if (val==e[x].val){
+            #ifdef __Debug
+                if (flagg==true){
+                    printf("d1: %d\n", e[e[x].l].size+e[x].cnt);
+                }
+            #endif
+            return e[e[x].l].size+e[x].cnt;
+        }
+        else if (val<e[x].val){
+            #ifdef __Debug
+                int tmp=ValRank(e[x].l, val);
+                if (flagg==true){
+                    printf("d2: %d x=%d val=%d e[x].val=%d\n", tmp, x, val, e[x].val);
+                }
+            #endif
+            return tmp;
+        }
+        else if (val>e[x].val){
+            #ifdef __Debug
+                int tmp=ValRank(e[x].r, val);
+                if (flagg==true){
+                    printf("d3: %d\n", tmp+e[e[x].l].size+e[x].cnt);
+                }
+            #endif
+            return tmp+e[e[x].l].size+e[x].cnt;
+        }
+    }
+    void Init(){
+        root=num=0;
+    }
+}treap;
+namespace Tree{
+    int cnt, root, minn=INF;
+    int siz[N], dep[N];
+    int head[N], to[N<<1], val[N<<1], nxt[N<<1];
+    vector<int> node;
+    
+    void Add(int u, int v, int w){
+        to[++cnt]=v;
+        val[cnt]=w;
+        nxt[cnt]=head[u];
+        head[u]=cnt;
+    }
+    void Dfs1(int u, int fa){
+        siz[u]=1;
+        int tmp=0;
+        for (int i=head[u]; i; i=nxt[i]){
+            int v=to[i];
+            if (v==fa) continue;
+            Dfs1(v, u);
+            siz[u]+=siz[v];
+            tmp=max(tmp, siz[v]);
+        }
+        tmp=max(tmp, n-siz[u]);
+        if (minn>tmp){
+            minn=tmp;
+            root=u;
+        }
+    }
+    void Dfs3(int u, int fa){
+        node.push_back(u);
+        for (int i=head[u]; i; i=nxt[i]){
+            int v=to[i], w=val[i];
+            if (v==fa) continue;
+            dep[v]=dep[u]+w;
+            Dfs3(v, u);
+        }
+    }
+    void Dfs2(int u, int fa){//1 0
+        dep[u]=0;
+        treap.Init();
+        treap.Insert(treap.root, 0);
         #ifdef __Debug
-            printf("Debug5: r=%d l=%d %d\n", r, l, tot[top[node[l]]]);
-            printf("Debug5: depl=%d depr=%d\n", dep[node[l]], dep[node[r]]);
+            printf("u=%d fa=%d\n", u, fa);
+            // cerr << "u=" << u << " fa=" << fa << "\n";
         #endif
-        ans+=r-l-tot[top[node[l]]];
-        l++;
-    }
-    for (int i=head[u]; i; i=nxt[i]){
-        int v=to[i];
-        if (v==fa) continue;
-        Dfs2(v, u);
+        for (int i=head[u]; i; i=nxt[i]){
+            int v=to[i], w=val[i];
+            if (v==fa) continue;
+            node.clear();
+            dep[v]=w;
+            Dfs3(v, u);
+            #ifdef __Debug
+                for (auto idx:node){
+                    printf("%d:dep[%d]=%d\n", u, idx, dep[idx]);
+                }
+                printf("\n");
+            #endif
+            for (int idx:node){
+                #ifdef __Debug
+                    if (dep[3]==5&&cntt==0){
+                        flagg=true;
+                        cntt++;
+                        for (int i=1; i<=treap.num; i++){
+                            printf("IAKIOI: x=%d val=%d, l=%d r=%d\n", i, treap.e[i].val, treap.e[i].l, treap.e[i].r);
+                        }
+                        printf("III:root=%d %d\n", treap.root, m-dep[idx]);
+                    }
+                #endif
+                ans+=treap.ValRank(treap.root, m-dep[idx]);
+                #ifdef __Debug
+                    flagg=false;
+                    printf("Debug1: %d\n", treap.ValRank(treap.root, m-dep[idx]));
+                #endif
+            }
+            for (auto idx:node){
+                treap.Insert(treap.root, dep[idx]);
+            }
+        }
+        for (int i=head[u]; i; i=nxt[i]){
+            int v=to[i];
+            if (v==fa) continue;
+            Dfs2(v, u);
+        }
     }
 }
-void Init(){
-    minn=INF;
-}
+using namespace Tree;
+
 signed main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-
-    Init();
+    
     cin >> n;
     for (int i=1; i<n; i++){
         int u, v, w;
@@ -141,9 +208,10 @@ signed main(){
     }
     cin >> m;
     Dfs1(1, 0);
-    // #ifdef __Debug
-    //     printf("root=%d\n", root);
-    // #endif
+    #ifdef __Debug
+        printf("root=%d\n", root);
+        // cerr << root << "\n";
+    #endif
     Dfs2(root, 0);
     printf("%d\n", ans);
 

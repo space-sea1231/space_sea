@@ -30,14 +30,12 @@ void Add(int u, int v, int w){
 void Dfs1(int u, int fa){
     siz[u]=1;
     int tmp=0;
-    bool flag=false;
     for (int i=head[u]; i; i=nxt[i]){
         int v=to[i];
         if (v==fa) continue;
         Dfs1(v, u);
         siz[u]+=siz[v];
         tmp=max(tmp, siz[v]);
-        flag=true;
     }
     tmp=max(tmp, n-siz[u]);
     if (tmp<minn){

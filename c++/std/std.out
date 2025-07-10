@@ -1,50 +1,27 @@
 root=1
-u=4 top=4 dep=3
-u=6 top=6 dep=13
-u=7 top=4 dep=5
-u=2 top=4 dep=23
-u=3 top=6 dep=22
-u=5 top=6 dep=29
+u=1 fa=0
+1:dep[4]=5
+1:dep[5]=6
 
-Debug4:
-1 4 7 6 3 2 5 
-Debug5: r=2 l=0 0
-Debug5: depl=0 depr=5
-Debug5: r=2 l=1 1
-Debug5: depl=3 depr=5
-root=4
-u=7 top=7 dep=2
-u=2 top=2 dep=20
+Debug1: 1
+Debug1: 1
+1:dep[3]=5
 
-Debug4:
-4 7 2 
-Debug5: r=1 l=0 0
-Debug5: depl=0 depr=2
-root=7
+IAKIOI: x=1 val=0, l=0 r=3
+IAKIOI: x=2 val=5, l=0 r=0
+IAKIOI: x=3 val=6, l=0 r=2
+III:root=1 5
+d2: 0 x=3 val=5 e[x].val=6
+d3: 1
+Debug1: 1
+1:dep[2]=19
 
-Debug4:
-7 
-root=2
+Debug1: 0
+u=4 fa=1
+4:dep[5]=1
 
-Debug4:
-2 
-root=6
-u=3 top=3 dep=9
-u=5 top=3 dep=16
-
-Debug4:
-6 3 5 
-Debug5: r=1 l=0 0
-Debug5: depl=0 depr=9
-root=3
-u=5 top=5 dep=7
-
-Debug4:
-3 5 
-Debug5: r=1 l=0 0
-Debug5: depl=0 depr=7
-root=5
-
-Debug4:
-5 
-5
+Debug1: 1
+u=5 fa=4
+u=3 fa=1
+u=2 fa=1
+4

@@ -75,6 +75,7 @@ struct Treap{
     }
     int ValRank(int x, int val){
         if (x==0){
+            
             return 0;
         }
         if (val==e[x].val){
@@ -94,7 +95,7 @@ struct Treap{
             #endif
             return tmp;
         }
-        else if (val>e[x].val){
+        else{
             #ifdef __Debug
                 int tmp=ValRank(e[x].r, val);
                 if (flagg==true){

@@ -1,27 +1,4 @@
-root=1
-u=1 fa=0
-1:dep[4]=5
-1:dep[5]=6
-
-Debug1: 1
-Debug1: 1
-1:dep[3]=5
-
-IAKIOI: x=1 val=0, l=0 r=3
-IAKIOI: x=2 val=5, l=0 r=0
-IAKIOI: x=3 val=6, l=0 r=2
-III:root=1 5
-d2: 0 x=3 val=5 e[x].val=6
-d3: 1
-Debug1: 1
-1:dep[2]=19
-
-Debug1: 0
-u=4 fa=1
-4:dep[5]=1
-
-Debug1: 1
-u=5 fa=4
-u=3 fa=1
-u=2 fa=1
-4
+0
+0
+0
+0

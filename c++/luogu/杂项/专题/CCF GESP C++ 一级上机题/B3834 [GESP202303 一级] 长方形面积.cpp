@@ -9,9 +9,15 @@ signed main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int sx, sy, fx, fy;
-    cin >> sx >> sy >> fx >> fy;
-    printf("%d\n", (fx-sx)*60+fy-sy);
-    
+    int x;
+    cin >> x;
+    int cnt=0;
+    for (int i=1; i*i<=x; i++){
+        if (x%i==0){
+            cnt++;
+        }
+    }
+    printf("%d\n", cnt);
+
     return 0;
 }

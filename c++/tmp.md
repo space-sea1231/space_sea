@@ -1,47 +1,70 @@
-# P2754 [CTSC1999] 家园 / 星际转移问题
-
-## 题目描述
-
-由于人类对自然资源的消耗，人们意识到大约在 2300 年之后，地球就不能再居住了。于是在月球上建立了新的绿地，以便在需要时移民。令人意想不到的是，2177 年冬由于未知的原因，地球环境发生了连锁崩溃，人类必须在最短的时间内迁往月球。
-
-现有 $n$ 个太空站位于地球与月球之间，且有 $m$ 艘公共交通太空船在其间来回穿梭。每个太空站可容纳无限多的人，而太空船的容量是有限的，第 $i$ 艘太空船只可容纳  $h_i$ 个人。每艘太空船将周期性地停靠一系列的太空站，例如 $(1,3,4)$ 表示该太空船将周期性地停靠太空站 $134134134\dots$。每一艘太空船从一个太空站驶往任一太空站耗时均为 $1$。人们只能在太空船停靠太空站(或月球、地球)时上、下船。
-
-初始时所有人全在地球上，太空船全在初始站。试设计一个算法，找出让所有人尽快地全部转移到月球上的运输方案。
-
-## 输入格式
-
-输入的第一行是三个用空格隔开的整数，分别代表太空站个数 $n$，太空船个数 $m$ 和地球上的人数 $k$。
-
-第 $2$ 到第 $(m + 1)$ 行，每行给出一艘太空船的信息，第 $(i + 1)$ 行的第一个整数 $h_i$ 代表第 $i$ 艘太空船可容纳的人数。随后有一个整数 $r_i$，代表第 $i$ 艘太空船停靠的站点数。之后有 $r_i$ 个整数，依次代表该太空船停靠站点的编号 $S_{i, j}$，其中太空站自 $1$ 至 $n$ 编号，地球编号为 $0$，月球编号为 $-1$。
-
-## 输出格式
-
-输出一行一个整数，代表将所有人转移到月球上的最短用时。若无解则输出 $0$。
-
-## 输入输出样例 #1
-
-### 输入 #1
-
 ```
-2 2 1
-1 3 0 1 2
-1 3 1 2 -1
+#include<bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N=1e7+5;
+const int mod=1e9+7;
+int T,tot;
+int lg[N],inv[N],fac[N];
+int mi[N],cnt;
+int ksm(int x,int y){
+    int ans=1,base=x;
+    while(y){
+        if(y&1)ans*=base;
+        base*=base;
+        ans%=mod;base%=mod;
+        y/=2;
+    }
+    return ans;
+}
+int C(int a,int b){
+    if(a<b)return 0;
+    return (fac[a]*inv[b]%mod)*inv[a-b]%mod;
+}
+void init(){
+    lg[0]=0;
+    cnt=-1;
+    for(int i=1;i<N;i*=2){
+        mi[++cnt]=i;
+    }
+    mi[++cnt]=1e9;
+    int lt=0;
+    inv[0]=fac[0]=1;
+    for(int i=1;i<N;i++){
+        if(i>mi[lt])lt++;
+        lg[i]=lt;
+        fac[i]=(fac[i-1]*(i))%mod;
+    }
+    inv[N-1]=ksm(fac[N-1],mod-2);
+    for(int i=N-2;i>=1;i--){
+        inv[i]=(inv[i+1]*(i+1))%mod;
+    }
+    // cout << inv[1]<<"\n";
+    return ;
+}
+signed main(){
+    cin >> T;
+    // lg[0]=0;
+    init();
+    // cout << lg[7];
+    while(T--){
+        int n;
+        cin >> n;
+        int m=lg[n];
+        int res=0;
+        for(int i=0;i<=m;i++){
+            if(i%2==0){
+                res+=(C(m,i)*C(mi[m-i],n)%mod)%mod;
+                res%=mod;
+            }else{
+                res-=(C(m,i)*C(mi[m-i],n)%mod)%mod;
+                res+=mod;
+                res%=mod;
+            }
+            // cout << mi[m-i] << " ";
+        }
+        cout << (res*fac[n]%mod)*inv[m]%mod<<"\n";
+    }
+    return 0;
+}
 ```
-
-### 输出 #1
-
-```
-5
-```
-
-## 说明/提示
-
-#### 数据规模与约定
-
-对于 $100\%$ 的数据，保证：
-
-- $1 \leq n \leq 13$。
-- $1 \leq m \leq 20$。
-- $1 \leq k \leq 50$。
-- $1 \leq r_i \leq n + 2$。
-- $-1 \leq S_{i, j}\leq n$。

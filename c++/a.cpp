@@ -1,220 +1,93 @@
 #include <iostream>
 #include <stdio.h>
-#include <random>
+#include <algorithm>
 #include <vector>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N=4e4+10;
-const int INF=0x3f3f3f3f;
+const int N=1e6+10;
 
-int n, m;
-int ans;
-#ifdef __Debug
-    bool flagg;
-    int cntt;
-#endif
-struct Treap{
-    int num=0, root=0;
-    struct Node{
-        int l, r;
-        int vis, val;
-        int cnt, size;
-    }e[N];
-    void Update(int x){
-        e[x].size=e[e[x].l].size+e[e[x].r].size+e[x].cnt;
-    }
-    void Zig(int &x){
-        int y=e[x].l;
-        e[x].l=e[y].r;
-        e[y].r=x, x=y;
-        Update(e[x].r);
-        Update(x);
-    }
-    void Zag(int &x){
-        int y=e[x].r;
-        e[x].r=e[y].l;
-        e[y].r=x, x=y;
-        Update(e[x].l);
-        Update(x);
-    }
-    int New(int val){
-        num++;
-        e[num].l=0, e[num].r=0;
-        e[num].val=val;
-        e[num].vis=rand();
-        e[num].size=1;
-        e[num].cnt=1;
-        return num;
-    }
-    void Insert(int &x, int val){
-        if (x==0){
-            x=New(val);
-            Update(x);
-            return;
+int l;
+int cnt, num;
+int prime[N], factor[N];
+vector<int> que;
+
+int Gcd(int a, int b){
+    while (b^=a^=b^=a%=b);
+    return a;
+}
+int Pow(int a, int b, int mod){
+    ll sum=1;
+    while (b){
+        if (b&1){
+            sum=((ll)sum*a)%mod;
         }
-        if (val==e[x].val){
-            e[x].cnt++;
-            Update(x);
+        a=((ll)a*a)%mod;
+        b>>=1;
+    }
+    return sum;
+}
+void Primes(){
+    for (int i=2; i<N; i++){
+        if (factor[i]==0){
+            factor[i]=i;
+            prime[++cnt]=i;
         }
-        else if (val<e[x].val){
-            Insert(e[x].l, val);
-            if (e[x].vis<e[e[x].l].vis){
-                Zig(x);
+        for (int j=1; j<=cnt; j++){
+            if (prime[j]>factor[i]||prime[j]*i>=N){
+                break;
             }
-        }
-        else if (val>e[x].val){
-            Insert(e[x].r, val);
-            if (e[x].vis<e[e[x].r].vis){
-                Zag(x);
-            }
-        }
-        Update(x);
-    }
-    int ValRank(int x, int val){
-        if (x==0){
-            
-            return 0;
-        }
-        if (val==e[x].val){
-            #ifdef __Debug
-                if (flagg==true){
-                    printf("d1: %d\n", e[e[x].l].size+e[x].cnt);
-                }
-            #endif
-            return e[e[x].l].size+e[x].cnt;
-        }
-        else if (val<e[x].val){
-            #ifdef __Debug
-                int tmp=ValRank(e[x].l, val);
-                if (flagg==true){
-                    printf("d2: %d x=%d val=%d e[x].val=%d\n", tmp, x, val, e[x].val);
-                }
-            #endif
-            return tmp;
-        }
-        else{
-            #ifdef __Debug
-                int tmp=ValRank(e[x].r, val);
-                if (flagg==true){
-                    printf("d3: %d\n", tmp+e[e[x].l].size+e[x].cnt);
-                }
-            #endif
-            return tmp+e[e[x].l].size+e[x].cnt;
-        }
-    }
-    void Init(){
-        root=num=0;
-    }
-}treap;
-namespace Tree{
-    int cnt, root, minn=INF;
-    int siz[N], dep[N];
-    int head[N], to[N<<1], val[N<<1], nxt[N<<1];
-    vector<int> node;
-    
-    void Add(int u, int v, int w){
-        to[++cnt]=v;
-        val[cnt]=w;
-        nxt[cnt]=head[u];
-        head[u]=cnt;
-    }
-    void Dfs1(int u, int fa){
-        siz[u]=1;
-        int tmp=0;
-        for (int i=head[u]; i; i=nxt[i]){
-            int v=to[i];
-            if (v==fa) continue;
-            Dfs1(v, u);
-            siz[u]+=siz[v];
-            tmp=max(tmp, siz[v]);
-        }
-        tmp=max(tmp, n-siz[u]);
-        if (minn>tmp){
-            minn=tmp;
-            root=u;
-        }
-    }
-    void Dfs3(int u, int fa){
-        node.push_back(u);
-        for (int i=head[u]; i; i=nxt[i]){
-            int v=to[i], w=val[i];
-            if (v==fa) continue;
-            dep[v]=dep[u]+w;
-            Dfs3(v, u);
-        }
-    }
-    void Dfs2(int u, int fa){//1 0
-        dep[u]=0;
-        treap.Init();
-        treap.Insert(treap.root, 0);
-        #ifdef __Debug
-            printf("u=%d fa=%d\n", u, fa);
-            // cerr << "u=" << u << " fa=" << fa << "\n";
-        #endif
-        for (int i=head[u]; i; i=nxt[i]){
-            int v=to[i], w=val[i];
-            if (v==fa) continue;
-            node.clear();
-            dep[v]=w;
-            Dfs3(v, u);
-            #ifdef __Debug
-                for (auto idx:node){
-                    printf("%d:dep[%d]=%d\n", u, idx, dep[idx]);
-                }
-                printf("\n");
-            #endif
-            for (int idx:node){
-                #ifdef __Debug
-                    if (dep[3]==5&&cntt==0){
-                        flagg=true;
-                        cntt++;
-                        for (int i=1; i<=treap.num; i++){
-                            printf("IAKIOI: x=%d val=%d, l=%d r=%d\n", i, treap.e[i].val, treap.e[i].l, treap.e[i].r);
-                        }
-                        printf("III:root=%d %d\n", treap.root, m-dep[idx]);
-                    }
-                #endif
-                ans+=treap.ValRank(treap.root, m-dep[idx]);
-                #ifdef __Debug
-                    flagg=false;
-                    printf("Debug1: %d\n", treap.ValRank(treap.root, m-dep[idx]));
-                #endif
-            }
-            for (auto idx:node){
-                treap.Insert(treap.root, dep[idx]);
-            }
-        }
-        for (int i=head[u]; i; i=nxt[i]){
-            int v=to[i];
-            if (v==fa) continue;
-            Dfs2(v, u);
+            factor[i*prime[j]]=prime[j];
         }
     }
 }
-using namespace Tree;
-
+int Phi(int x){
+    int sum=x;
+    for (int i=1; i<=cnt; i++){
+        if (x%prime[i]==0){
+            sum=sum/prime[i]*(prime[i]-1);
+            while (x%prime[i]==0){
+                x/=prime[i];
+            }
+        }
+    }
+    if (x>1){
+        sum=sum/x*(x-1);
+    }
+    return sum;
+}
 signed main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    
-    cin >> n;
-    for (int i=1; i<n; i++){
-        int u, v, w;
-        cin >> u >> v >> w;
-        Add(u, v, w);
-        Add(v, u, w);
-    }
-    cin >> m;
-    Dfs1(1, 0);
-    #ifdef __Debug
-        printf("root=%d\n", root);
-        // cerr << root << "\n";
-    #endif
-    Dfs2(root, 0);
-    printf("%d\n", ans);
 
+    Primes();
+    while (cin >> l, l!=0){
+        num++;
+        que.clear();
+        ll n=(ll)l*9/Gcd(l, 8);
+        ll sum=Phi(n);
+        for (int i=1; i*i<=sum; i++){
+            if (sum%i==0){
+                que.push_back(i);
+                if (i*i!=sum){
+                    que.push_back(sum/i);
+                }
+            }
+        }
+        sort(que.begin(), que.end());
+        bool flag=false;
+        for (auto idx:que){
+            if (Pow(10, idx, n)==1){
+                flag=true;
+                printf("Case %d: %d\n", num, idx);
+                break;
+            }
+        }
+        if (flag==false){
+            printf("Case %d: %d\n", num, 0);
+        }
+    }
     return 0;
 }

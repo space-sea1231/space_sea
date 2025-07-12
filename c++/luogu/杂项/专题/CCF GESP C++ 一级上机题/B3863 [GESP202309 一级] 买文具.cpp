@@ -15,4 +15,4 @@ signed main(){
     printf("%s\n%d\n", (money-2*x-5*y-3*z>0?"Yes":"No"), abs(money-2*x-5*y-3*z));
 
     return 0;
-}
+}s

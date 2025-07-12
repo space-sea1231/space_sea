@@ -5,14 +5,20 @@
 using namespace std;
 typedef long long ll;
 
-int x, y, z, money;
+int k, l, r;
 
 signed main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    cin >> x >> y >> z >> money;
-    printf("%s\n%d\n", (money-2*x-5*y-3*z>0?"Yes":"No"), abs(money-2*x-5*y-3*z));
+    cin >> k >> l >> r;
+    int sum=0;
+    for (int i=l; i<=r; i++){
+        if (i%10==k||i%k==0){
+            sum+=i;
+        }
+    }
+    printf("%d\n", sum);
 
     return 0;
 }

@@ -19,7 +19,7 @@ signed main(){
 
     cin >> a >> b;
     Exgcd(a, b, x, y);
+    printf("%d\n", (x%b+b)%b);
     
-
     return 0;
 }

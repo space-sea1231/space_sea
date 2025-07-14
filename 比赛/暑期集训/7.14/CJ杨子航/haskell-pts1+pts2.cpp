@@ -8,7 +8,7 @@ typedef long long ll;
 int n;
 
 namespace Pts2{
-    const int N=1e3+10;
+    const int N=1e5+10;
     
     bool a[N], b[N];
     int sum[N];

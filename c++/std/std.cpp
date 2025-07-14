@@ -1,62 +1,45 @@
 #include <iostream>
 #include <stdio.h>
+#include <cmath>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
+typedef long double ld;
 
-const int N=2e2+10;
-const int MOD=9901;
+int n, m;
+ld x;
 
-int a, b;
-int cnt, ans=1, num;
-int prime[N], count[N];
-
-void Prime(int a){
-    for (int i=2; i*i<=a; i++){
-        if (a%i==0){
-            prime[++num]=i;
-            while (a%i==0){
-                count[num]++;
-                a/=i;
-            }
-        }
-    }
-    if (a>1){
-        prime[++num]=a;
-        count[num]++;
-    }
-}
-int Pow(int a, int b){
-    int sum=1;
-    while (b){
-        if (b&1){
-            sum=((ll)sum*a)%MOD;
-        }
-        a=((ll)a*a)%MOD;
-        b>>=1;
-    }
-    return sum;
+namespace Pts1_2_3{
+    const int N=5e3+10;
+    const int EXP=1e5;
+    const double EPS=1e-8;
+    ld pw[N], f[N];
+    int a[N];
 }
 signed main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    cin >> a >> b;
-    if (a==0){
-        printf("0\n");
-        return 0;
-    }
-    Prime(a);
-    for (int i=1; i<=num; i++){
-        if ((prime[i]-1)%MOD==0){
-            ans=(ll)ans*(b*count[i]+1)%MOD;
+    cin >> n >> m >> x;
+    if (n){
+        using namespace Pts1_2_3;
+        x/=EXP, pw[0]=1;
+        for (int i=1; i<=n; i++){
+            cin >> a[i];
+            pw[i]=pw[i-1]*x;
         }
-        else{
-            ans=(ll)ans*(Pow(prime[i], b*count[i]+1)-1)*Pow(prime[i]-1, MOD-2)%MOD;
+        for (int i=1; i<=n; i++){
+            for (int j=i; j>=1; j--){
+                // f[i][j]=max(f[i-1][j], f[i-1][j-1]+a[i]*((pw[i]<EPS&&fabs(pw[i]-EPS)>(1e-12))?0:pw[j-1]));
+                f[j]=max(f[j], f[j-1]+a[i]*pw[j-1]);
+            }
+        }
+        for (int i=1; i<=m; i++){
+            int a;
+            cin >> a;
+            printf("%.09LF\n", f[a]);
         }
     }
-    printf("%d\n", (ans+MOD)%MOD);
-
     return 0;
 }

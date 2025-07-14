@@ -1,92 +1,41 @@
 #include <iostream>
 #include <stdio.h>
-#include <algorithm>
-#include <vector>
+#include <cstring>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N=1e6+10;
+ll n=1e12;
+int cnt[11];
 
-int l;
-int cnt, num;
-int prime[N], factor[N];
-vector<int> que;
-
-int Gcd(int a, int b){
-    while (b^=a^=b^=a%=b);
-    return a;
-}
-int Pow(int a, int b, int mod){
-    ll sum=1;
-    while (b){
-        if (b&1){
-            sum=((ll)sum*a)%mod;
-        }
-        a=((ll)a*a)%mod;
-        b>>=1;
+bool Check(ll x){
+    memset(cnt, 0, sizeof(cnt));
+    ll y=x<<1ll;
+    while (x){
+        cnt[x%10]++;
+        x/=10ll;
     }
-    return sum;
-}
-void Primes(){
-    for (int i=2; i<N; i++){
-        if (factor[i]==0){
-            factor[i]=i;
-            prime[++cnt]=i;
-        }
-        for (int j=1; j<=cnt; j++){
-            if (prime[j]>factor[i]||prime[j]*i>=N){
-                break;
-            }
-            factor[i*prime[j]]=prime[j];
+    while (y){
+        cnt[y%10ll]--;
+        y/=10ll;
+    }
+    for (int i=0; i<=9; i++){
+        if (cnt[i]!=0){
+            return false;
         }
     }
-}
-int Phi(int x){
-    int sum=x;
-    for (int i=1; i<=cnt; i++){
-        if (x%prime[i]==0){
-            sum=sum/prime[i]*(prime[i]-1);
-            while (x%prime[i]==0){
-                x/=prime[i];
-            }
-        }
-    }
-    if (x>1){
-        sum=sum/x*(x-1);
-    }
-    return sum;
+    return true;
 }
 signed main(){
+    freopen("a.out", "w", stdout);
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    Primes();
-    while (cin >> l, l!=0){
-        num++;
-        que.clear();
-        ll n=(ll)l*9/Gcd(l, 8);
-        ll sum=Phi(n);
-        for (int i=1; i*i<=sum; i++){
-            if (sum%i==0){
-                que.push_back(i);
-                if (i*i!=sum){
-                    que.push_back(sum/i);
-                }
-            }
-        }
-        sort(que.begin(), que.end());
-        bool flag=false;
-        for (auto idx:que){
-            if (Pow(10, idx, n)==1){
-                flag=true;
-                printf("Case %d: %d\n", num, idx);
-                break;
-            }
-        }
-        if (flag==false){
-            printf("Case %d: %d\n", num, 0);
+    for (ll i=100000000000; i<=n; i++){
+        if (Check(i)==true){
+            cerr << i << endl;
+            printf("%lld, ", i);
         }
     }
     return 0;

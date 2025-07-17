@@ -10,7 +10,7 @@ typedef __int128 i128;
 const int N=10;
 const int MOD=1e9+7;
 
-int t, n;
+ll t, n;
 i128 a[N][N], sum[N][N], tmp[N][N];
 
 void Init(){

@@ -1,42 +1,84 @@
 #include <iostream>
 #include <stdio.h>
-#include <cstring>
+#include <vector>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
+typedef __int128 i128;
 
-ll n=1e12;
-int cnt[11];
+int n, m;
 
-bool Check(ll x){
-    memset(cnt, 0, sizeof(cnt));
-    ll y=x<<1ll;
-    while (x){
-        cnt[x%10]++;
-        x/=10ll;
-    }
-    while (y){
-        cnt[y%10ll]--;
-        y/=10ll;
-    }
-    for (int i=0; i<=9; i++){
-        if (cnt[i]!=0){
-            return false;
+ll Pow(ll a, ll b){
+    ll sum=1;
+    while (b>0){
+        if (b&1==true){
+            sum=sum*a;
         }
+        a=a*a;
+        b=b>>1;
     }
-    return true;
+    return sum;
 }
 signed main(){
-    freopen("a.out", "w", stdout);
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    for (ll i=100000000000; i<=n; i++){
-        if (Check(i)==true){
-            cerr << i << endl;
-            printf("%lld, ", i);
+
+    cin >> m;
+    for (int i=1; i<=2; i++){
+        int k;
+        cin >> k;
+        i128 sum=0;
+        for (int j=1; j<=k; j++){
+            int a;
+            cin >> a;
+            sum+=Pow(a, m);
         }
+        printf("%lld\n", (ll)sum);
     }
+
     return 0;
 }
+/*
+4
+16 1 4 6 7 10 11 13 16 18 19 21 24 25 28 30 31 
+16 2 3 5 8 9 12 14 15 17 20 22 23 26 27 29 32 
+3 2 1  3 1 2  3 2 1  2 3 1  3 2 1
+1 2 3  1 3 2  1 2 3  2 1
+4
+16 1 4 6 7 10 11 13 16 18 19 21 24 25 28 30 31 
+16 2 3 5 8 9 12 14 15 17 20 22 23 26 27 29 32 
+3 2 1  3 1 2  3 2 1  2 3 1  3 2 1
+1 2 3  1 3 2  1 2 3  2 1 3  1 2 3
+
+5
+32 1 4 6 7 10 11 13 16 18 19 21 24 25 28 30 31 34 35 37 40 41 44 46 47 49 52 54 55 58 59 61 64
+32 2 3 5 8 9 12 14 15 17 20 22 23 26 27 29 32 33 36 38 39 42 43 45 48 50 51 53 56 57 60 62 63 
+3 2 1 3  1 2 3 2  1 2 3 1  3 2 1 3  1 2 3 1  3 2 1 2  3 2 1 3  1 2 3
+1 2 3 1  3 2 1 2  3 2 1 3  1 2 3 1  3 2 1 3  1 2 3 2  1 2 3 1  3 2 1
+
+00001
+00100
+00110
+00111
+01010
+01011
+01101
+10000 3  1 2 3
+
+5
+32 1 4 6 7 10 11 13 16 18 19 21 24 25 28 30 31 34 35 37 40 41 44 46 47 49 52 54 55 58 59 61 64
+32 2 3 5 8 9 12 14 15 17 20 22 23 26 27 29 32 33 36 38 39 42 43 45 48 50 51 53 56 57 60 62 63 
+3 2 1 3  1 2 3 2  1 2 3 1  3 2 1 3  1 2 3 1  3 2 1 2  3 2 1 3  1 2 3
+1 2 3 1  3 2 1 2  3 2 1 3  1 2 3 1  3 2 1 3  1 2 3 2  1 2 3 1  3 2 1
+
+00001
+00100
+00110
+00111
+01010
+01011
+01101
+10000
+*/

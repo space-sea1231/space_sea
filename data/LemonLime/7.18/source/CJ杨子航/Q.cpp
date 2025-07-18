@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <algorithm>
 #define Mod(x) (x%MOD+MOD)%MOD
-#define int long long
 #define __Debug
 
 using namespace std;
@@ -45,6 +44,8 @@ void Init(){
     }
 }
 signed main(){
+    freopen("Q.in", "r", stdin);
+    freopen("Q.out", "w", stdout);
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
@@ -61,7 +62,7 @@ signed main(){
         int x=Find(node[i].x);
         int y=Find(node[i].y);
         if (x==y){
-            printf("%lld\n", node[i].sum);
+            printf("%d\n", node[i].sum);
             return 0;
         }
         if (vis[x]==0){

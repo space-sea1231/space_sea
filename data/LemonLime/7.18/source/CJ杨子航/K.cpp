@@ -1,6 +1,6 @@
 #include <iostream>
 #include <stdio.h>
-// #define __Debug
+#define __Debug
 
 using namespace std;
 typedef long long ll;
@@ -55,9 +55,9 @@ signed main(){
             cin >> a[i];
             Decompose(a[i]);
         }
-        // for (int i=1; i<=n; i++){
-        //     Decompose1(a[i], i);
-        // }
+        for (int i=1; i<=n; i++){
+            Decompose1(a[i], i);
+        }
         int ans=0;
         for (int i=1; i<=64; i++){
             if (cnt[i]%2==1){

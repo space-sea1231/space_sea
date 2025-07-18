@@ -23,3 +23,5 @@ res=1 cnt=1
 7.15 中国剩余定理 cnt++ (cnt=3)
 7.15 规则八 cnt-=3 res++ (cnt=0 res=1)
 7.15 P4777 【模板】扩展中国剩余定理（EXCRT）cnt++ (cnt=1)
+7.18 比赛进前十 res++(res=2)
+7.18 规则九 res--(res=1)

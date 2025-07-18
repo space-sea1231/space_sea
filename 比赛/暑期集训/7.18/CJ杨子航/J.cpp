@@ -17,6 +17,14 @@ signed main(){
     cin.tie(nullptr);
 
     cin >> n >> m;
+    if (n==1){
+        if (m==0){
+            printf("1\n1 1\n1 2\n");
+        }else{
+            printf("0\n");
+        }
+        return 0;
+    }
     vis[1]=0;
     for (int i=3; i<=n; i++){
         for (int j=(1<<(i-3))+1; j<=(1<<(i-2)); j++){

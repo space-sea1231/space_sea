@@ -1,84 +1,92 @@
 #include <iostream>
 #include <stdio.h>
-#include <vector>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
-typedef __int128 i128;
+
+const int N=1e6+10;
 
 int n, m;
+int a[N];
 
-ll Pow(ll a, ll b){
-    ll sum=1;
-    while (b>0){
-        if (b&1==true){
-            sum=sum*a;
+namespace SegmentTree{
+    int num;
+    int root[N<<1];
+    
+    struct Node{
+        int lson, rson;
+        int dat;
+    };
+    Node node[N<<8];
+
+    int Build(int l, int r){
+        int p=++num;
+        if (l==r){
+            node[p].dat=a[l];
+            return p;
         }
-        a=a*a;
-        b=b>>1;
+        int mid=(l+r)>>1;
+        node[p].lson=Build(l, mid);
+        node[p].rson=Build(mid+1, r);
+        return p;
     }
-    return sum;
+    int Insert(int now, int l, int r, int cur, int val){
+        int p=++num;
+        node[p]=node[now];
+        if (l==r){
+            node[p].dat=val;
+            return p;
+        }
+        int mid=(l+r)>>1;
+        if (cur<=mid){
+            node[p].lson=Insert(node[now].lson, l, mid, cur, val);
+        }
+        else{
+            node[p].rson=Insert(node[now].rson, mid+1, r, cur, val);
+        }
+        return p;
+    }
+    int Query(int now, int l, int r, int cur){
+        if (l==r){
+            return node[now].dat;
+        }
+        int mid=(l+r)>>1;
+        if (cur<=mid){
+            return Query(node[now].lson, l, mid, cur);
+        }
+        else{
+            return Query(node[now].rson, mid+1, r, cur);
+        }
+        return 0;
+    }
 }
+using namespace SegmentTree;
+
 signed main(){
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-
-    cin >> m;
-    for (int i=1; i<=2; i++){
-        int k;
-        cin >> k;
-        i128 sum=0;
-        for (int j=1; j<=k; j++){
-            int a;
-            cin >> a;
-            sum+=Pow(a, m);
+    cin >> n >> m;
+    for (int i=1; i<=n; i++){
+        cin >> a[i];
+    }
+    root[0]=Build(1, n);
+    for (int i=1; i<=m; i++){
+        int ver, opt;
+        cin >> ver >> opt;
+        if (opt==1){
+            int cur, val;
+            cin >> cur >> val;
+            root[i]=Insert(root[ver], 1, n, cur, val);
         }
-        printf("%lld\n", (ll)sum);
+        if (opt==2){
+            int cur;
+            cin >> cur;
+            printf("%d\n", Query(root[ver], 1, n, cur));
+            root[i]=root[ver];
+        }
     }
 
     return 0;
 }
-/*
-4
-16 1 4 6 7 10 11 13 16 18 19 21 24 25 28 30 31 
-16 2 3 5 8 9 12 14 15 17 20 22 23 26 27 29 32 
-3 2 1  3 1 2  3 2 1  2 3 1  3 2 1
-1 2 3  1 3 2  1 2 3  2 1
-4
-16 1 4 6 7 10 11 13 16 18 19 21 24 25 28 30 31 
-16 2 3 5 8 9 12 14 15 17 20 22 23 26 27 29 32 
-3 2 1  3 1 2  3 2 1  2 3 1  3 2 1
-1 2 3  1 3 2  1 2 3  2 1 3  1 2 3
-
-5
-32 1 4 6 7 10 11 13 16 18 19 21 24 25 28 30 31 34 35 37 40 41 44 46 47 49 52 54 55 58 59 61 64
-32 2 3 5 8 9 12 14 15 17 20 22 23 26 27 29 32 33 36 38 39 42 43 45 48 50 51 53 56 57 60 62 63 
-3 2 1 3  1 2 3 2  1 2 3 1  3 2 1 3  1 2 3 1  3 2 1 2  3 2 1 3  1 2 3
-1 2 3 1  3 2 1 2  3 2 1 3  1 2 3 1  3 2 1 3  1 2 3 2  1 2 3 1  3 2 1
-
-00001
-00100
-00110
-00111
-01010
-01011
-01101
-10000 3  1 2 3
-
-5
-32 1 4 6 7 10 11 13 16 18 19 21 24 25 28 30 31 34 35 37 40 41 44 46 47 49 52 54 55 58 59 61 64
-32 2 3 5 8 9 12 14 15 17 20 22 23 26 27 29 32 33 36 38 39 42 43 45 48 50 51 53 56 57 60 62 63 
-3 2 1 3  1 2 3 2  1 2 3 1  3 2 1 3  1 2 3 1  3 2 1 2  3 2 1 3  1 2 3
-1 2 3 1  3 2 1 2  3 2 1 3  1 2 3 1  3 2 1 3  1 2 3 2  1 2 3 1  3 2 1
-
-00001
-00100
-00110
-00111
-01010
-01011
-01101
-10000
-*/

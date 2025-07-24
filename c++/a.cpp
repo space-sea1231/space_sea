@@ -1,105 +1,69 @@
-#include <algorithm>
 #include <iostream>
+#include <stdio.h>
+#define __Debug
 
-constexpr int MAXN = 1e5 + 10;
-constexpr int MAXK = 2e5 + 10;
+using namespace std;
+typedef long long ll;
 
-int n, m;
+const int N = 4e7 + 10;
+const int M = 3e7 + 7e6;
+const int EXP = 262143;
 
-struct Element {
-  int a, b, c;
-  int cnt;
-  int res;
+int t, n;
+int a[N];
+int sum[N], f[N];
+int bucket[M];
 
-  bool operator!=(Element other) const {
-    if (a != other.a) return true;
-    if (b != other.b) return true;
-    if (c != other.c) return true;
-    return false;
-  }
-};
-
-Element e[MAXN];
-Element ue[MAXN];
-int m, t;
-int res[MAXN];
-
-struct BinaryIndexedTree {
-  int node[MAXK];
-
-  int lowbit(int x) { return x & -x; }
-
-  void Add(int pos, int val) {
-    while (pos <= m) {
-      node[pos] += val;
-      pos += lowbit(pos);
+signed main() {
+  cin.tie(nullptr) -> ios::sync_with_stdio(false);
+  /*Input*/
+  cin >> t;
+  while (t--) {
+    cin >> n;
+    int k = 0;
+    if (n == N) {
+      int x, y;
+      cin >> x >> y;
+      a[1] = 0;
+      for (int i = 2; i <= n; i++) {
+        a[i] = (a[i - 1] * x + y + i) & EXP;
+        k = max(k, a[i] + 1);
+      }
     }
-    return;
-  }
-
-  int Ask(int pos) {
-    int res = 0;
-    while (pos) {
-      res += node[pos];
-      pos -= lowbit(pos);
+    else{
+      for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        k = max(k, a[i] + 1);
+      }
     }
-    return res;
-  }
-} BIT;
-
-bool cmpA(Element x, Element y) {
-  if (x.a != y.a) return x.a < y.a;
-  if (x.b != y.b) return x.b < y.b;
-  return x.c < y.c;
-}
-
-bool cmpB(Element x, Element y) {
-  if (x.b != y.b) return x.b < y.b;
-  return x.c < y.c;
-}
-
-void CDQ(int l, int r) {
-  if (l == r) return;
-  int mid = (l + r) / 2;
-  CDQ(l, mid);
-  CDQ(mid + 1, r);
-  std::sort(ue + l, ue + mid + 1, cmpB);
-  std::sort(ue + mid + 1, ue + r + 1, cmpB);
-  int i = l;
-  int j = mid + 1;
-  while (j <= r) {
-    while (i <= mid && ue[i].b <= ue[j].b) {
-      BIT.Add(ue[i].c, ue[i].cnt);
-      i++;
+    /*Init*/
+    for (int i = 0; i <= n; i++) {
+      bucket[i] = 0;
+      sum[i] = 0;
+      f[i] = 0;
     }
-    ue[j].res += BIT.Ask(ue[j].c);
-    j++;
-  }
-  for (int k = l; k < i; k++) BIT.Add(ue[k].c, -ue[k].cnt);
-  return;
-}
-
-using std::cin;
-using std::cout;
-
-int main() {
-  cin.tie(nullptr)->sync_with_stdio(false);
-  cin >> n >> m;
-  for (int i = 1; i <= n; i++) cin >> e[i].a >> e[i].b >> e[i].c;
-  std::sort(e + 1, e + n + 1, cmpA);
-  for (int i = 1; i <= n; i++) {
-    t++;
-    if (e[i] != e[i + 1]) {
-      m++;
-      ue[m].a = e[i].a;
-      ue[m].b = e[i].b;
-      ue[m].c = e[i].c;
-      ue[m].cnt = t;
-      t = 0;
+    sum[0] = f[0] = 1;
+    /*Solve*/
+    int l = 0;
+    int cnt = 0;
+    for (int i = 1; i <= n; i++) {
+      if (bucket[a[i]] == 0) {
+        cnt++;
+      }
+      bucket[a[i]]++;
+      if (cnt == k) {
+        while (bucket[a[l + 1]] > 1) {
+          l++;
+          bucket[a[l]]--;
+        }
+      }
+      f[i] = sum[l];
+      sum[i] = sum[i - 1] + f[i];
+      #ifdef __Debug
+        printf("Debug: f[%d]=%d\n", i, f[i]);
+      #endif
     }
+    printf("%d\n", f[n]);
   }
-  CDQ(1, m);
-  for (int i = 1; i <= m; i++) res[ue[i].res + ue[i].cnt - 1] += ue[i].cnt;
-  for (int i = 0; i < n; i++) cout << res[i] << '\n';
   return 0;
 }

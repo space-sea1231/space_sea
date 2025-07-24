@@ -1,1055 +1,456 @@
-#include<bits/stdc++.h>
+#include<iostream>
+#include<queue>
+#include<cstring>
+#include<functional>
+#define DEBUG
 using namespace std;
-int Your=6,Other=6;
-string daojuname[]={"放大镜","手铐","小刀","烟","饮料"};
-double Yourmoney;
-
-int shi,kong;
-int q[10],qlen;//1 实 2 空 
-int Rand(int x,int y){
-	int A=rand(),B=rand();
-	return A*1ll*B%(y-x+1)+x;
-}
-int tmp;
-int T;//ou->you
-int daojulen;
-int daoju[10];
-int daojulen1;
-int daoju1[10];
-void build_gun(){
-	kong=Rand(1,4);
-	shi=Rand(1,4);
-	qlen=0;
-	printf("%d发实弹,%d发空弹\n",shi,kong);
-	int a1=kong,a2=shi;
-	for(int i=1;i<=kong+shi;i++){
-//      Sleep(50);
-		int sum=Rand(1,a1+a2);
-		if(sum<=a1){
-			a1--;
-			q[++qlen]=2;
-		}else{
-			a2--;
-			q[++qlen]=1;
-		}
+const int N=55;
+struct Chess{
+	int color;
+	int power;
+	bool operator ==(const Chess &p)const{
+		return color==p.color;
 	}
-	int maxn=3;
-	printf("你获得了%d个道具:\n",maxn);
-	daojulen+=maxn;
-	for(int i=1;i<=maxn;i++){
-//      Sleep(50);
-		int kkk=Rand(0,4);
-		daoju[kkk]++;
-		cout<<daojuname[kkk];
-		if(i!=maxn){
-			printf(",");
-		}
+};
+int mx,my,mc,q;
+Chess board[N][N];
+bool chk[N][N];
+bool vis[N][N];
+struct Vec2{
+	int x,y;
+	Vec2(int _x=0,int _y=0){
+		x=_x;
+		y=_y;
 	}
-	printf("\n");
-	maxn=3;
-	printf("恶魔获得了%d个道具:\n",maxn);
-	daojulen1+=maxn;
-	for(int i=1;i<=maxn;i++){
-		int kkk=Rand(0,4);
-		daoju1[kkk]++;
-		cout<<daojuname[kkk];
-		if(i!=maxn){
-			printf(",");
-		}
+	Vec2 operator +(const Vec2 &p)const{
+		return Vec2(x+p.x,y+p.y);
 	}
-	printf("\n");
-	system("pause");
-	system("clear");
-}
-void IsOver(){
-	if(Your<=0){
-		printf("你输了\n");
-		system("pause");
-		exit(0);
+	bool Adjacent(const Vec2 &p)const{
+		return abs(x-p.x)==1&&y==p.y||abs(y-p.y)==1&&x==p.x;
 	}
-	if(Other<=0){
-		printf("你赢了\n你获得了奖金$%.2lf\n",Yourmoney);
-		system("pause");
-		exit(0);
+	template<typename T,size_t p1,size_t p2> T& operator ()(T (&p)[p1][p2]){
+		return p[x][y];
 	}
-}
-void wait(){
-	for(int i=1;i<=3;i++){
-		system("sleep 0.5");
-		printf(".");
+	bool InBound(){
+		return x>0&&x<=mx&&y>0&&y<=my;
 	}
-	system("sleep 0.5");
-}
-int Hurt=1;
-int shoukao_you;
-void Timeyou(){
-	int x;
-	while(1){
-		printf("你的生命:%d/6\n恶魔生命:%d/6\n",Your,Other);
-		printf("剩余实弹数:%d    剩余空弹数:%d\n",shi,kong);
-		printf("你现在拥有的道具:\n");
-		for(int i=0;i<=4;i++){
-			cout<<daojuname[i];
-			printf("%d",daoju[i]);
-			printf("个");
-			if(i!=4){
-				printf(",");
+};
+const Vec2 _2D4[4]={Vec2(0,1),Vec2(0,-1),Vec2(1,0),Vec2(-1,0)};
+const Vec2 _2D3x3[9]={
+	Vec2(-1,-1),Vec2(0,-1),Vec2(1,-1),
+	Vec2(-1,0),Vec2(0,0),Vec2(1,0),
+	Vec2(-1,1),Vec2(0,1),Vec2(1,1)
+};
+const Vec2 _2D5x5[25]={
+	Vec2(-2,-2),Vec2(-1,-2),Vec2(0,-2),Vec2(1,-2),Vec2(2,-2),
+	Vec2(-2,-1),Vec2(-1,-1),Vec2(0,-1),Vec2(1,-1),Vec2(2,-1),
+	Vec2(-2,0),Vec2(-1,0),Vec2(0,0),Vec2(1,0),Vec2(2,0),
+	Vec2(-2,1),Vec2(-1,1),Vec2(0,1),Vec2(1,1),Vec2(2,1),
+	Vec2(-2,2),Vec2(-1,2),Vec2(0,2),Vec2(1,2),Vec2(2,2)
+};
+const Vec2 G=Vec2(0,1);
+function<void(Vec2)> Effect[7]={
+	[](Vec2 now)->void{
+		return ;
+	},
+	[](Vec2 now)->void{
+		for(int x=1;x<=mx;x++){
+			if(!chk[x][now.y]){
+				chk[x][now.y]=1;
+				Effect[board[x][now.y].power](Vec2(x,now.y));
 			}
 		}
-		printf("\n");
-		printf("恶魔现在拥有的道具:\n");
-		for(int i=0;i<=4;i++){
-			cout<<daojuname[i];
-			printf("%d",daoju1[i]);
-			printf("个");
-			if(i!=4){
-				printf(",");
+	},
+	[](Vec2 now)->void{
+		for(int y=1;y<=my;y++){
+			if(!chk[now.x][y]){
+				chk[now.x][y]=1;
+				Effect[board[now.x][y].power](Vec2(now.x,y));
 			}
 		}
-		printf("\n");
-		printf("现在是你的回合\n");
-		printf("你要\n1.向恶魔开枪\n2.向自己开枪\n");
-		for(int i=0;i<=4;i++){
-			printf("%d.使用",i+3);
-			cout<<daojuname[i]<<'\n';
-		}
-		scanf("%d",&x);
-		if(1<=x&&x<=7){
-			break;
-		}
-		printf("输入不合法\n");
-		system("sleep 1.145");
-		system("clear");
-	}
-	if(x==1){
-		printf("你决定向恶魔开枪");
-		T++;
-		wait();
-		if(q[qlen]==2){
-			Yourmoney+=(double)(2000.0*(Hurt*1.0)*(1+(double)(shi)*1.0/(double)(shi+kong)));
-			kong--;
-			qlen--;
-			Hurt=1;
-			printf("是空弹\n");
-			if(shoukao_you==1){
-				shoukao_you=0;
-				printf("因为你使用了手铐，所以可以再来一次\n");
-				system("sleep 0.5");
-				T--;
-			}
-		}else{
-//          printf("((%lf))\n",Yourmoney);
-			Yourmoney+=(double)(5000.0*(Hurt*1.0)*(1+(double)(kong)*1.0/(double)(shi+kong)));
-//          printf("{{%lf}}\n",Yourmoney);
-			shi--;
-			qlen--;
-			Other-=Hurt;
-			Hurt=1;
-			printf("是实弹\n");
-			system("sleep 0.5");
-			IsOver();
-			if(shoukao_you==1){
-				shoukao_you=0;
-				Yourmoney+=1000.0;
-				printf("因为你使用了手铐，所以可以再来一次\n");
-				system("sleep 0.5");
-				T--;
+	},
+	[](Vec2 now)->void{
+		for(int y=1;y<=my;y++){
+			if(!chk[now.x][y]){
+				chk[now.x][y]=1;
+				Effect[board[now.x][y].power](Vec2(now.x,y));
 			}
 		}
-	}else if(x==2){
-		printf("你决定向自己开枪");
-		wait();
-		if(q[qlen]==2){
-			Yourmoney+=(double)(2000.0*(Hurt*1.0)*(1+(double)(kong)*1.0/(double)(shi+kong)));
-			kong--;
-			qlen--;
-			Hurt=1;
-			printf("是空弹\n");
-		}else{
-			Yourmoney+=5000.0*(1+(double)(shi)*1.0/(double)(shi+kong));
-			T++;
-			shi--;
-			qlen--;
-			Your-=Hurt;
-			Hurt=1;
-			printf("是实弹\n");
-			system("sleep 0.5");
-			IsOver();
-			if(shoukao_you==1){
-				shoukao_you=0;
-				printf("因为你使用了手铐，所以可以再来一次\n");
-				system("sleep 0.5");
-				T--;
+		for(int x=1;x<=mx;x++){
+			if(!chk[x][now.y]){
+				chk[x][now.y]=1;
+				Effect[board[x][now.y].power](Vec2(x,now.y));
 			}
 		}
-	}else if(x==3){//{"放大镜","手铐","小刀","烟","饮料"};
-		if(daoju[0]){
-			daoju[0]--;
-			daojulen--;
-			printf("你使用了放大镜\n");
-			wait();
-			printf("\n你看到了");
-			if(q[qlen]==1){
-				printf("实弹\n");
-				Yourmoney+=2500.0;
-			}else{
-				printf("空弹\n");
+	},
+	[](Vec2 now)->void{
+		for(Vec2 delta:_2D3x3){
+			Vec2 to=now+delta;
+			if(to.InBound()&&!to(chk)){
+				to(chk)=1;
+				Effect[to(board).power](to);
 			}
-			system("sleep 0.5");
-			printf("\n");
-		}else{
-			printf("你现在没有放大镜\n");
-			system("sleep 1.145");
-			system("clear");
 		}
-	}else if(x==4){
-		if(daoju[1]){
-			if(!shoukao_you){
-				daoju[1]--;
-				daojulen--;
-				printf("你使用了手铐\n");
-				printf("你获得了连开两枪的机会\n");
-				shoukao_you=1;
-			}else{
-				printf("你已经用过手铐了\n");
+	},
+	[](Vec2 now)->void{
+		for(Vec2 delta:_2D5x5){
+			Vec2 to=now+delta;
+			if(to.InBound()&&!to(chk)){
+				to(chk)=1;
+				Effect[to(board).power](to);
 			}
-			system("sleep 1.145");
-			system("clear"); 
-		}else{
-			printf("你现在没有手铐\n");
-			system("sleep 1.145");
-			system("clear");
 		}
-	}else if(x==5){
-		if(daoju[2]){
-			if(Hurt==1){
-				daoju[2]--;
-				daojulen--;
-				printf("你使用了小刀\n");
-				printf("若下一发为实弹则伤害+1\n");
-				Yourmoney+=500.0;
-				Hurt=2;
-			}else{
-				printf("你已经用过小刀了\n");
-			}
-			system("sleep 1.145");
-			system("clear");
-		}else{
-			printf("你现在没有小刀\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else if(x==6){
-		if(daoju[3]){
-			if(Your^6){
-				daoju[3]--;
-				daojulen--;
-				printf("你使用了烟\n");
-				printf("你回复了一点生命\n");
-				Yourmoney+=500.0;
-				Your++;
-			}else{
-				printf("你现在不需要烟\n");
-			}
-			system("sleep 1.145");
-		}else{
-			printf("你现在没有烟\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else{
-		if(daoju[4]){
-			daoju[4]--;
-			daojulen--;
-			printf("你使用了饮料\n");
-			wait();
-			printf("\n");
-			printf("你退了一发"); 
-			if(q[qlen]==2){
-				printf("空弹");
-				kong--;
-			}else{
-				printf("实弹");
-				Yourmoney+=500.0;
-				shi--;
-			}
-			qlen--;
-			system("sleep 0.5");
-		}else{
-			printf("你现在没有饮料\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}
-	system("sleep 1");
-	system("clear");
-}
-int Know;//通过放大镜得知下一发子弹 
-int shoukaoemo;
-void fightyou(){
-	printf("恶魔决定向你开枪");
-	T++;
-	wait();
-	if(q[qlen]==2){
-		Yourmoney+=(double)(2000.0*(Hurt*1.0)*(1+(double)(kong)*1.0/(double)(shi+kong)));
-		kong--;
-		qlen--;
-		Hurt=1;
-		Know=0;
-		printf("是空弹\n");
-		if(shoukaoemo){
-			printf("因为恶魔使用了手铐，所以可以再来一次\n");
-			T--;
-			system("sleep 0.5");
-			shoukaoemo=0;
-		}
-	}else{
-		Yourmoney+=(double)(5000.0*(Hurt*1.0)*(1+(double)(kong)*1.0/(double)(shi+kong)));
-		shi--;
-		qlen--;
-		Your-=Hurt;
-		Hurt=1;
-		printf("是实弹\n");
-		Know=0;
-		system("sleep 0.5");
-		IsOver();
-		if(shoukaoemo){
-			printf("因为恶魔使用了手铐，所以可以再来一次\n");
-			Yourmoney+=1000.0;
-			T--;
-			system("sleep 0.5");
-			shoukaoemo=0;
-		}
-	}
-}
-void fightemo(){
-	printf("恶魔决定向自己开枪");
-	wait();
-	if(q[qlen]==2){
-		Yourmoney+=2000.0*(1+(double)(shi)*1.0/(double)(shi+kong));
-		kong--;
-		qlen--;
-		printf("是空弹\n");
-		Know=0;
-	}else{
-		Yourmoney+=5000.0*(1+(double)(kong)*1.0/(double)(shi+kong));
-		shi--;
-		T++;
-		qlen--;
-		Other-=Hurt;
-		Hurt=1;
-		printf("是实弹\n");
-		Know=0;
-		system("sleep 0.5");
-		IsOver();
-		if(shoukaoemo){
-			printf("因为恶魔使用了手铐，所以可以再来一次\n");
-			T--;
-			system("sleep 0.5");
-			shoukaoemo=0;
-		}
-	}
-}
-void Timeother(){
-	srand(time(0));
-	printf("你的生命:%d/6\n恶魔生命:%d/6\n",Your,Other);
-	printf("剩余实弹数:%d    剩余空弹数:%d\n",shi,kong);
-	printf("你现在拥有的道具:\n");
-	for(int i=0;i<=4;i++){
-		cout<<daojuname[i];
-		printf("%d",daoju[i]);
-		printf("个");
-		if(i!=4){
-			printf(",");
-		}
-	}
-	printf("\n");
-	printf("恶魔现在拥有的道具:\n");
-	for(int i=0;i<=4;i++){
-		cout<<daojuname[i];
-		printf("%d",daoju1[i]);
-		printf("个");
-		if(i!=4){
-			printf(",");
-		}
-	}
-	printf("\n");
-	printf("现在是恶魔的回合\n");
-	system("sleep 1.5");
-	int zs=7,qwqq=rand()%2;//觉得智障去掉
-	if(Other!=6){
-		if(daoju1[3]){
-			daoju1[3]--;
-			daojulen1--;
-			printf("恶魔使用了烟\n");
-			printf("恶魔回复了一点生命\n");
-			Other++;
-			Yourmoney+=500.0;
-			system("sleep 1.145");
-			system("clear");
-			return ;
-		}
-	}
-	if(Know==0&&kong==0){
-		Know=1;
-	}
-	if(Know==0){
-		if(abs(shi-kong)<2&&kong!=0){
-			if(daoju1[0]){
-				daoju1[0]--;
-				daojulen1--;
-				printf("恶魔使用了放大镜\n");
-				wait();
-				printf("\n恶魔看到了");
-				if(q[qlen]==1){
-					printf("实弹");
-					Yourmoney+=2500.0;
-					Know=1;
-				}else{
-					printf("空弹");
-					Know=2;
+	},
+	[](Vec2 now)->void{
+		for(int y=1;y<=my;y++){
+			for(int x=1;x<=mx;x++){
+				if(board[x][y].color==now(board).color&&!chk[x][y]){
+					chk[x][y]=1;
+					Effect[board[x][y].power](Vec2(x,y));
 				}
-				system("sleep 1.145");
-				system("clear");
-				return ;
 			}
 		}
-	}else if(Know==1){
-		if(Hurt==1&&daoju1[2]){
-			daoju1[2]--;
-			daojulen1--;
-			Hurt++;
-			printf("恶魔使用了小刀\n");
-			printf("若下一发为实弹则伤害+1");
-			Yourmoney+=500.0;
-			system("sleep 1.145");
-			system("clear");
-			return ;
-		}else{
-			if(shi>=kong+1&&daoju1[1]&&shoukaoemo!=1){
-				daoju1[1]--;
-				daojulen1--;
-				shoukaoemo=1;
-				printf("恶魔使用了手铐\n");
-				printf("恶魔获得了连开两枪的机会\n");
-				system("sleep 1.145");
-				system("clear");
-				return ;
+	},
+};
+bool CheckElim(){
+	memset(chk,0,sizeof(chk));
+	bool f=0;
+	for(int y=1;y<=my;y++){
+		int cnt=1;
+		for(int x=1;x<=mx;x++){
+			if(board[x][y]==board[x-1][y]&&board[x][y].color!=0){
+				cnt++;
 			}
-			fightyou();
-			system("clear");
-			return ;
-		}
-	}else{
-		if(daoju1[4]){
-			daoju1[4]--;
-			daojulen1--;
-			printf("恶魔使用了饮料\n");
-			wait();
-			printf("\n");
-			printf("恶魔退了一发"); 
-			if(q[qlen]==2){
-				printf("空弹");
-				kong--;
-			}else{
-				printf("实弹");
-				shi--;
+			else{
+				cnt=1;
 			}
-			Know=0;
-			qlen--;
-			system("sleep 0.5");
-			system("sleep 1.145");
-			system("clear");
-			return ;
-		}else{
-			fightemo();
-			system("sleep 1.145");
-			system("clear");
-			return ;
+			if(cnt==3){
+				for(int px=x;px>=x-2;px--){
+					chk[px][y]=1;
+				}
+				f=1;
+			}
+			if(cnt>3){
+				chk[x][y]=1;
+			}
 		}
 	}
-	if(zs>0&&qwqq==1)// 
-	{//
-		fightemo();//
-	}//
-	else if(shi>=kong){
-		fightyou();
-	}else{
-		fightemo();
+	for(int x=1;x<=mx;x++){
+		int cnt=1;
+		for(int y=1;y<=my;y++){
+			if(board[x][y]==board[x][y-1]&&board[x][y].color!=0){
+				cnt++;
+			}
+			else{
+				cnt=1;
+			}
+			if(cnt==3){
+				for(int py=y;py>=y-2;py--){
+					chk[x][py]=1;
+				}
+				f=1;
+			}
+			if(cnt>3){
+				chk[x][y]=1;
+			}
+		}
 	}
-	system("sleep 1.145");
-	system("clear");
+	return f;
 }
-void Play(){
-	while(1){
-		if(shi==0){
-			build_gun();
-			T=0;
-			continue;
-		}
-		if(T%2==0){
-			Timeyou();
-		}else{
-			Timeother();
-		}
-	}
-}
-void danrenplay(){
-	for(int i=1;i<=3;i++){
-		printf(".");
-//      system("sleep 1");
-	}
-	printf("\n");
-	printf("又来了一位挑战者...\n");
-	system("sleep 1");
-	int x;
-	while(1){
-		printf("准备好参与恶魔的游戏吗？胜者带走奖金，败者将会在此长眠\n1.好的\n2.没问题\n");
-		scanf("%d",&x);
-		if(x==1||x==2){
-			break;
-		}
-		printf("输入不合法\n");
-		system("sleep 1.145");
-		system("clear");
-	}
-	while(1){
-		printf("你清楚我们的规则吗？\n1.清楚\n2.不清楚\n");
-		scanf("%d",&x);
-		if(x==1||x==2){
-			break;
-		}
-		printf("输入不合法\n");
-		system("sleep 1.145");
-		system("clear");
-	}
-	if(x==1){
-		
-	}else{
-		for(int i=1;i<=3;i++){
-			printf(".");
-			system("sleep 1");
+void Print(bool highelim=0){
+	for(int y=1;y<=my;y++){
+		for(int x=1;x<=mx;x++){
+			if(highelim){
+				if(chk[x][y]){
+					printf("(%3d,%3d,%3d)",board[x][y].color,board[x][y].power,1);
+				}
+				else if(board[x][y].color==0){
+					printf("             ");
+				}
+				else{
+					printf("(X,X,X)");
+				}
+			}
+			else{
+				if(board[x][y].color==0){
+					printf("             ");
+				}
+				else{
+					printf("(%3d,%3d,%3d)",board[x][y].color,board[x][y].power,1);
+				}
+			}
 		}
 		printf("\n");
-		printf("规则:\n");
-		printf("你和恶魔都各有6点生命\n") ;
-		printf("每一回合开始前，你将知道一共有几发实弹，几发空弹，同时双方都将获得4个道具作为补给（上限为8个）\n"); 
-		printf("每一回合，你可以选择对自己开枪，对恶魔开枪或者使用道具\n");
-		printf("如果你对自己开枪，若为空弹，则可以继续行动，否则，停止行动\n");
-		printf("如果你对恶魔开枪，无论如何，都将停止行动\n");
-		printf("道具一览：\n"); 
-		printf("放大镜：可以知道下一发子弹是空弹还是实弹\n");
-		printf("手铐：增加一次本回合的行动次数\n");
-		printf("小刀：若下一发子弹为实弹，则伤害+1\n");
-		printf("烟：可以回复1点体力\n");
-		printf("饮料：可以退一发子弹\n");
-		system("pause");
-		system("clear");
 	}
-	
-	printf("好吧\n");
-	system("sleep 1.145");
-	printf("游戏将要开始了哦\n");
-	system("sleep 1.145");
-	system("clear");
-	Play();
 }
-void IsOver_duo(){
-	if(Your<=0){
-		printf("玩家B赢了\n玩家B获得了奖金$%.2lf\n",Yourmoney); 
-		system("pause");
-		exit(0);
-	}else if(Other<=0){
-		printf("玩家A赢了\n玩家A获得了奖金$%.2lf\n",Yourmoney); 
-		system("pause");
-		exit(0);
-	}
-	
-}
-void build_gun_duo(){
-	kong=Rand(1,4);
-	shi=Rand(1,4);
-	qlen=0;
-	printf("%d发实弹,%d发空弹\n",shi,kong);
-	int a1=kong,a2=shi;
-	for(int i=1;i<=kong+shi;i++){
-//      Sleep(50);
-		int sum=Rand(1,a1+a2);
-		if(sum<=a1){
-			a1--;
-			q[++qlen]=2;
-		}else{
-			a2--;
-			q[++qlen]=1;
+void Fall(){
+	bool flag=1;
+	while(flag){
+		flag=0;
+		for(int y=my-1;y>=1;y--){
+			for(int x=1;x<=mx;x++){
+				if(board[x][y].color!=0&&board[x][y+1].color==0){
+					swap(board[x][y+1],board[x][y]);
+					flag=1;
+				}
+			}
 		}
 	}
-	int maxn=min(2,8-daojulen);
-	printf("玩家A获得了%d个道具:\n",maxn);
-	daojulen+=maxn;
-	for(int i=1;i<=maxn;i++){
-//      Sleep(50);
-		int kkk=Rand(0,4);
-		daoju[kkk]++;
-		cout<<daojuname[kkk];
-		if(i!=maxn){
-			printf(",");
+}
+long long score;
+int qow(int base,int power){
+	if(power==0) return 1;
+	int tmp=qow(base,power>>1);
+	if(power&1){
+		return tmp*tmp*base;
+	}
+	else{
+		return tmp*tmp;
+	}
+}
+void BFS(Vec2 st){
+	int col=st(board).color;
+	queue<Vec2>q;
+	q.push(st);
+	int cnt=0;
+	st(vis)=1;
+	while(!q.empty()){
+		Vec2 now=q.front();
+		cnt++;
+		q.pop();
+		for(Vec2 delta:_2D4){
+			Vec2 to=now+delta;
+			if(to.InBound()&&to(board).color==col&&to(chk)&&!to(vis)){
+				to(vis)=1;
+				q.push(to);
+			}
+		}
+	}
+	#ifdef DEBUG
+	printf("BFS(%d,%d)=%d\n",st.x,st.y,cnt);
+	#endif
+	score+=50ll*qow(cnt-3,2);
+}
+void Elim(){
+	int chain=0;
+	while(CheckElim()){
+		chain++;
+		#ifdef DEBUG
+		printf("round%d:\n",chain);
+		// Print(1);
+		#endif
+		memset(vis,0,sizeof(vis));
+		for(int y=1;y<=my;y++){
+			for(int x=1;x<=mx;x++){
+				if(board[x][y].color!=0&&chk[x][y]&&!vis[x][y]){
+					BFS(Vec2(x,y));
+				}
+			}
+		}
+		for(int y=1;y<=my;y++){
+			for(int x=1;x<=mx;x++){
+				if(chk[x][y]){
+					Effect[board[x][y].power](Vec2(x,y));
+				}
+			}
+		}
+		#ifdef DEBUG
+		printf("Trigger Effect:\n");
+		// Print(1);
+		#endif
+		long long sum=0;
+		for(int y=1;y<=my;y++){
+			for(int x=1;x<=mx;x++){
+				if(chk[x][y]){
+					sum+=board[x][y].color;
+					board[x][y].color=0;
+					board[x][y].power=0;
+				}
+			}
+		}
+		score+=sum*chain;
+		Fall();
+	}
+	score+=80ll*qow(chain-1,2);
+}
+vector<pair<int,int>> cards;
+vector<int> buc;
+int max_card_score;
+void GetCardScore(){
+	int maxv=0,maxc,smaxv=0,smaxc;
+	#ifdef DEBUG
+	printf("Can do:\n");
+	for(int c=1;c<=mc;c++){
+		for(int i=1;i<=buc[c];i++){
+			printf("%d ",c);
 		}
 	}
 	printf("\n");
-	maxn=min(2,8-daojulen1);
-	printf("玩家B获得了%d个道具:\n",maxn);
-	daojulen1+=maxn;
-	for(int i=1;i<=maxn;i++){
-		int kkk=Rand(0,4);
-		daoju1[kkk]++;
-		cout<<daojuname[kkk];
-		if(i!=maxn){
-			printf(",");
+	#endif
+	for(int c=1;c<=mc;c++){
+		if(buc[c]>=maxv){
+			smaxv=maxv;
+			smaxc=maxc;
+			maxv=buc[c];
+			maxc=c;
+		}
+		else if(buc[c]>=smaxv){
+			smaxv=buc[c];
+			smaxc=c;
 		}
 	}
-	printf("\n");
-	system("pause");
-	system("clear");
+	if(maxv==1){
+		#ifdef DEBUG
+		printf("High Card\n");
+		#endif
+		max_card_score=max(max_card_score,50+maxc);
+	}
+	if(maxv==2&&smaxv==1){
+		#ifdef DEBUG
+		printf("Pair\n");
+		#endif
+		max_card_score=max(max_card_score,100+maxc*2);
+	}
+	if(maxv==2&&smaxv==2){
+		#ifdef DEBUG
+		printf("2 Pair\n");
+		#endif
+		max_card_score=max(max_card_score,200+maxc*2+smaxc);
+	}
+	if(maxv==3&&smaxv==1){
+		#ifdef DEBUG
+		printf("Trio\n");
+		#endif
+		max_card_score=max(max_card_score,300+maxc*3);
+	}
+	if(maxv==3&&smaxv==2){
+		#ifdef DEBUG
+		printf("Full House\n");
+		#endif
+		max_card_score=max(max_card_score,500+maxc*3+smaxc);
+	}
+	if(maxv==4){
+		#ifdef DEBUG
+		printf("Quad\n");
+		#endif
+		max_card_score=max(max_card_score,750+maxc*5);
+	}
+	if(maxv==5){
+		#ifdef DEBUG
+		printf("Straight\n");
+		#endif
+		max_card_score=max(max_card_score,1000+maxc*10);
+	}
 }
-void Timeyou_duo(){
-	int x;
-	while(1){
-		printf("玩家A的生命:%d/4\n玩家B的生命:%d/4\n",Your,Other);
-		printf("剩余实弹数:%d    剩余空弹数:%d\n",shi,kong);
-		printf("玩家A现在拥有的道具:\n");
-		for(int i=0;i<=4;i++){
-			cout<<daojuname[i];
-			printf("%d",daoju[i]);
-			printf("个");
-			if(i!=4){
-				printf(",");
-			}
-		}
-		printf("\n");
-		printf("玩家B现在拥有的道具:\n");
-		for(int i=0;i<=4;i++){
-			cout<<daojuname[i];
-			printf("%d",daoju1[i]);
-			printf("个");
-			if(i!=4){
-				printf(",");
-			}
-		}
-		printf("\n");
-		printf("现在是玩家A的回合\n");
-		printf("玩家A要\n1.向玩家B开枪\n2.向自己开枪\n");
-		for(int i=0;i<=4;i++){
-			printf("%d.使用",i+3);
-			cout<<daojuname[i]<<'\n';
-		}
-		scanf("%d",&x);
-		if(1<=x&&x<=7){
-			break;
-		}
-		printf("输入不合法\n");
-		system("sleep 1.145");
-		system("clear");
+void DFS(int now){
+	if(now==5){
+		GetCardScore();
+		return ;
 	}
-	if(x==1){
-		printf("玩家A决定向玩家B开枪");
-		T++;
-		wait();
-		if(q[qlen]==2){
-			Yourmoney+=(double)(2000.0*(Hurt*1.0)*(1+(double)(shi)*1.0/(double)(shi+kong)));
-			kong--;
-			qlen--;
-			Hurt=1;
-			printf("是空弹\n");
-			if(shoukao_you==1){
-				shoukao_you=0;
-				printf("因为玩家A使用了手铐，所以可以再来一次\n");
-				system("sleep 0.5");
-				T--;
-			}
-		}else{
-//          printf("((%lf))\n",Yourmoney);
-			Yourmoney+=(double)(5000.0*(Hurt*1.0)*(1+(double)(kong)*1.0/(double)(shi+kong)));
-//          printf("{{%lf}}\n",Yourmoney);
-			shi--;
-			qlen--;
-			Other-=Hurt;
-			Hurt=1;
-			printf("是实弹\n");
-			system("sleep 0.5");
-			IsOver_duo();
-			if(shoukao_you==1){
-				shoukao_you=0;
-				Yourmoney+=1000.0;
-				printf("因为玩家A使用了手铐，所以可以再来一次\n");
-				system("sleep 0.5");
-				T--;
-			}
-		}
-	}else if(x==2){
-		printf("玩家A决定向自己开枪");
-		wait();
-		if(q[qlen]==2){
-			Yourmoney+=(double)(2000.0*(Hurt*1.0)*(1+(double)(kong)*1.0/(double)(shi+kong)));
-			kong--;
-			qlen--;
-			Hurt=1;
-			printf("是空弹\n");
-		}else{
-			Yourmoney+=5000.0*(1+(double)(shi)*1.0/(double)(shi+kong));
-			T++;
-			shi--;
-			qlen--;
-			Your-=Hurt;
-			Hurt=1;
-			printf("是实弹\n");
-			system("sleep 0.5");
-			IsOver_duo();
-			if(shoukao_you==1){
-				shoukao_you=0;
-				printf("因为玩家A使用了手铐，所以可以再来一次\n");
-				system("sleep 0.5");
-				T--;
-			}
-		}
-	}else if(x==3){//{"放大镜","手铐","小刀","烟","饮料"};
-		if(daoju[0]){
-			daoju[0]--;
-			daojulen--;
-			printf("玩家A使用了放大镜\n");
-			wait();
-			printf("\n玩家A看到了");
-			if(q[qlen]==1){
-				printf("实弹\n");
-				Yourmoney+=2500.0;
-			}else{
-				printf("空弹\n");
-			}
-			system("sleep 0.5");
-			printf("\n");
-		}else{
-			printf("玩家A现在没有放大镜\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else if(x==4){
-		if(daoju[1]){
-			if(!shoukao_you){
-				daoju[1]--;
-				daojulen--;
-				printf("玩家A使用了手铐\n");
-				printf("玩家A获得了连开两枪的机会\n");
-				shoukao_you=1;
-			}else{
-				printf("玩家A已经用过手铐了\n");
-			}
-			system("sleep 1.145");
-			system("clear"); 
-		}else{
-			printf("玩家A现在没有手铐\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else if(x==5){
-		if(daoju[2]){
-			if(Hurt==1){
-				daoju[2]--;
-				daojulen--;
-				printf("玩家A使用了小刀\n");
-				printf("若下一发为实弹则伤害+1\n");
-				Yourmoney+=500.0;
-				Hurt=2;
-			}else{
-				printf("玩家A已经用过小刀了\n");
-			}
-			system("sleep 1.145");
-			system("clear");
-		}else{
-			printf("玩家A现在没有小刀\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else if(x==6){
-		if(daoju[3]){
-			if(Your^4){
-				daoju[3]--;
-				daojulen--;
-				printf("玩家A使用了烟\n");
-				printf("玩家A回复了一点生命\n");
-				Yourmoney+=500.0;
-				Your++;
-			}else{
-				printf("玩家A现在不需要烟\n");
-			}
-			system("sleep 1.145");
-		}else{
-			printf("玩家A现在没有烟\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else{
-		if(daoju[4]){
-			daoju[4]--;
-			daojulen--;
-			printf("玩家A使用了饮料\n");
-			wait();
-			printf("\n");
-			printf("玩家A退了一发"); 
-			if(q[qlen]==2){
-				printf("空弹");
-				kong--;
-			}else{
-				printf("实弹");
-				Yourmoney+=500.0;
-				shi--;
-			}
-			qlen--;
-			system("sleep 0.5");
-		}else{
-			printf("玩家A现在没有饮料\n");
-			system("sleep 1.145");
-			system("clear");
-		}
+	buc[cards[now].first]++;
+	DFS(now+1);
+	buc[cards[now].first]--;
+	if(cards[now].first!=cards[now].second){
+		buc[cards[now].second]++;
+		DFS(now+1);
+		buc[cards[now].second]--;
 	}
-	system("sleep 1");
-	system("clear");
 }
-void Timeother_duo(){
-	int x;
-	while(1){
-		printf("玩家A的生命:%d/4\n玩家B的生命:%d/4\n",Your,Other);
-		printf("剩余实弹数:%d    剩余空弹数:%d\n",shi,kong);
-		printf("玩家A现在拥有的道具:\n");
-		for(int i=0;i<=4;i++){
-			cout<<daojuname[i];
-			printf("%d",daoju[i]);
-			printf("个");
-			if(i!=4){
-				printf(",");
-			}
-		}
-		printf("\n");
-		printf("玩家B现在拥有的道具:\n");
-		for(int i=0;i<=4;i++){
-			cout<<daojuname[i];
-			printf("%d",daoju1[i]);
-			printf("个");
-			if(i!=4){
-				printf(",");
-			}
-		}
-		printf("\n");
-		printf("现在是玩家B的回合\n");
-		printf("玩家B要\n1.向玩家A开枪\n2.向自己开枪\n");
-		for(int i=0;i<=4;i++){
-			printf("%d.使用",i+3);
-			cout<<daojuname[i]<<'\n';
-		}
-		scanf("%d",&x);
-		if(1<=x&&x<=7){
-			break;
-		}
-		printf("输入不合法\n");
-		system("sleep 1.145");
-		system("clear");
-	}
-	if(x==1){
-		printf("玩家B决定向玩家A开枪");
-		T++;
-		wait();
-		if(q[qlen]==2){
-			Yourmoney+=(double)(2000.0*(Hurt*1.0)*(1+(double)(shi)*1.0/(double)(shi+kong)));
-			kong--;
-			qlen--;
-			Hurt=1;
-			printf("是空弹\n");
-			if(shoukaoemo==1){
-				shoukaoemo=0;
-				printf("因为玩家B使用了手铐，所以可以再来一次\n");
-				system("sleep 0.5");
-				T--;
-			}
-		}else{
-//          printf("((%lf))\n",Yourmoney);
-			Yourmoney+=(double)(5000.0*(Hurt*1.0)*(1+(double)(kong)*1.0/(double)(shi+kong)));
-//          printf("{{%lf}}\n",Yourmoney);
-			shi--;
-			qlen--;
-			Your-=Hurt;
-			Hurt=1;
-			printf("是实弹\n");
-			system("sleep 0.5");
-			IsOver_duo();
-			if(shoukaoemo==1){
-				shoukaoemo=0;
-				Yourmoney+=1000.0;
-				printf("因为玩家B使用了手铐，所以可以再来一次\n");
-				system("sleep 0.5");
-				T--;
-			}
-		}
-	}else if(x==2){
-		printf("玩家B决定向自己开枪");
-		wait();
-		if(q[qlen]==2){
-			Yourmoney+=(double)(2000.0*(Hurt*1.0)*(1+(double)(kong)*1.0/(double)(shi+kong)));
-			kong--;
-			qlen--;
-			Hurt=1;
-			printf("是空弹\n");
-		}else{
-			Yourmoney+=5000.0*(1+(double)(shi)*1.0/(double)(shi+kong));
-			T++;
-			shi--;
-			qlen--;
-			Other-=Hurt;
-			Hurt=1;
-			printf("是实弹\n");
-			system("sleep 0.5");
-			IsOver_duo();
-			if(shoukao_you==1){
-				shoukao_you=0;
-				printf("因为玩家B使用了手铐，所以可以再来一次\n");
-				system("sleep 0.5");
-				T--;
-			}
-		}
-	}else if(x==3){//{"放大镜","手铐","小刀","烟","饮料"};
-		if(daoju1[0]){
-			daoju1[0]--;
-			daojulen1--;
-			printf("玩家B使用了放大镜\n");
-			wait();
-			printf("\n玩家B看到了");
-			if(q[qlen]==1){
-				printf("实弹\n");
-				Yourmoney+=2500.0;
-			}else{
-				printf("空弹\n");
-			}
-			system("sleep 0.5");
-			printf("\n");
-		}else{
-			printf("玩家B现在没有放大镜\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else if(x==4){
-		if(daoju1[1]){
-			if(!shoukaoemo){
-				daoju1[1]--;
-				daojulen1--;
-				printf("玩家B使用了手铐\n");
-				printf("玩家B获得了连开两枪的机会\n");
-				shoukaoemo=1;
-			}else{
-				printf("玩家B已经用过手铐了\n");
-			}
-			system("sleep 1.145");
-			system("clear"); 
-		}else{
-			printf("玩家B现在没有手铐\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else if(x==5){
-		if(daoju1[2]){
-			if(Hurt==1){
-				daoju1[2]--;
-				daojulen1--;
-				printf("玩家B使用了小刀\n");
-				printf("若下一发为实弹则伤害+1\n");
-				Yourmoney+=500.0;
-				Hurt=2;
-			}else{
-				printf("玩家B已经用过小刀了\n");
-			}
-			system("sleep 1.145");
-			system("clear");
-		}else{
-			printf("玩家B现在没有小刀\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else if(x==6){
-		if(daoju1[3]){
-			if(Other^4){
-				daoju1[3]--;
-				daojulen1--;
-				printf("玩家B使用了烟\n");
-				printf("玩家B回复了一点生命\n");
-				Yourmoney+=500.0;
-				Other++;
-			}else{
-				printf("玩家B现在不需要烟\n");
-			}
-			system("sleep 1.145");
-		}else{
-			printf("玩家B现在没有烟\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}else{
-		if(daoju1[4]){
-			daoju1[4]--;
-			daojulen1--;
-			printf("玩家B使用了饮料\n");
-			wait();
-			printf("\n");
-			printf("玩家B退了一发"); 
-			if(q[qlen]==2){
-				printf("空弹");
-				kong--;
-			}else{
-				printf("实弹");
-				Yourmoney+=500.0;
-				shi--;
-			}
-			qlen--;
-			system("sleep 0.5");
-		}else{
-			printf("玩家B现在没有饮料\n");
-			system("sleep 1.145");
-			system("clear");
-		}
-	}
-	system("sleep 1");
-	system("clear");
-}
-int asdasd;
-void duorenplay(){
-	while(1){
-		if(shi==0){
-			build_gun_duo();
-			T=asdasd;
-			asdasd++;
-			continue;
-		}
-		if(T%2==0){
-			Timeyou_duo();
-		}else{
-			Timeother_duo();
-		}
-	}
+void CheckCard(){
+	#ifdef DEBUG
+	printf("CheckCard()\n");
+	#endif
+	max_card_score=0;
+	DFS(0);
+	#ifdef DEBUG
+	printf("max score=%d\n",max_card_score);
+	#endif
+	score+=max_card_score;
 }
 int main(){
-	srand(time(0));
-	int x;
-	while(1){
-		printf("请选择你想要的模式：\n1.单人\n2.双人（此模式中，生命值为4，道具补给为2）\n");
-		scanf("%d",&x);
-		if(x==1||x==2){
-			break;
+  freopen("tmp.in","r",stdin);
+  freopen("tmp.out","w",stdout);
+	ios::sync_with_stdio(0);
+	cin.tie(0);
+	cin>>my>>mx>>mc>>q;
+	buc.resize(mc+1);
+	for(int y=1;y<=my;y++){
+		for(int x=1;x<=mx;x++){
+			cin>>board[x][y].color;
 		}
-		printf("输入不合法\n");
-		system("sleep 1.145");
-		system("clear");
 	}
-	system("clear");
-	if(x==1){
-		danrenplay();
-	}else{
-		Your=Other=4;
-		duorenplay();
+	for(int y=1;y<=my;y++){
+		for(int x=1;x<=mx;x++){
+			cin>>board[x][y].power;
+		}
 	}
+	bool all_avil=1,full_clear=1;
+	for(int i=1;i<=q;i++){
+		Vec2 p1,p2;
+		cin>>p1.y>>p1.x>>p2.y>>p2.x;
+    cout<<score<<'\n';
+		if(!p1.InBound()||!p2.InBound()||!p1.Adjacent(p2)){
+			#ifdef DEBUG
+			printf("failed\n");
+			#endif
+			all_avil=0;
+			continue;
+		}
+		if(p1(board).color==0||p2(board).color==0){
+			#ifdef DEBUG
+			printf("failed\n");
+			#endif
+			all_avil=0;
+			continue;
+		}
+		swap(p1(board),p2(board));
+		if(!CheckElim()){
+			#ifdef DEBUG
+			printf("failed\n");
+			#endif
+			swap(p1(board),p2(board));
+			all_avil=0;
+		}
+		else{
+			#ifdef DEBUG
+			printf("success main=%d %d\n",p1(chk)?p1(board).color:p2(board).color,p2(chk)?p2(board).color:p1(board).color);
+			#endif
+			cards.emplace_back(make_pair(p1(chk)?p1(board).color:p2(board).color,p2(chk)?p2(board).color:p1(board).color));
+			Elim();
+			if(cards.size()==5){
+				CheckCard();
+				cards.clear();
+			}
+		}
+		#ifdef DEBUG
+		printf("Done:%lld\n",score);
+		Print();
+		#endif
+	}
+	for(int y=1;y<=my;y++){
+		for(int x=1;x<=mx;x++){
+			if(board[x][y].color!=0){
+				full_clear=0;
+			}
+		}
+	}
+	score+=all_avil*1000+full_clear*10000;
+	printf("%lld",score);
 	return 0;
 }
+/*
+2 4 2 5
+1 1 2 2
+2 2 1 1
+0 0 0 0
+0 0 0 0
+1 1 2 1
+2 2 2 2
+1 4 2 3
+1 1 1 4
+1 1 1 2
+
+
+
+
+*/

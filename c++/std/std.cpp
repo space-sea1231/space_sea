@@ -1,86 +1,214 @@
-#include<bits/stdc++.h>
+#include <iostream>
+#include <stdio.h>
+#include <cstring>
+#include <vector>
+#include <unordered_map>
+// #define __Debug
+
 using namespace std;
-const int N=4e5+6;
-int tree[N];
-int n,k;
-int t[N];
-int ans[N];
-int lowbit(int x){
-    return x&(-x);
-}
-int query(int x){
-    int ans=0;
-    while(x){
-        ans+=tree[x];
-        x-=lowbit(x);
+typedef long long ll;
+
+const int N = 1e5 + 10;
+const int M = 20;
+
+int id, t, n;
+int table[M];
+int bucket[N];
+unordered_map<string, int> cor;
+
+struct Player {
+  string name;
+  int score;
+  int type;
+  int mxpoint;
+  int mxcolor;
+
+  struct Card {
+    int color;
+    int point;
+  };
+
+  Card card[M];
+};
+
+Player player[N];
+vector<int> vec;
+
+int Check(Player *cur) {
+  #ifdef __Debug
+  if (cur->name == "Justin") {
+    printf("Debug1: card[%d]=%d card[%d]=%d card[%d]=%d\n", vec[0], cur->card[vec[0]].point, vec[1], cur->card[vec[1]].point, vec[2], cur->card[vec[2]].point);
+  }
+  #endif
+  int sum = 0;
+  for (int i = 1; i <= 5; i++) {
+    if (i != vec[0] && i != vec[1] && i != vec[2]) {
+      sum = sum + cur->card[i].point;
     }
-    return ans;
+  }
+  sum = sum % 10;
+  if (cur->card[vec[0]].point == cur->card[vec[1]].point == cur->card[vec[2]].point) { // 铁板
+    if (sum == 0) return 1000 + (vec[0] * 10) - 1;
+    if (sum > 0) return sum * 100 + vec[0] * 10 - 1; // 防撞衫炸弹&&牛牛
+  }
+  if ((cur->card[vec[0]].point + cur->card[vec[1]].point + cur->card[vec[2]].point) % 10 == 0) { // 十的倍数
+    if (sum == 0) return 1000;
+    if (sum > 0) return sum * 100;
+  }
+  return 0; // 无牛
 }
-void update(int x,int y){
-    while(x<=300000){
-        tree[x]+=y;
-        x+=lowbit(x);
+
+int Search(Player *cur, int dep, int cnt) {
+  if (dep == 6) {
+    return Check(cur);
+  }
+  int sum = 0;
+  if (cnt < 3) {
+    vec.push_back(dep);
+    sum = max(sum, Search(cur, dep + 1, cnt + 1));
+    vec.pop_back();
+  }
+  if (6 - dep + cnt > 3) {
+    sum = max(sum, Search(cur, dep + 1, cnt));
+  }
+  return sum;
+}
+
+bool Compare(Player *srca, Player *srcb) {
+  if (srca->type != srcb->type) return srca->type > srcb->type;
+  if (srca->mxpoint != srcb->mxpoint) return srca->mxpoint > srcb->mxpoint;
+  if (srca->mxcolor != srcb->mxcolor) return srca->mxcolor < srcb->mxcolor; 
+  return true;
+}
+void Duel(Player *srca, Player *srcb) {
+  int sum = 10;
+  if (Compare(srca, srcb) == true) {
+    if (srca->type > 1100) { // 炸弹
+      sum = sum * 10;
     }
-    return ;
+    if (1000 <= srca->type && srca->type <= 1100) { // 牛牛
+      sum = sum * 3;
+    }
+    if (700 <= srca->type && srca->type < 1000) { // 牛数1
+      sum = sum * 2;
+    }
+    if (0 < srca->type && srca->type < 700) { // 牛数2
+      sum = sum;
+    }
+    if (srca->type == 0) { // 无牛
+      sum = sum;
+    }
+    if (srca->type % 10 > 0) sum = sum * 2;
+    srca->score = srca->score + sum;
+    srcb->score = srcb->score - sum;
+  }
+  if (Compare(srca, srcb) == false) {
+    if (srcb->type > 1100) { // 炸弹
+      sum = sum * 10;
+    }
+    if (1000 <= srcb->type && srcb->type <= 1100) { // 牛牛
+      sum = sum * 3;
+    }
+    if (700 <= srcb->type && srcb->type < 1000) { // 牛数1
+      sum = sum * 2;
+    }
+    if (0 < srcb->type && srcb->type < 700) { // 牛数2
+      sum = sum;
+    }
+    if (srcb->type == 0) { // 无牛
+      sum = sum;
+    }
+    if (srcb->type % 10 > 0) sum = sum * 2;
+    srca->score = srca->score - sum;
+    srcb->score = srcb->score + sum;
+  }
+  #ifdef __Debug
+    printf("%s(%d) vs %s(%d): %d  winer is %s\n", srca->name.c_str(), srca->type, srcb->name.c_str(), srcb->type, sum, (Compare(srca, srcb)==1?srca->name.c_str():srcb->name.c_str()));
+  #endif
+  return ;
 }
-struct node{
-    int a,b,c,id,res;
-}a[N];
-bool cmp1(node a,node b){
-    if (a.a!=b.a) return a.a<b.a;
-    if (a.b!=b.b) return a.b<b.b;
-    return a.c<b.c;
+
+void Init(Player *src) {
+  src->type = 0;
+  src->mxpoint = 0;
+  src->mxcolor = 0;
+  return ;
 }
-bool cmp2(node a,node b){
-    if (a.b!=b.b) return a.b<b.b;
-    return a.c<b.c;
-}
-void cdq(int l,int r){
-    if(l==r)return ;
-    int mid=(l+r)>>1;
-    cdq(l,mid),cdq(mid+1,r);
-    sort(a+l,a+1+mid,cmp2);
-    sort(a+1+mid,a+1+r,cmp2);
-    int ptr=l;
-    for(int i=mid+1;i<=r;i++){
-        while(ptr<=mid&&a[ptr].b<=a[i].b){
-            // cerr<<a[ptr].c<<"\n";
-            update(a[ptr].c,1);
-            ptr++;
+
+signed main() {
+  cin.tie(nullptr)->ios::sync_with_stdio(false);
+  /*Input*/
+  cin >> id >> t >> n;
+  for (int i = 1; i <= n; i++) {
+    cin >> player[i].name;
+    cor[player[i].name] = i;
+  }
+  string name, card;
+  while (t--) {
+    for (int i = 1; i <= 3; i++) {
+      cin >> name;
+      table[i] = cor[name];
+      Player *cur = &player[table[i]];
+      for (int j = 1; j <= 5; j++) {
+        cin >> card;
+        cur->card[j].color = card[0] - 'a';
+        if (card.substr(1) == "A") cur->card[j].point = 1;
+        else cur->card[j].point = atoi(card.substr(1).c_str());
+      }
+    }
+    /*Init*/
+    // for (int i = 1; i <= 3; i++) Init(&player[table[i]]);
+    #ifdef __Debug
+      // for (int i = 1; i <= 3; i++) {
+      //   Player *cur = &player[table[i]];
+      //   printf("%s\n", cur->name.c_str());
+      //   for (int j = 1; j <= 5; j++) {
+      //     printf("%d:%d\n", cur->card[j].color, cur->card[j].point);
+      //   }
+      // }
+      // printf("\n");
+    #endif
+    /*Solve*/
+    for (int i = 1; i <= 3; i++) {
+      Player *cur = &player[table[i]];
+      cur->type = Search(cur, 1, 0);
+      for (int j = 1; j <= 5; j++) {
+        if (cur->mxpoint < cur->card[j].point) { // 最大点数和最大花色
+          cur->mxpoint = cur->card[j].point;
+          cur->mxcolor = cur->card[j].color;
         }
-        a[i].res+=query(a[i].c);
-        // cerr<<query(1)<<"\n";
-    }
-    for(int i=l;i<ptr;i++){
-        update(a[i].c,-1);
-    }
-}
-int main(){
-    cin >> n >> k;
-    for(int i=1;i<=n;i++){
-        cin >> a[i].a >> a[i].b >> a[i].c;
-        a[i].id=i;
-    }
-    sort(a+1,a+1+n,cmp1);
-    cdq(1,n);
-    int l=0;
-    for(int i=1;i<=n;i++){
-        if(a[i].a!=a[i-1].a||a[i].b!=a[i-1].b||a[i].c!=a[i-1].c){
-            for(int j=l;j<i;j++){
-                // cerr<<1;
-                ans[j]+=i-l-1;
-            }
-            l=i;
-        }else{
-            ans[i]-=i-l;
+        bucket[cur->card[j].point]++;
+        if (bucket[cur->card[j].point] == 4) { // 炸弹
+          cur->type = (cur->card[j].point + 1) * 1000;
         }
+      }
+      /*Init*/
+      for (int j = 1; j <= 5; j++) bucket[cur->card[j].point]--;
     }
-    for(int i=1;i<=n;i++){
-        t[a[i].res]++;
-    }
-    for(int i=0;i<n;i++){
-        cout << t[i] << "\n";
-    }
-    return 0;
+    Duel(&player[table[1]], &player[table[2]]);
+    Duel(&player[table[2]], &player[table[3]]);
+    Duel(&player[table[1]], &player[table[3]]);
+    Init(&player[table[1]]);
+    Init(&player[table[2]]);
+    Init(&player[table[3]]);
+  }
+  /*Output*/
+  for (int i = 1; i <= n; i++) {
+    printf("%s %d\n", player[i].name.c_str(), player[i].score);
+    #ifdef __Debug
+      printf("%d\n", player[i].type);
+      for (int j = 1; j <= 5; j++) {
+        printf("%d ", player[i].card[j].point);
+      }
+      printf("\n");
+    #endif
+  }
+  return 0;
 }
-// 1 2
+/*
+>=1100 炸弹
+1000~1099 牛牛 (铁板*10)
+700~999 牛1 (铁板*10)
+100~699 牛2 (铁板*10)
+0 无牛
+*/

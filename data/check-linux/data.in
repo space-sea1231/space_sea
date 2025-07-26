@@ -1,36 +1,621 @@
-0 5 5
+0 100 20
 A
 B
 C
 D
 E
+F
+G
+H
+I
+J
+K
+L
+M
+N
+O
+P
+Q
+R
+S
+T
+O
+c3 d7 dA c5 c7 
+H
+c9 b6 d8 b5 b3 
+Q
+d3 a3 c2 c6 a5 
+H
+c7 b9 b3 d7 dA 
+F
+b2 b8 b5 c9 d9 
+P
+c3 a10 b6 c5 cA 
+E
+d10 c2 a6 d4 d8 
+D
+c4 b4 a3 b3 c5 
+C
+d7 c10 a9 c8 d5 
+T
+d3 c2 b8 d5 d9 
+F
+c6 a9 dA d4 bA 
+P
+a7 b4 b9 b10 c10 
+F
+b5 d7 b7 a4 b2 
+O
+d5 a2 b8 c7 a7 
+A
+aA a3 c6 d8 cA 
+F
+c8 a8 c3 b10 a3 
+E
+b3 a9 a10 cA d4 
+T
+a4 b2 d6 b8 bA 
+D
+d6 c10 c4 c6 a2 
+G
+d8 c5 b10 b8 b2 
+L
+a6 bA d10 b5 b4 
+N
+d8 c4 a4 bA c8 
+L
+b3 c3 aA d7 b7 
+S
+d2 a2 a9 c2 d9 
+E
+d8 a4 a6 a8 c3 
+A
+c8 b6 a2 b2 d10 
+S
+dA a10 d4 a7 b7 
+S
+c2 a7 d6 bA a3 
+M
+b8 d2 b3 dA b9 
+G
+c8 d7 d5 d8 c4 
+I
+d5 c6 c5 b9 cA 
+T
+bA d2 b5 c9 d3 
 B
-aA c3 d8 b8 b3 
+aA a8 b2 a3 c8 
+T
+a8 c9 c3 d2 d8 
+J
+d4 cA b10 a2 aA 
+M
+d9 d10 b7 c6 a9 
+J
+d9 a3 a8 b6 d5 
+Q
+b3 a10 a7 a4 d8 
 D
-d10 a2 d5 a9 a6 
-A
-cA b6 d7 a10 a8 
+c9 c3 a5 c8 aA 
+R
+cA c10 b5 b10 c2 
 D
-c2 b6 bA c5 c4 
-E
-a5 b10 c8 b7 c9 
-A
-d10 a8 dA c3 a4 
+d5 b7 b6 a10 bA 
+K
+d6 a7 aA c6 d4 
+J
+a9 aA b4 cA c3 
+R
+d9 c8 a3 b2 a7 
+M
+a6 a5 b5 bA d3 
+O
+d3 aA dA b8 c4 
+K
+c9 d7 c7 a6 b7 
 C
-a4 bA c10 a8 c2 
-A
-c6 c9 a9 d8 d6 
+b6 b5 c10 c8 d2 
+T
+cA c9 b2 a3 b7 
+L
+a2 d2 b8 b4 a8 
+S
+b3 d7 c4 b9 a5 
+Q
+b5 cA d2 d3 a6 
+N
+c9 d8 b10 a10 c2 
+D
+aA d9 c6 b9 c5 
+O
+c9 a3 b2 c4 c2 
+F
+a8 a4 c3 b9 c10 
 E
-dA b8 b4 a6 a2 
+d3 d10 b7 b3 b8 
+H
+b4 aA b9 c9 a7 
+D
+b7 b3 c6 c4 a3 
+A
+b8 d4 a2 a6 b5 
+S
+a2 c6 a6 d6 b9 
+D
+a4 d4 c9 a8 b7 
+C
+b5 a7 d2 a3 a5 
+T
+a6 d6 b8 c2 b2 
+H
+b3 a10 a5 c9 d2 
+L
+c3 c10 bA d8 b6 
+S
+d7 b6 cA b8 a9 
+P
+c5 c8 a6 b3 c4 
+Q
+d9 b10 d10 c9 a5 
+O
+c3 a9 cA b3 d7 
+H
+b7 d6 a3 d8 c6 
+D
+b5 a5 b10 a2 b2 
+D
+a10 c10 c3 d9 d5 
 B
-c3 c7 a2 b6 c5 
+a4 b3 a2 aA c8 
+S
+d2 d7 b4 a6 c2 
+S
+b9 cA a3 d4 a10 
 C
-c2 b3 b9 b7 dA 
+c9 d5 a6 b4 b2 
+B
+c4 d2 b10 bA d10 
+M
+a5 b9 a8 c6 c8 
+H
+d10 c9 c7 d4 a9 
+F
+c4 c2 d5 d9 b10 
+Q
+a2 c3 d3 d7 c6 
+L
+c8 d10 d8 d5 b5 
+I
+a9 c9 c5 b8 a4 
+Q
+d9 c8 d7 b7 d6 
+T
+d10 b4 a10 a8 a2 
+C
+c9 c5 b10 c2 aA 
+C
+d3 a9 b2 bA d8 
+T
+a7 b3 c8 c7 b7 
+L
+c9 a2 d10 dA a8 
+S
+d2 d7 b4 a10 c8 
+B
+b5 b10 d3 d10 a6 
+A
+a7 b8 b9 c2 bA 
+H
+c9 bA c2 c10 b4 
+O
+d9 b3 c6 b9 d4 
+B
+a5 aA a9 d3 a10 
+K
+a6 b8 c3 cA d9 
+G
+d7 b7 b6 a9 a3 
+A
+a10 c8 c4 a4 b5 
 D
-d2 a7 a9 b8 a6 
-D
-d9 c2 c4 d6 c6 
+d9 b8 a5 a2 a8 
+H
+b7 a6 c5 d5 d4 
+S
+b3 cA dA c7 c9 
+O
+c7 c5 c2 c3 b10 
+S
+b4 a4 a7 aA dA 
+R
+a10 a5 b6 a3 bA 
+I
+d6 d5 d7 c3 b9 
+L
+c8 a4 b5 c5 c4 
+C
+a7 c10 a3 d4 b7 
+J
+a5 d3 b6 a6 d8 
+I
+a8 b3 d7 b8 b5 
+A
+a10 b4 c3 a9 b9 
+B
+a8 c6 c4 b6 b9 
+N
+d6 a10 bA aA a4 
 E
-c8 b2 a6 a3 d8 
+cA a3 b5 d10 d4 
+I
+b5 a2 c10 c6 a9 
+R
+c4 c9 d6 b7 d10 
+H
+dA a3 c8 d7 c2 
 C
-a4 d4 a10 b6 aA 
+d3 d9 c9 a7 c5 
+N
+c10 aA a2 a3 c4 
+G
+a10 a5 d6 c2 b8 
+O
+dA b2 a8 d5 d8 
+D
+a9 cA c10 d2 d6 
+H
+bA b5 a7 c4 d7 
+D
+bA a8 a4 b9 c6 
+J
+b6 aA c5 c8 b3 
+R
+c2 b5 a6 a9 b10 
+A
+b10 d5 d7 c2 d2 
+L
+a5 c5 a10 d3 c9 
+H
+bA c10 c3 cA a9 
+G
+a4 b9 d10 c9 bA 
+P
+a2 a10 b2 dA aA 
+A
+d5 b10 d8 b6 a3 
+H
+a6 b2 b3 a7 b7 
+D
+c2 a5 a8 b9 a10 
+A
+a9 a4 d2 c4 a2 
+O
+dA d8 a3 aA c2 
+C
+a8 a10 d3 b3 a4 
+F
+d10 c10 b4 a7 c7 
+H
+d7 a9 d9 c5 b5 
+R
+b4 cA a4 a10 b7 
+A
+bA d5 c9 aA c8 
+S
+d5 c7 b6 c10 c5 
+I
+c2 b9 c6 b3 b8 
+B
+d2 c3 dA a4 b7 
+N
+b6 d2 c9 aA b7 
+D
+a5 c6 bA b5 a9 
+O
+d6 c2 a10 c3 cA 
+A
+a6 a10 a8 b2 d10 
+G
+cA b5 c8 dA c5 
+F
+c3 b7 b10 d4 d8 
+K
+d9 d7 d10 c5 c4 
+T
+a6 d6 c10 c8 cA 
+G
+d8 c3 b3 b9 b8 
+D
+d6 d9 b4 a7 a6 
+H
+a9 c5 c7 d8 b8 
+A
+a3 b7 c9 dA d2 
+P
+d9 a3 bA d5 c4 
+D
+dA a10 b7 b6 a2 
+T
+c3 b5 d7 d4 b3 
+N
+c2 c6 a10 c7 a8 
+B
+c9 b10 b3 c8 d3 
+G
+b6 d9 b5 a2 a5 
+B
+c3 b3 b8 b5 d4 
+L
+d3 d8 a5 a2 a7 
+M
+c8 a3 d9 dA a9 
+S
+d10 b9 b4 a6 b10 
+H
+c6 a10 b7 d2 c10 
+R
+a9 d8 c2 b6 b3 
+R
+c6 a5 a10 c8 b8 
+K
+cA aA b3 c9 c10 
+A
+c7 a9 b9 c2 d8 
+I
+b4 a4 bA b8 d5 
+N
+c4 c8 c2 c9 c5 
+G
+dA c6 b6 aA c7 
+D
+c4 d10 d4 b4 d6 
+H
+a2 b5 b6 dA d5 
+N
+b10 b8 a5 aA c9 
+M
+d5 a2 b8 b10 c9 
+F
+c5 b6 cA d7 c4 
+L
+b7 d8 b5 b4 d10 
+D
+b4 c8 d7 a10 a3 
+N
+a9 b3 a5 c10 d2 
+I
+a8 d5 b5 b9 cA 
+L
+c9 d10 d7 d2 aA 
+M
+b8 d8 c6 d5 b3 
+T
+c10 b5 c2 d3 c3 
+N
+dA c5 a2 d5 d6 
+B
+a6 b5 d10 a8 d2 
+K
+d9 b8 b9 c3 c4 
+I
+a5 c9 cA c8 b9 
+J
+d2 c4 c2 c5 c10 
+L
+a3 d8 b2 c3 b7 
+J
+cA a7 d2 c2 d10 
+C
+a10 b9 b2 b5 a8 
+O
+d3 a6 bA b10 aA 
+K
+bA d7 aA a5 b8 
+G
+a4 a8 a2 a9 cA 
+D
+a10 b5 b7 d3 a3 
+I
+a5 d5 c8 a4 d4 
+A
+d2 d7 b7 d6 a10 
+C
+b5 aA d10 a6 c7 
+J
+a8 d2 c4 c6 b8 
+N
+c7 a5 d3 d4 b9 
+A
+cA b3 b7 b6 b2 
+Q
+c10 d8 dA c5 d3 
+E
+b3 c9 b9 d7 b10 
+O
+a4 c8 c4 c7 a6 
+G
+a9 b7 d10 a8 d5 
+E
+c2 c10 b6 b10 c4 
+R
+b8 d2 c5 d9 a2 
+B
+b5 d5 b9 c9 c8 
+P
+a5 c10 a8 a9 a4 
+M
+bA b3 cA c6 a2 
+T
+a9 b8 dA d6 b9 
+A
+b5 c4 d4 d7 a8 
+H
+d3 d5 cA a6 d10 
+S
+a10 d3 bA cA aA 
+E
+c2 d8 c9 c7 b5 
+D
+b6 c6 a9 d6 d4 
+F
+cA b8 d6 a9 b3 
+R
+d2 d9 b6 a8 b4 
+P
+aA a2 a6 a4 bA 
+S
+a5 b10 a8 a7 c10 
+H
+cA a2 b9 a9 a3 
+K
+c8 c7 b6 d10 bA 
+C
+c10 b4 b9 c9 c6 
+L
+a5 b8 d3 b2 b5 
+P
+a4 c3 b7 d8 d4 
+A
+c7 d5 c3 b2 d3 
+F
+a4 b4 dA a10 bA 
+E
+a7 b6 b8 a2 d8 
+O
+b10 a10 c3 a3 a9 
+R
+dA c4 b3 b9 a7 
+Q
+d7 b8 d4 b2 c8 
+O
+d9 b2 c8 a5 c6 
+D
+d3 c3 d5 d2 b5 
+C
+a8 b10 c4 b4 cA 
+E
+a7 d2 dA a4 b3 
+A
+c7 b4 d6 c5 a10 
+J
+c10 cA d3 a2 d10 
+O
+c2 d3 a6 a4 a10 
+G
+c4 d5 d8 a2 b4 
+J
+a5 b9 aA b5 b8 
+P
+d4 c9 c6 c10 c4 
+I
+a8 b2 d7 c2 aA 
+C
+dA bA d10 d6 b3 
+N
+dA bA a3 b7 c5 
+P
+d8 d6 a2 b2 c7 
+L
+aA b8 d3 b6 d4 
+E
+c2 b3 b5 b9 b7 
+H
+d7 b10 dA c9 b6 
+F
+b8 c6 bA a10 a8 
+D
+a6 b4 b2 c6 b9 
+J
+a3 d2 b8 d8 a10 
+S
+d3 bA b3 b7 b10 
+J
+c5 b2 b4 b5 c2 
+F
+a4 b8 c8 a7 b7 
+N
+d7 d8 b6 c7 c3 
+B
+b8 d7 a7 a3 cA 
+M
+c3 d8 a10 b7 c5 
+N
+aA c4 a2 b5 d4 
+I
+c2 c8 a2 b8 d4 
+B
+a4 b5 c7 c3 b4 
+D
+c6 a6 dA b3 aA 
+C
+c2 b8 d10 b10 c5 
+P
+c6 d8 c3 a6 a7 
+D
+a4 d7 a10 b4 c8 
+D
+b7 a2 b3 d7 a9 
+L
+b5 a7 a6 d8 d4 
+S
+b2 c5 d3 d9 c8 
+H
+a7 c9 b3 c5 c10 
+O
+d9 dA cA b5 d5 
+A
+a5 d3 b2 c6 a8 
+O
+bA c4 a6 c8 b2 
+K
+a3 c9 cA d9 b10 
+L
+d8 d7 c5 b8 a7 
+K
+b10 b5 d6 c2 c4 
+M
+c6 d9 d8 c7 d10 
+D
+a4 d4 d5 a3 aA 
+T
+aA bA b4 c7 a6 
+L
+d9 d8 d10 c6 c10 
+M
+a4 b5 b9 a8 d7 
+T
+d4 a8 c10 a6 d9 
+F
+a9 c6 d2 c8 c4 
+M
+a7 b5 d8 b2 c7 
+Q
+c4 cA c7 a3 c8 
+O
+b5 aA a2 a5 d5 
+N
+d4 b3 a4 d9 d10 
+E
+b4 d4 aA d3 cA 
+D
+b7 bA a4 c6 dA 
+L
+c5 c3 a6 b3 d5 
+H
+a3 b2 a5 a9 a2 
+C
+aA d9 b3 a10 a4 
+B
+c5 b10 a6 c3 c7 
+P
+a4 a2 c5 a9 b4 
+I
+bA b8 b3 b9 d5 
+T
+c6 b5 d2 a6 d4 
+A
+bA b9 a5 c6 b3 
+Q
+b5 b6 c3 c4 c7 
+G
+a2 c5 a8 c8 c9 

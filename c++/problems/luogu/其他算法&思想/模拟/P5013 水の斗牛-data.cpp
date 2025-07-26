@@ -4,12 +4,12 @@
 using namespace std;
 typedef long long ll;
 
-const int N = 100;
+const int N = 5;
 const int M = 20;
 
-int player[N];
-bool vis[N];
-bool flag[N][N];
+int player[M];
+bool vis[M];
+bool flag[M][M];
 
 int Random(int l, int r){
   return rand()%(r - l + 1) + l;//生成随机数
@@ -25,7 +25,7 @@ signed main() {
   srand(time(NULL));//随机种子
   int id = 0;
   int t = N;
-  int n = M;
+  int n = N;
   printf("%d %d %d\n", id, t, n);
   for (int i = 1; i <= n; i++){
     printf("%c\n", 'A' + i - 1);
@@ -33,7 +33,7 @@ signed main() {
   while (t--) {
     Init();
     for (int i = 1; i <= 3; i++) {
-      while (vis[player[i] = Random(1, n)] == true);
+      while (vis[player[i] = Random(1, N)] == true);
       vis[player[i]] = true;
     }
     for (int i = 1; i <= 3; i++) {

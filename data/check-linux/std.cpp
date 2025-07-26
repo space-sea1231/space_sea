@@ -35,11 +35,6 @@ Player player[N];
 vector<int> vec;
 
 int Check(Player *cur) {
-  #ifdef __Debug
-  if (cur->name == "Justin") {
-    printf("Debug1: card[%d]=%d card[%d]=%d card[%d]=%d\n", vec[0], cur->card[vec[0]].point, vec[1], cur->card[vec[1]].point, vec[2], cur->card[vec[2]].point);
-  }
-  #endif
   int sum = 0;
   for (int i = 1; i <= 5; i++) {
     if (i != vec[0] && i != vec[1] && i != vec[2]) {
@@ -47,7 +42,12 @@ int Check(Player *cur) {
     }
   }
   sum = sum % 10;
-  if (cur->card[vec[0]].point == cur->card[vec[1]].point == cur->card[vec[2]].point) { // 铁板
+  #ifdef __Debug
+  if (cur->name == "D") {
+    printf("Debug1: card[%d]=%d card[%d]=%d card[%d]=%d sum=%d\n", vec[0], cur->card[vec[0]].point, vec[1], cur->card[vec[1]].point, vec[2], cur->card[vec[2]].point, sum);
+  }
+  #endif
+  if (cur->card[vec[0]].point == cur->card[vec[1]].point && cur->card[vec[1]].point == cur->card[vec[2]].point) { // 铁板
     if (sum == 0) return 1000 + (vec[0] * 10) - 1;
     if (sum > 0) return sum * 100 + vec[0] * 10 - 1; // 防撞衫炸弹&&牛牛
   }
@@ -80,6 +80,7 @@ bool Compare(Player *srca, Player *srcb) {
   if (srca->mxcolor != srcb->mxcolor) return srca->mxcolor < srcb->mxcolor; 
   return true;
 }
+
 void Duel(Player *srca, Player *srcb) {
   int sum = 10;
   if (Compare(srca, srcb) == true) {
@@ -136,6 +137,7 @@ void Init(Player *src) {
 }
 
 signed main() {
+  // freopen("std1.out", "w", stdout);
   cin.tie(nullptr)->ios::sync_with_stdio(false);
   /*Input*/
   cin >> id >> t >> n;
@@ -159,21 +161,21 @@ signed main() {
     /*Init*/
     // for (int i = 1; i <= 3; i++) Init(&player[table[i]]);
     #ifdef __Debug
-      // for (int i = 1; i <= 3; i++) {
-      //   Player *cur = &player[table[i]];
-      //   printf("%s\n", cur->name.c_str());
-      //   for (int j = 1; j <= 5; j++) {
-      //     printf("%d:%d\n", cur->card[j].color, cur->card[j].point);
-      //   }
-      // }
-      // printf("\n");
+      for (int i = 1; i <= 3; i++) {
+        Player *cur = &player[table[i]];
+        printf("%s\n", cur->name.c_str());
+        for (int j = 1; j <= 5; j++) {
+          printf("%d:%d\n", cur->card[j].color, cur->card[j].point);
+        }
+      }
+      printf("\n");
     #endif
     /*Solve*/
     for (int i = 1; i <= 3; i++) {
       Player *cur = &player[table[i]];
       cur->type = Search(cur, 1, 0);
       for (int j = 1; j <= 5; j++) {
-        if (cur->mxpoint < cur->card[j].point) { // 最大点数和最大花色
+        if (cur->mxpoint < cur->card[j].point || (cur->mxpoint == cur->card[j].point && cur->mxcolor > cur->card[j].color)) { // 最大点数和最大花色
           cur->mxpoint = cur->card[j].point;
           cur->mxcolor = cur->card[j].color;
         }
@@ -191,6 +193,9 @@ signed main() {
     Init(&player[table[1]]);
     Init(&player[table[2]]);
     Init(&player[table[3]]);
+    #ifdef __Debug
+      printf("\n");
+    #endif
   }
   /*Output*/
   for (int i = 1; i <= n; i++) {

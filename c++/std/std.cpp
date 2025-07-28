@@ -4,27 +4,31 @@
 
 using namespace std;
 typedef long long ll;
+
 const int N=1e6+10;
+
 int n, m;
-struct Node {
-  int val;
-  int id;
-  bool operator<(const Node srcb) const{
-    return val>srcb.val;
-  }
-}a[N], b[N];
-signed main() {
-  cin.tie(nullptr) -> ios::sync_with_stdio(false);
+int a[N<<1];
+
+signed main(){
+  cin.tie(nullptr)->ios::sycn_with_stdio(false);
+  /*Input*/
   cin >> n >> m;
-  for (int i = 1; i<=n; i++){
-    cin >> a[i].val;
-    a[i].id=i;
+  for (int i=1; i<=n; i++) {
+    cin >> a[i];
   }
-  for (int j = 1; j <= n; j++) {
-    cin >> b[i].val;
-    b[i].id=i;
-    b[i].val+=a[i].val;
+  for (int i=1; i<=n; i++) {
+    cin >> a[i+n];
+    a[i+n] = a[i+n] + a[i];
   }
-  
+  /*Init*/
+  sort(a+1, a+(n<<1)+1, greater<int>());
+  /*Solve*/
+  int ans = 0;
+  for (int i=1; i<=m; i++) {
+    ans = ans + a[i];
+  }
+  printf("%d\n", ans);
+
   return 0;
 }

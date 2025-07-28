@@ -1,9 +1,11 @@
 {
-    "C_Cpp.errorSquiggles": "Disabled",
+    "C_Cpp.errorSquiggles": "disabled",
     "files.associations": {
+        "random": "cpp",
+        "any": "cpp",
         "array": "cpp",
         "atomic": "cpp",
-        "*.tcc": "cpp",
+        "bit": "cpp",
         "bitset": "cpp",
         "cctype": "cpp",
         "cfenv": "cpp",
@@ -30,6 +32,8 @@
         "deque": "cpp",
         "forward_list": "cpp",
         "list": "cpp",
+        "map": "cpp",
+        "set": "cpp",
         "unordered_map": "cpp",
         "unordered_set": "cpp",
         "vector": "cpp",
@@ -37,15 +41,12 @@
         "algorithm": "cpp",
         "functional": "cpp",
         "iterator": "cpp",
-        "map": "cpp",
         "memory": "cpp",
         "memory_resource": "cpp",
         "numeric": "cpp",
         "optional": "cpp",
-        "random": "cpp",
         "ratio": "cpp",
         "regex": "cpp",
-        "set": "cpp",
         "string": "cpp",
         "string_view": "cpp",
         "system_error": "cpp",
@@ -72,10 +73,7 @@
         "typeindex": "cpp",
         "typeinfo": "cpp",
         "valarray": "cpp",
-        "any": "cpp",
-        "bit": "cpp",
         "variant": "cpp",
-        "queue": "cpp"
-    },
-    "C_Cpp.dimInactiveRegions": false
+        "stack": "cpp"
+    }
 }

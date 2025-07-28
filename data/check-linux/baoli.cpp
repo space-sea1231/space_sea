@@ -1,119 +1,136 @@
-#include<cstdio>  
-#include<algorithm>  
-#include<cstring>  
-#include<iostream>  
-#define MAXN 10005 
-#define INF 999999999
-using namespace std; 
-struct Edge1{  
-    int x,y,dis;
-}edge1[50005]; //题目所给的图 
-struct Edge2{
-    int to,next,w;
-}edge2[100005]; //最大生成树的图 
-int cnt,n,m,head[MAXN],deep[MAXN],f[MAXN],fa[MAXN][21],w[MAXN][21];
-//f数组表示并查集中的父节点，fa数组表示树上的父节点，w数组表示最大载重 
-bool vis[MAXN]; 
+#include <bits/stdc++.h>
+#define endl "\n"
 
-void addedge(int from, int to, int w)
-{ //前向星存图 
-    edge2[++cnt].next=head[from];
-    edge2[cnt].to=to;
-    edge2[cnt].w=w;
-    head[from]=cnt;
-    return ;
-}
+using namespace std;
 
-bool CMP(Edge1 x, Edge1 y)
+const int N=1e6+5;
+
+int t,n;
+
+int times[25]=
+{1,1,1,1,1,1,1,2,2,2,3,10};
+
+struct Node
 {
-    return x.dis>y.dis; //将边权从大到小排序 
-}
+	int sc,c[15],ans,est;
+	char ch[15];
+	int flag;
+}a[N];
 
-int find(int x){  //并查集寻找父节点 
-    if(f[x]!=x) f[x]=find(f[x]);
-    return f[x];
-}
+map<string,int> mp;
 
-void kruskal()
+int tong[15];
+
+int f(int x)
 {
-    sort(edge1+1, edge1+m+1, CMP); 
-    for(int i=1; i<=n; i++)
-        f[i]=i;  //并查集初始化 
-    for(int i=1; i<=m; i++)
-        if(find(edge1[i].x)!=find(edge1[i].y)){
-            f[find(edge1[i].x)]=find(edge1[i].y);
-            addedge(edge1[i].x, edge1[i].y, edge1[i].dis);
-            addedge(edge1[i].y, edge1[i].x, edge1[i].dis);  //无向图，双向加边 
-        }
-    return ;
+	int sum=0,res=0,big=0;
+	for(int i=1;i<=10;i++) tong[i]=0;
+	for(int i=1;i<=5;i++)
+	{
+		sum+=a[x].c[i];
+		tong[a[x].c[i]]++;
+		big=max(big,a[x].c[i]*100+('d'-a[x].ch[i]));
+	}
+	int old=big;
+	for(int i=1;i<=10;i++)
+	{
+		if(tong[i]>=4)
+		{
+			a[x].est=i;
+			return 11;
+		}
+	}
+	for(int i=1;i<=5;i++) 
+	for(int j=i+1;j<=5;j++)
+	for(int k=j+1;k<=5;k++)
+	{
+		int tot=a[x].c[i]+a[x].c[j]+a[x].c[k];
+		if(tot%10==0)
+		{
+			int cnt=sum-tot;
+			cnt=(cnt-1)%10+1;
+			if(cnt>res)
+			{
+				res=cnt,big=old;
+				a[x].flag=0;
+			}
+		}
+		if(a[x].c[i]==a[x].c[j]&&a[x].c[j]==a[x].c[k])
+		{
+			int cnt=sum-tot;
+			cnt=(cnt-1)%10+1;
+			if(cnt>=res)
+			{
+				res=cnt,big=a[x].c[i];
+				a[x].flag=1;
+			}
+		}
+	}
+	a[x].est=big;
+	return res;
 }
 
-void dfs(int node)
-{
-    vis[node]=true;
-    for(int i=head[node]; i; i=edge2[i].next){ //前向星遍历 
-        int to=edge2[i].to;
-        if(vis[to]) continue;
-        deep[to]=deep[node]+1; //计算深度 
-        fa[to][0]=node; //储存父节点 
-        w[to][0]=edge2[i].w; //储存到父节点的权值 
-        dfs(to);
-    }
-    return ;
-}
+string str[N];
 
-int lca(int x, int y)
-{
-    if(find(x)!=find(y)) return -1; //不连通，输出-1 
-    int ans=INF;
-    if(deep[x]>deep[y]) swap(x,y); //保证y节点更深 
-    //将y节点上提到于x节点相同深度 
-    for(int i=20; i>=0; i--)
-        if(deep[fa[y][i]]>=deep[x]){
-            ans=min(ans, w[y][i]);  //更新最大载重（最小边权） 
-            y=fa[y][i]; //修改y位置 
-        }
-    if(x==y) return ans; //如果位置已经相等，直接返回答案 
-    //寻找公共祖先 
-    for(int i=20; i>=0; i--)
-        if(fa[x][i]!=fa[y][i]){
-            ans=min(ans, min(w[x][i], w[y][i])); //更新最大载重（最小边权）
-            x=fa[x][i]; 
-            y=fa[y][i]; //修改x,y位置 
-        }
-    ans=min(ans, min(w[x][0], w[y][0]));
-    //更新此时x,y到公共祖先最大载重，fa[x][0], fa[y][0]即为公共祖先 
-    return ans;
-}
+string s[5],ca[15];
 
-int main()
+signed main()
 {
-    int x,y,z,q;
-    scanf("%d%d",&n,&m);
-    for(int i=1; i<=m; i++){
-        scanf("%d%d%d",&x,&y,&z);
-        edge1[i].x=x;
-        edge1[i].y=y;
-        edge1[i].dis=z;
-    } //储存题目所给图 
-    kruskal();
-    for(int i=1; i<=n; i++)
-        if(!vis[i]){ //dfs收集信息 
-            deep[i]=1; 
-            dfs(i);
-            fa[i][0]=i;
-            w[i][0]=INF;
-        }
-    //LCA初始化 
-    for(int i=1; i<=20; i++)
-        for(int j=1; j<=n; j++){
-            fa[j][i]=fa[fa[j][i-1]][i-1]; 
-            w[j][i]=min(w[j][i-1], w[fa[j][i-1]][i-1]);
-        }
-    scanf("%d",&q);
-    for(int i=1; i<=q; i++){
-        scanf("%d%d",&x,&y);
-        printf("%d\n",lca(x,y)); //回答询问 
-    }
-    return 0;
-} 
+	cin>>t>>t>>n;
+	for(int i=1;i<=n;i++)
+	{
+		cin>>str[i];
+		mp[str[i]]=i;
+	}
+	while(t--)
+	{
+		for(int i=1;i<=3;i++)
+		{
+			cin>>s[i];
+			int id=mp[s[i]];
+			for(int j=1;j<=5;j++)
+			{
+				cin>>ca[j];
+				a[id].ch[j]=ca[j][0];
+				a[id].c[j]=(ca[j].size()==2?((ca[j][1]=='A')?1:(ca[j][1]-'0')):10);
+			}
+			a[id].flag=0;
+			a[id].sc=f(id);
+		}
+		for(int i=1;i<=3;i++)
+		{
+			for(int j=i+1;j<=3;j++)
+			{
+				int u=mp[s[i]],U=times[a[u].sc]*((a[u].flag&&a[u].sc!=11)+1);
+				int v=mp[s[j]],V=times[a[v].sc]*((a[v].flag&&a[v].sc!=11)+1);
+				if(a[u].sc>a[v].sc)
+				{
+					a[u].ans+=10*U;
+					a[v].ans-=10*U;
+				}
+				else if(a[u].sc<a[v].sc)
+				{
+					a[u].ans-=10*V;
+					a[v].ans+=10*V;
+				}
+				else
+				{
+					int win=(((a[u].flag>a[v].flag)||(a[u].est>a[v].est&&a[u].flag==a[v].flag))?1:-1);
+					a[u].ans+=win*10*(win==1?U:V);
+					a[v].ans-=win*10*(win==1?U:V);
+				}
+			}
+		}
+	}
+	for(int i=1;i<=n;i++)
+	{
+		cout<<str[i]<<' '<<a[i].ans<<endl;
+	}
+
+	#define Pyrf_uqcat return
+	#define is 0
+	#define Lovely ;
+	
+	Pyrf_uqcat is Lovely
+
+}

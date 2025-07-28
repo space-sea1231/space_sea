@@ -1,33 +1,52 @@
-#include <bits/stdc++.h>
-using namespace std;
-int Random(int l, int r){
-    return rand()%(r-l+1)+l;//生成随机数
-}
-int main(){
-    freopen("data.in", "w", stdout);
-    srand(time(NULL));//随机种子
-    int n=Random(1, 5);
-    int m=Random(1, 10);
-    printf("%d %d\n", n, m);
-    for (int i=1; i<=m; i++){
-        int u=Random(1, n);
-        int v=Random(1, n);
-        while (u==v){
-            v=Random(1, n);
-        }
-        int w=Random(1, 10);
-        printf("%d %d %d\n", u, v, w);
-    }
-    int q=Random(1, 10);
-    printf("%d\n", q);
-    for (int i=1; i<=q; i++){
-        int u=Random(1, n);
-        int v=Random(1, n);
-        while (u==v){
-            v=Random(1, n);
-        }
-        printf("%d %d\n", u, v);
-    }
+#include <iostream>
+#include <cstring>
 
-    return 0;
+using namespace std;
+typedef long long ll;
+
+const int N = 100;
+const int M = 20;
+
+int player[N];
+bool vis[N];
+bool flag[N][N];
+
+int Random(int l, int r){
+  return rand()%(r - l + 1) + l;//生成随机数
+}
+
+void Init() {
+  memset(vis, 0, sizeof(vis));
+  memset(flag, 0, sizeof(flag));
+  return ;
+}
+
+signed main() {
+  srand(time(NULL));//随机种子
+  int id = 0;
+  int t = N;
+  int n = M;
+  printf("%d %d %d\n", id, t, n);
+  for (int i = 1; i <= n; i++){
+    printf("%c\n", 'A' + i - 1);
+  }
+  while (t--) {
+    Init();
+    for (int i = 1; i <= 3; i++) {
+      while (vis[player[i] = Random(1, n)] == true);
+      vis[player[i]] = true;
+    }
+    for (int i = 1; i <= 3; i++) {
+      printf("%c\n", player[i] + 'A' - 1);
+      for (int j = 1; j <= 5; j++) {
+        int color, point;
+        while (flag[color = Random(1, 4)][point = Random(1, 10)] == true);
+        flag[color][point] = true;
+        if (point == 1) printf("%c%c ", color + 'a' - 1, 'A');
+        else printf("%c%d ", color + 'a' - 1, point);
+      }
+      printf("\n");
+    }
+  }
+  return 0;
 }

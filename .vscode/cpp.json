@@ -5,7 +5,7 @@
 	// same ids are connected.
 	// Example:
 	"C++ Template":{
-		"prefix": "#file",
+		"prefix": "#File",
 		"body": [
 			"#include <bits/stdc++.h>",
 			"using namespace std;",
@@ -20,14 +20,14 @@
 		],
 	},
 	"C++ Freopen":{
-		"prefix": "#freopen",
+		"prefix": "#Freopen",
 		"body": [
 			"freopen(\"std.in\", \"r\", stdin);",
 			"freopen(\"std.out\", \"w\", stdout);",
 		],
 	},
 	"C++ Graph":{
-		"prefix": "#graph",
+		"prefix": "#Graph",
 		"body": [
 			"int cnt;",
 			"int head[N], to[N<<1], nxt[N<<1];",
@@ -39,7 +39,7 @@
 		],
 	},
 	"C++ Union_Find":{
-		"prefix": "#union_find",
+		"prefix": "#Union_Find",
 		"body": [
 			"struct Union_Find{",
 			"    int fa[N];",
@@ -58,7 +58,7 @@
 		],
 	},
 	"C++ Binary_Indexed_Tree":{
-		"prefix": "#binary_indexed_tree",
+		"prefix": "#Binary_Indexed_Tree",
 		"body": [
 			"struct Binary_Indexed_Tree{",
 			"    int num[N];",
@@ -80,8 +80,8 @@
 			"};",
 		],
 	},
-	"C++ Segment Tree Add":{
-		"prefix": "#segment_tree_add",
+	"C++ Segment_Tree_Add":{
+		"prefix": "#Segment_Tree_Add",
 		"body": [
 			"struct Segment_Tree{",
 			"    struct Node{",
@@ -140,7 +140,7 @@
 		],
 	},
 	"C++ Segment_Tree_Mul":{
-		"prefix": "#segment_tree_mul",
+		"prefix": "#Segment_Tree_Mul",
 		"body": [
 			"struct Segment_Tree{",
 			"    struct Node{",
@@ -218,7 +218,7 @@
 		],
 	},
 	"C++ Li_Chao_Segment_Tree":{
-		"prefix": "#li_chao_segment_tree",
+		"prefix": "#Li_Chao_Segment_Tree",
 		"body": [
 			"struct Li_Chao_Segment_Tree{",
 			"    int cnt;",
@@ -304,7 +304,7 @@
 		],
 	},
 	"C++ Blocking_Add":{
-		"prefix": "#blocking_Add",
+		"prefix": "#Blocking_Add",
 		"body": [
 			"struct Blocking{",
 			"    int siz;",
@@ -374,7 +374,7 @@
 		],
 	},
 	"C++ Blocking_Mul":{
-		"prefix": "#blocking_mul",
+		"prefix": "#Blocking_Mul",
 		"body": [
 			"struct Blocking{",
 		"    int siz;",
@@ -480,7 +480,7 @@
 		],
 	},
 	"C++ Trie_Tree":{
-		"prefix": "#trie_tree",
+		"prefix": "#Trie_Tree",
 		"body": [
 			"struct Trie_Tree{",
 			"    int num=1;",
@@ -528,7 +528,7 @@
 		],
 	},
 	"C++ Sparse_Table":{
-		"prefix": "#spares_table",
+		"prefix": "#Sparse_Table",
 		"body": [
 			"struct Sparse_Table{",
 			"    int dp[N][Z], lg[N];",
@@ -553,7 +553,7 @@
 		],
 	},
 	"C++ Treap":{
-		"prefix": "#treap",
+		"prefix": "#Treap",
 		"body": [
 			"struct Treap{",
 			"    int num=0, root;",
@@ -689,7 +689,7 @@
 		],
 	},
 	"C++ Splay":{
-		"prefix": "#splay",
+		"prefix": "#Splay",
 		"body": [
 			"struct Splay{",
 			"    int root, num;",
@@ -856,7 +856,7 @@
 		]
 	},
 	"C++ Pairing_Heap":{
-		"prefix": "#pairing_tree",
+		"prefix": "#Pairing_Heap",
 		"body": [
 			"struct Pairng_Heap{",
 			"    struct Node{",
@@ -915,7 +915,7 @@
 		],
 	},
 	"C++ Leftist_Tree":{
-		"prefix": "#leftist_tree",
+		"prefix": "#Leftist_Tree",
 		"body": [
 			"struct Leftist_Tree{",
 			"    struct Node{",
@@ -993,7 +993,7 @@
 		]
 	},
 	"C++ Chain_Tree":{
-		"prefix": "#chain_tree",
+		"prefix": "#Chain_Tree",
 		"body": [
 			"struct Chain_Tree{",
 			"    Segment_Tree Seg;",
@@ -1091,10 +1091,90 @@
 			"}",
 		],
 	},
+	"C++ Johnson":{
+		"prefix": "#Johnson",
+		"body": [
+			"struct Johnson{",
+			"    int cnt;",
+			"    int head[N], to[M], nxt[M], val[M];",
+			"    int dist[N], dis[N], tot[N];",
+			"    bool vis[N];",
+			"    struct Node{",
+			"        int u, dis;",
+			"        bool operator<(const Node &a)const{",
+			"            return dis>a.dis;",
+			"        }",
+			"    };",
+			"    void Add(int u, int v, int w){",
+			"        to[++cnt]=v;",
+			"        val[cnt]=w;",
+			"        nxt[cnt]=head[u];",
+			"        head[u]=cnt;",
+			"    }",
+			"    bool SPFA(int s){",
+			"        queue<int> q;",
+			"        memset(dist, 0x3f, sizeof(dist));",
+			"        q.push(s);",
+			"        dist[s]=0;",
+			"        while (!q.empty()){",
+			"            int u=q.front();",
+			"            q.pop(), vis[u]=0;",
+			"            for (int i=head[u]; i; i=nxt[i]){",
+			"                int v=to[i], w=val[i];",
+			"                if (dist[v]>dist[u]+w){",
+			"                    dist[v]=dist[u]+w;",
+			"                    if (!vis[v]){",
+			"                        vis[v]=1;",
+			"                        q.push(v);",
+			"                        if (++tot[v]>n){",
+			"                            return 0;",
+			"                        }",
+			"                    }",
+			"                }",
+			"            }",
+			"        }",
+			"        return 1;",
+			"    }",
+			"    void Dijkstra(int s){",
+			"        priority_queue<Node> q;",
+			"        memset(dis, 0x3f, sizeof(dis));",
+			"        memset(vis, 0, sizeof(vis));",
+			"        q.push({s, 0});",
+			"        dis[s]=0;",
+			"        while (!q.empty()){",
+			"            int u=q.top().u;",
+			"            q.pop();",
+			"            if (vis[u]){",
+			"                continue;",
+			"            }",
+			"            vis[u]=1;",
+			"            for (int i=head[u]; i; i=nxt[i]){",
+			"                int v=to[i], w=val[i];",
+			"                if (dis[v]>dis[u]+w){",
+			"                    dis[v]=dis[u]+w;",
+			"                    if (!vis[v]){",
+			"                        q.push({v, dis[v]});",
+			"                    }",
+			"                }",
+			"            }",
+			"        }",
+			"    }",
+			"    void Init(){",
+			"        for (int u=1; u<=n; u++){",
+			"            for (int i=head[u]; i; i=nxt[i]){",
+			"                int v=to[i];",
+			"                val[i]+=dist[u]-dist[v];",
+			"            }",
+			"        }",
+			"    }",
+			"};",
+		]
+	},
 	"C++ Kruskal":{
-		"prefix": "#kruskal",
+		"prefix": "#Kruskal",
 		"body": [
 			"struct Kruskal{",
+			"    Union_Find Uf;",
 			"    int cnt;",
 			"    struct Node{",
 			"        int u, v, w;",
@@ -1102,20 +1182,6 @@
 			"            return w<a.w;",
 			"        }",
 			"    }e[M<<1];",
-			"    struct Union_Find{",
-			"        int fa[N];",
-			"        int Find(int x){",
-			"            if (x==fa[x]){",
-			"                return x;",
-			"            }",
-			"            return fa[x]=Find(fa[x]);",
-			"        }",
-			"        Union_Find(){",
-			"            for (int i=1; i<N; i++){",
-			"                fa[i]=i;",
-			"            }",
-			"        }",
-			"    }uf;",
 			"    void Add(int u, int v, int w){",
 			"        e[++cnt].u=u;",
 			"        e[cnt].v=v;",
@@ -1125,9 +1191,9 @@
 			"        sort(e+1, e+m+1);",
 			"        for (int i=1; i<=m; i++){",
 			"            int u=e[i].u, v=e[i].v, w=e[i].w;",
-			"            int fu=uf.Find(u), fv=uf.Find(v);",
+			"            int fu=Uf.Find(u), fv=Uf.Find(v);",
 			"            if (fu!=fv){",
-			"                uf.fa[fu]=fv;",
+			"                Uf.fa[fu]=fv;",
 			"                sum++;",
 			"                ans+=w;",
 			"            }",
@@ -1137,7 +1203,7 @@
 		],
 	},
 	"C++ Prim":{
-		"prefix": "#prim",
+		"prefix": "#Prim",
 		"body": [
 			"struct Prim{",
 			"    int cnt;",
@@ -1183,11 +1249,11 @@
 			"            }",
 			"        }",
 			"    }",
-			"}",
+			"};",
 		],
 	},
 	"C++ Least_Common_Ancestors":{
-		"prefix": "#least_common_ancestors",
+		"prefix": "#Least_Common_Ancestors",
 		"body": [
 			"struct Least_Common_Ancestors{",
 			"    int cnt;",
@@ -1237,8 +1303,8 @@
 			"};",
 		],
 	},
-	"C++ Binary Graph":{
-		"prefix":"#bingraph",
+	"C++ Binary_Graph":{
+		"prefix":"#Binary_Graph",
 		"body": [
 			"int match[N];",
 			"bool vis[N];",
@@ -1258,7 +1324,7 @@
 		],
 	},
 	"C++ Edmonds_Karp":{
-		"prefix": "#edmonds_karp",
+		"prefix": "#Edmonds_Karp",
 		"body": [
 			"struct Edmonds_Karp{",
 			"    int head[N], to[M], nxt[M], edge[M];",
@@ -1313,11 +1379,11 @@
 			"        }",
 			"        ans+=dis[t];",
 			"    }",
-			"}",
+			"};",
 		]
 	},
 	"C++ Dinic":{
-		"prefix": "#dinic",
+		"prefix": "#Dinic",
 		"body": [
 			"struct Dinic{",
 			"    int cnt=1;",
@@ -1419,7 +1485,7 @@
 			"                }",
 			"            }",
 			"        }",
-			"        if (dist[t]==1061109567){",
+			"        if (dist[t]==0x3f3f3f3f){",
 			"            return 0;",
 			"        }",
 			"        return 1;",
@@ -1435,10 +1501,106 @@
 			"        return dist[t]*ans[t];",
 			"    }",
 			"};",
-		]
+		],
+	},
+	"C++ Primal_Dual":{
+		"prefix": "#Primal_Dual",
+		"body": [
+			"struct Primal_Dual{",
+			"    int cnt=1;",
+			"    int head[N], dis[N], dist[N], pre[N];",
+			"    int to[M<<1], nxt[M<<1], flow[M<<1], cost[M<<1];",
+			"    bool vis[N];",
+			"    struct Node{",
+			"        int u, dis;",
+			"        bool operator<(const Node &a)const{",
+			"            return dis>a.dis;",
+			"        }",
+			"    };",
+			"    void Add(int u, int v, int f, int c){",
+			"        to[++cnt]=v;",
+			"        flow[cnt]=f;",
+			"        cost[cnt]=c;",
+			"        nxt[cnt]=head[u];",
+			"        head[u]=cnt;",
+			"    }",
+			"    void Insert(int u, int v, int f, int c){",
+			"        Add(u, v, f, c);",
+			"        Add(v, u, 0, -c);",
+			"    }",
+			"    void SPFA(){",
+			"        queue<int> q;",
+			"        memset(dist, 0x3f, sizeof(dist));",
+			"        q.push(s);",
+			"        dist[s]=0;",
+			"        while (!q.empty()){",
+			"            int u=q.front();",
+			"            q.pop(), vis[u]=0;",
+			"            for (int i=head[u]; i; i=nxt[i]){",
+			"                int v=to[i], f=flow[i], c=cost[i];",
+			"                if (f&&dist[v]>dist[u]+c){",
+			"                    dist[v]=dist[u]+c;",
+			"                    if (!vis[v]){",
+			"                        vis[v]=1;",
+			"                        q.push(v);",
+			"                    }",
+			"                }",
+			"            }",
+			"        }",
+			"    }",
+			"    bool Dijkstra(){",
+			"        priority_queue<Node> q;",
+			"        memset(dis, 0x3f, sizeof(dis));",
+			"        memset(vis, 0, sizeof(vis));",
+			"        q.push({s, 0});",
+			"        dis[s]=0;",
+			"        while (!q.empty()){",
+			"            int u=q.top().u;",
+			"            q.pop();",
+			"            if (vis[u]){",
+			"                continue;",
+			"            }",
+			"            vis[u]=1;",
+			"            for (int i=head[u]; i; i=nxt[i]){",
+			"                int v=to[i], f=flow[i], c=cost[i]+dist[u]-dist[v];",
+			"                if (f&&dis[v]>dis[u]+c){",
+			"                    dis[v]=dis[u]+c;",
+			"                    pre[v]=i;",
+			"                    if (!vis[v]){",
+			"                        q.push({v, dis[v]});",
+			"                    }",
+			"                }",
+			"            }",
+			"        }",
+			"        if (dis[t]==0x3f3f3f3f){",
+			"            return 0;",
+			"        }",
+			"        return 1;",
+			"    }",
+			"    int Update(){",
+			"        for (int i=1; i<=n; i++){",
+			"            dist[i]+=dis[i];",
+			"        }",
+			"        int x=t, minn=0x3f3f3f3f;",
+			"        while (x!=s){",
+			"            int last=pre[x];",
+			"            minn=min(minn, flow[last]);",
+			"            x=to[last^1];",
+			"        }",
+			"        x=t;",
+			"        while (x!=s){",
+			"            int last=pre[x];",
+			"            flow[last]-=minn;",
+			"            flow[last^1]+=minn;",
+			"            x=to[last^1];",
+			"        }",
+			"        return minn*dist[t];",
+			"    }",
+			"};",
+		],
 	},
 	"C++ Add":{
-		"prefix": "#add",
+		"prefix": "#Add",
 		"body": [
 			"struct Add{",
 			"    int len_a, len_b, len;",
@@ -1477,7 +1639,7 @@
 		],
 	},
 	"C++ Sub":{
-		"prefix": "#sub",
+		"prefix": "#Sub",
 		"body": [
 			"struct Sub{",
 			"    int len_a, len_b, len;",
@@ -1552,7 +1714,7 @@
 		],
 	},
 	"C++ Mul":{
-		"prefix": "#mul",
+		"prefix": "#Mul",
 		"body": [
 			"struct Mul{",
 			"    int len_a, len_b, len;",
@@ -1608,7 +1770,7 @@
 		],
 	},
 	"C++ Div":{
-		"prefix": "#div",
+		"prefix": "#Div",
 		"body": [
 			"struct Sub{",
 			"    int len, b, start=1;",

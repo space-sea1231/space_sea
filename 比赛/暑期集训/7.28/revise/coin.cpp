@@ -10,7 +10,7 @@ const int N=1e6+10;
 
 int n, m;
 int a[N], b[N];
-int suma[N], sumb[N];
+ll suma[N], sumb[N];
 
 signed main(){
   cin.tie(nullptr)->ios::sync_with_stdio(false);
@@ -33,14 +33,14 @@ signed main(){
     sumb[i]=sumb[i-1]+b[i];
   }
   /*Solve*/
-  int ans=0;
+  ll ans=0;
   int posa=0, posb=0;
   for (int i=1; i<=m; i++){
     if (posa>0&&b[posb+1]>a[posa]+a[posa+1]) posb++, posa--;
     else posa++;
     ans^=suma[posa]+sumb[posb];
   }
-  printf("%d\n", ans);
+  printf("%lld\n", ans);
 
   return 0;
 }

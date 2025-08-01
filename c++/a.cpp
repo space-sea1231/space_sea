@@ -1,108 +1,99 @@
-#include <iostream>
-#include <cstring>
-
+#include<iostream>
+#define lc now<<1
+#define rc now<<1|1
+#define int long long
 using namespace std;
-
-const int N = 100010, INF = 1e9;
-
-struct Operator
+const int N=5e5+5;
+struct node
 {
-    //op 表示操作类型
-    //op = 0 表示将第 x 个数赋值为 y
-    //op = i 表示第 i 次查询 [x, y] 区间中第 k 小数的答案
-    int op, x, y, k;
+	int sum,d;
 };
-Operator q[N * 2], lq[N * 2], rq[N * 2]; //总操作序列、左子操作序列、右子操作序列
-int qcnt;
-
-int n, m;
-int tr[N]; //树状数组，统计 [0, x] 区间中 <= mid 的数的个数
-int res[N]; //记录所有查询的答案
-
-int lowbit(int x)
+node tree[N<<2];
+int cf[N],a[N];
+int n,m;
+inline int read()
 {
-    return x & -x;
+	int s=0,w=1;char ch=getchar();
+	while(ch<'0'||ch>'9')
+	{  if(ch=='-')  w=-1;  ch=getchar();}
+	while(ch>='0'&&ch<='9')
+	{  s=s*10+ch-'0'; ch=getchar();}
+	return s*w;
 }
-
-void insert(int x, int c) //将树状数组第 x 个位置加上 c
+int gcd(int a,int b)
 {
-    for(int i = x; i <= n; i += lowbit(i)) tr[i] += c;
+	return b?gcd(b,a%b):a;
 }
-
-int query(int x) //查询 [0, x] 区间中 <= mid 的数的个数
+void push_up(int now)
 {
-    int res = 0;
-    for(int i = x; i; i -= lowbit(i)) res += tr[i];
-    return res;
+	tree[now].sum=tree[lc].sum+tree[rc].sum;
+	tree[now].d=gcd(tree[lc].d,tree[rc].d);
 }
-
-void work(int minv, int maxv, int l, int r) //值域为 [minv, maxv]，操作序列为 [l, r]
+void build(int now,int l,int r)
 {
-    if(l > r) return; //操作序列为空
-    if(minv == maxv) //值域到达边界
-    {
-        for(int i = l; i <= r; i++)
-            if(q[i].op) res[q[i].op] = minv; //将操作序列中所有查询操作的答案直接赋值为边界
-        return;
-    }
-
-    int mid = minv + maxv >> 1; //计算值域中间值
-    int lcnt = 0, rcnt = 0;
-    for(int i = l; i <= r; i++) //枚举区间中所有操作
-    {
-        if(!q[i].op) //赋值操作
-        {
-            if(q[i].y <= mid) //如果当前数的值 <= mid
-            {
-                insert(q[i].x, 1); //第 q[i].x 个位置上 <= mid 的数+1
-                lq[++lcnt] = q[i]; //加入左序列
-            }
-            else rq[++rcnt] = q[i]; //加入右序列
-        }
-        else //询问操作
-        {
-            int cnt = query(q[i].y) - query(q[i].x - 1); //查询 [q[i].x, q[i].y] 区间中 <= mid 的数的个数
-            if(cnt >= q[i].k) lq[++lcnt] = q[i]; //如果答案在左区间，将操作加入左序列
-            else
-            {
-                q[i].k -= cnt; //在右区间中查询的数的排名应该减去左区间中数的个数，即 q[i].k - cnt
-                rq[++rcnt] = q[i]; //否则说明答案在右区间，将操作加入右序列
-            }
-        }
-    }
-
-    for(int i = r; i >= l; i--) //还原树状数组
-        if(!q[i].op && q[i].y <= mid) //将之前符合要求的赋值操作撤销
-            insert(q[i].x, -1);
-
-    for(int i = 1; i <= lcnt; i++) q[l + i - 1] = lq[i]; //将左子序列的操作拷贝回原序列
-    for(int i = 1; i <= rcnt; i++) q[l + lcnt + i - 1] = rq[i]; //将右子序列的操作拷贝回原序列
-
-    work(minv, mid, l, l + lcnt - 1); //递归左区间
-    work(mid + 1, maxv, l + lcnt, r); //递归右区间
+	if(l==r)
+	{
+		tree[now].sum=tree[now].d=cf[l];
+		return ;
+	}
+	int mid=(l+r)>>1;
+	build(lc,l,mid);
+	build(rc,mid+1,r);
+	push_up(now);
 }
-
-int main()
+void update(int now,int l,int r,int pos,int v)
 {
-    scanf("%d%d", &n, &m);
-
-    for(int i = 1; i <= n; i++)
-    {
-        int x;
-        scanf("%d", &x);
-        q[++qcnt] = {0, i, x, 0}; //将初始序列看成赋值操作
-    }
-
-    for(int i = 1; i <= m; i++)
-    {
-        int l, r, k;
-        scanf("%d%d%d", &l, &r, &k);
-        q[++qcnt] = {i, l, r, k}; //查询操作
-    }
-
-    work(-INF, INF, 1, qcnt); //对所有操作进行整体分治
-
-    for(int i = 1; i <= m; i++) printf("%d\n", res[i]);
-
-    return 0;
+	if(l==r)
+	{
+		tree[now].sum+=v;
+		tree[now].d+=v;
+		return ;
+	}
+	int mid=(l+r)>>1;
+	if(pos<=mid)  update(lc,l,mid,pos,v);
+	else update(rc,mid+1,r,pos,v);
+	push_up(now);
+}
+node merga(node a,node b)
+{
+	node res;
+	res.sum=a.sum+b.sum;
+	res.d=gcd(a.d,b.d);
+	return res;
+}
+node query(int now,int l,int r,int L,int R)
+{
+	if(l>=L&&r<=R)
+		return tree[now];
+	int mid=(l+r)>>1;
+	if(R<=mid)  return query(lc,l,mid,L,R);
+	if(L>mid)   return query(rc,mid+1,r,L,R);
+	return merga(query(lc,l,mid,L,R),query(rc,mid+1,r,L,R));
+}
+signed main()
+{
+	n=read(),m=read();
+	for(int i=1;i<=n;++i)
+		a[i]=read(),cf[i]=a[i]-a[i-1];
+	build(1,1,n);
+	for(int i=1;i<=m;++i)
+	{
+		char ch;
+		cin>>ch;
+		if(ch=='C')
+		{
+			int l=read(),r=read(),d=read();
+			update(1,1,n,l,d);
+			if(r<n)  update(1,1,n,r+1,-d);
+		}
+		if(ch=='Q')
+		{
+			int l=read(),r=read();
+			node Lres=query(1,1,n,1,l);
+			node Rres=(node){0,0};
+			if(l+1<=r)  Rres=query(1,1,n,l+1,r);
+			cout<<abs(gcd(Lres.sum, Rres.d)) <<endl;
+		}
+	}
+	return 0;
 }

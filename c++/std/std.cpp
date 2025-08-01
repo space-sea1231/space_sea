@@ -1,121 +1,48 @@
 #include <iostream>
 #include <stdio.h>
+#include <cmath>
 #include <vector>
+#include <unordered_map>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N = 1e5+10;
+const int N = 4e4 + 10;
 
-int n, m, k;
-bool ans[N];
-bool vis[N];
-vector<int> vecu, vecp;
+int n, m;
+int T;
+int a[N];
+int bucket[N];
+vector<int> pos[N];
+unordered_map<int, int> ump;
 
 signed main() {
-  cin.tie(nullptr) -> ios::sync_with_stdio(false);
-  /*Input*/
-  cin >> n >> m >> k;
-  /*Init*/
-  if (n == 2 && k == 1) {
-    printf("impossible\n");
-    return 0;
-  }
-  for (int i = 1; i <= n; i++) {
-    int a;
-    cin >> a;
-  }
-  bool flag = false;
-  for (int i = 1; i <= m; i++) {
-    int u, v;
-    cin >> u >> v;
-    if (u == 1) vecp.push_back(v);
-    if (u == n) vecu.push_back(v);
-    if (v == 1) vecp.push_back(u);
-    if (v == n) vecu.push_back(u);
-    if ((u == 1 && v == n) || (u == n && v == 1)) flag = true;
-  }
-  int sumu = k, sump = n-k;
-  if (flag == true) {
-    if (sumu >= 2) {
-      sumu -= 2;
-      ans[1] = ans[n] = false;
-    }
-    else if (sump >= 2) {
-      sump -= 2;
-      ans[1] = ans[n] = true;
-    }
-    for (int i = 2; i < n; i++) {
-      if (sumu > 0) {
-        sumu--;
-        ans[i] = false;
-      }
-      else if (sump > 0) {
-        sump--;
-        ans[i] = true;
-      }
-    }
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n >> m;
+    T = sqrt(n * log2(n));
     for (int i = 1; i <= n; i++) {
-      if (ans[i] == false) printf("U");
-      else if (ans[i] == true) printf("P");
+        cin >> a[i];
+        if (ump[a[i]] == 0) ump[a[i]] = i;
+        pos[ump[a[i]]].emplace_back(i);
     }
-    printf("\n");
+    for (int i = 1; i <= (ceil(double)n / T); i++) {
+        int l = (i - 1) * T + 1;
+        int r = min(i * T, n);
+        for (int j = l; j <= r; i++) {
+            bucket[ump[a[j]]]++;
+        }
+        int id = 0, maxn = 0;
+        for (int j = 1; j <= n; j++) {
+            if (maxn < bucket[j])
+        }
+    }
     return 0;
-  }
-  if (sumu == n) {
-    sumu -= 2;
-    ans[1] = ans[n] = false;
-  }
-  else if (sump == n) {
-    sump -= 2;
-    ans[1] = ans[n] = true;
-  }
-  else {
-    sumu--, sump--;
-    ans[1] = false;
-    ans[n] = true;
-  }
-  for (int idx:vecu) {
-    if (sumu > 0) {
-      sumu--;
-      ans[idx] = false;
-    }
-    else if (sump > 0) {
-      sump--;
-      ans[idx] = true;
-    }
-    vis[idx] = true;
-  }
-  for (int idx:vecp) {
-    if (sump > 0) {
-      sump--;
-      ans[idx] = true;
-    }
-    else if (sumu > 0) {
-      sumu--;
-      ans[idx] = false;
-    }
-    vis[idx] = true;
-  }
-  for (int i = 2; i < n; i++) {
-    if (vis[i] == true) continue;
-    if (sump > 0) {
-      sump--;
-      ans[i] = true;
-    }
-    else if (sumu > 0) {
-      sumu--;
-      ans[i] = false;
-    }
-  }
-  for (int i = 1; i <= n; i++) {
-    if (ans[i] == false) printf("U");
-    else if (ans[i] == true) printf("P");
-  }
-  printf("\n");
-  /*Init*/
-  /*Solve*/
-  /*Output*/
-  return 0;
 }
+/*
+3e5 1e9
+/ 1 2 3
+1 _ _ _
+2 _ _ _
+3 _ _ _
+*/

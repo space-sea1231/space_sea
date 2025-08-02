@@ -9,23 +9,23 @@
 using namespace std;
 typedef long long ll;
 
-const int N = 4e4 + 10;
-const int M = 2e2 + 10;
+const int N = 1e5 + 10;
+const int M = 6e2 + 10;
 
-int n, m;
+int n;
 int T;
 int a[N];
 int tmp[N];
+int uni[N];
 int L[M], R[M];
 int belong[N];
 int bucket[N];
 int cnt[N][M];
 int mode[M][M];
-int uni[N];
 
 signed main() {
     cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> n >> m;
+    cin >> n;
     T = sqrt(n);
     for (int i = 1; i <= n; i++) {
         cin >> a[i];
@@ -95,12 +95,9 @@ signed main() {
     }
     #endif
     int x = 0;
-    for (int i = 1; i <= m; i++) {
+    for (int i = 1; i <= n; i++) {
         int l, r;
         cin >> l >> r;
-        l = (l + x - 1) % n + 1;
-        r = (r + x - 1) % n + 1;
-        if (l > r) swap(l, r);
         const int QL = belong[l] + 1;
         const int QR = belong[r] - 1;
         int ans = 0, maxn = 0;

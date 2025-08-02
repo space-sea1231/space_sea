@@ -1,171 +1,141 @@
 #include <iostream>
 #include <stdio.h>
 #include <algorithm>
-#include <unordered_map>
-#define __Debug
+#include <cmath>
+#include <vector>
+// #include <unordered_map>
+// #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N = 2e5 + 10;
+const int N = 4e4 + 10;
+const int M = 2e2 + 10;
 
-int n;
-
-struct Person {
-    // #ifdef __Debug
-    // int a, b;
-    // #else
-    int a, b, c;
-    bool flag;
-    // #endif
-};
-
-Person person[N];
-
-bool Cmp1(Person a, Person b) {
-    if (a.a != b.a) return a.a < b.a;
-    if (a.b != b.b) return a.b < b.b;
-    return a.c < b.c;
-}
-bool Cmp2(Person a, Person b) {
-    if (a.b != b.b) return a.b < b.b;
-    if (a.a != b.a) return a.a < b.a;
-    return a.c < b.c;
-}
-bool Cmp3(Person a, Person b) {
-    if (a.c != b.c) return a.c < b.c;
-    if (a.b != b.b) return a.b < b.b;
-    return a.a < b.a;
-}
-// #ifdef __Debug
-// bool Cmp1(Person srca, Person srcb) {
-//     if (srca.a != srcb.a) return srca.a < srcb.a;
-//     return srca.b < srcb.b;
-// }
-// bool Cmp2(Person srca, Person srcb) {
-//     return srca.b < srcb.b;
-// }
-// #else
-// bool Cmp1(Person srca, Person srcb) {
-//     if (srca.a != srcb.a) return srca.a < srcb.a;
-//     if (srca.b != srcb.b) return srca.b < srcb.b;
-//     return srca.c < srcb.c;
-// }
-// bool Cmp2(Person srca, Person srcb) {
-//     if (srca.b != srcb.b) return srca.b < srcb.b;
-//     return srca.c < srcb.c;
-// }
-// // #endif
-
-// unordered_map<int, int> ump;
-
-// struct BinaryTree {
-//     int sum[N];
-
-//     int Lowbit(int x) { return x & -x; }
-
-//     void Add(int pos, int val) {
-//         for (int i = pos; i <= n; i += Lowbit(i)) sum[i] = max(sum[i], val);
-//         return; 
-//     }
-
-//     int Query(int pos) {
-//         int ans = 0;
-//         for (int i = pos; i > 0; i -= Lowbit(i)) ans = max(ans, sum[i]);
-//         return ans;
-//     }
-// };
-
-// BinaryTree bin;
-// int ans;
-// int cnt[N];
-
-// void Cdq(int l, int r) {
-//     if (l == r) return;
-//     int mid = (l + r) >> 1;
-//     Cdq(l, mid);
-//     Cdq(mid + 1, r);
-//     sort(person + l, person + mid + 1, Cmp2);
-//     sort(person + mid + 1, person + r + 1, Cmp2);
-//     for (int i = l; i <= r; i++) {
-//         bin.Add(person[i].b, person[i].c);
-//         cnt[ump[person[i].c]]++;
-//     }
-//     int i = l, j = mid + 1, maxn = 0;// 1 4
-//     #ifdef __Debug
-//         if (l == 1 && r == 5) {
-//             printf("\n");
-//             for (int i = 1; i <= n; i++) {
-//                 printf("i=%d a=%d b=%d c=%d\n", i, person[i].a, person[i].b, person[i].c);
-//             }
-//         }
-//     #endif
-//     while (j <= r) {
-//         while (i <= mid && person[i].b <= person[j].b) i++;
-//         while (i <= mid && person[i].b > person[j].b) {
-//             if (maxn > 0) ans = max(ans, maxn + person[i].b + person[j].a);
-//             maxn = max(maxn, person[i].c);
-//             i++;
-//         }
-//         if (maxn > 0) ans = max(ans, maxn + person[i].b + person[j].a);
-//         maxn = max(maxn, person[j].c);
-//         j++;
-//     }
-//     return;
-// }
-
-// int tmp[N];
+int n, m;
+int T;
+int a[N];
+int tmp[N];
+int L[M], R[M];
+int belong[N];
+int bucket[N];
+int cnt[N][M];
+int mode[M][M];
+int uni[N];
 
 signed main() {
-    freopen("team.in", "r", stdin);
-    freopen("team.out", "w", stdout);
     cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> n;
+    cin >> n >> m;
+    T = sqrt(n);
     for (int i = 1; i <= n; i++) {
-        // #ifdef __Debug
-        // cin >> person[i].a >> person[i].b;
-        // #else
-        cin >> person[i].a >> person[i].b >> person[i].c;
-        // #endif
-        // tmp[i] = person[i].c;
+        cin >> a[i];
+        tmp[i] = a[i];
     }
-    // sort(tmp + 1, tmp + n + 1);
-    // for (int i = 1; i <= n; i++) ump[tmp[i]] = i;
-    // sort(person + 1, person + n + 1, Cmp1);
-    // #ifdef __Debug
-    //     for (int i = 1; i <= n; i++) {
-    //         printf("i=%d a=%d b=%d c=%d\n", i, person[i].a, person[i].b, person[i].c);
-    //     }
-    // #endif
-    // Cdq(1, n);
-    // if (!ans) printf("-1\n");
-    // else printf("%d\n", ans);
-    int ans = 0;
-    sort(person + 1, person + n + 1, Cmp1);
+    sort(tmp + 1, tmp + n + 1);
+    int top = unique(tmp + 1, tmp + n + 1) - tmp - 1;
     for (int i = 1; i <= n; i++) {
-        if (!person[i].flag) {
-            person[i].flag = true;
-            ans += person[i].a;
-            break;
+        uni[lower_bound(tmp + 1, tmp + top + 1, a[i]) - tmp] = a[i];
+        a[i] = lower_bound(tmp + 1, tmp + top + 1, a[i]) - tmp;
+    }
+    #ifdef __Debug
+    for (int i = 1; i <= n; i++) printf("a[%d]=%d\n", i, a[i]);
+    #endif
+    for (int i = 1; i <= T; i++) {
+        L[i] = (i - 1) * (n / T) + 1;
+        R[i] = i * (n / T);
+    }
+    if (R[T] < n) {
+        T++;
+        L[T] = R[T - 1] + 1;
+        R[T] = n;
+    }
+    for (int i = 1; i <= T; i++) {
+        for (int j = L[i]; j <= R[i]; j++) {
+            belong[j] = i;
         }
     }
-    sort(person + 1, person + n + 1, Cmp2);
-    for (int i = 1; i <= n; i++) {
-        if (!person[i].flag) {
-            person[i].flag = true;
-            ans += person[i].c;
-            break;
+    #ifdef __Debug
+    for (int i = 1; i <= n; i++) printf("%d:%d\n", i, belong[i]);
+    for (int i = 1; i <= T; i++) printf("%d:%d~%d\n", i, L[i], R[i]);
+    #endif
+    for (int i = 1; i <= T; i++) {
+        int l = L[i], r = R[i];
+        for (int j = l; j <= r; j++) cnt[a[j]][i]++;
+    }
+    for (int i = 1; i <= T; i++) {
+        for (int j = 1; j <= n; j++) {
+            cnt[j][i] += cnt[j][i - 1];
         }
     }
-    sort(person + 1, person + n + 1, Cmp3);
-    for (int i = 1; i <= n; i++) {
-        if (!person[i].flag) {
-            person[i].flag = true;
-            ans += person[i].c;
-            break;
+    for (int i = 1; i <= T; i++) {
+        int maxn = 0, id;
+        for (int j = i; j <= T; j++) {
+            int l = L[j], r = R[j];
+            for (int k = l; k <= r; k++) bucket[a[k]]++;
+            #ifdef __Debug
+            if (i == 3 && j == 3) {
+                for (int k = 1; k <= n; k++) printf("bucket[%d]=%d\n", k, bucket[k]);
+            }
+            #endif
+            for (int k = l; k <= r; k++) {
+                if (maxn < bucket[a[k]] || (maxn == bucket[a[k]] && a[k] < id)) {
+                    maxn = bucket[a[k]];
+                    id = a[k];
+                }
+            }
+            mode[i][j] = id;
+        }
+        for (int j = 1; j <= n; j++) bucket[j] = 0;
+    }
+    #ifdef __Debug
+    for (int i = 1; i <= T; i++) {
+        for (int j = i; j <= T; j++) {
+            printf("mode[%d][%d]=%d\n", L[i], R[j], uni[mode[i][j]]);
         }
     }
-    printf("%d\n", ans);
-
+    #endif
+    int x = 0;
+    for (int i = 1; i <= m; i++) {
+        int l, r;
+        cin >> l >> r;
+        l = (l + x - 1) % n + 1;
+        r = (r + x - 1) % n + 1;
+        if (l > r) swap(l, r);
+        const int QL = belong[l] + 1;
+        const int QR = belong[r] - 1;
+        int ans = 0, maxn = 0;
+        if (QL <= QR) {
+            ans = uni[mode[QL][QR]];
+            maxn = cnt[mode[QL][QR]][QR] - cnt[mode[QL][QR]][QL - 1];
+        }
+        for (int j = l; j <= R[belong[l]]; j++) bucket[a[j]]++;
+        for (int j = L[belong[r]]; j <= r; j++) bucket[a[j]]++;
+        #ifdef __Debug
+        if (i == 7) {
+            printf("L=%d R=%d\n", l, r);
+            printf("QL=%d QR=%d\n", QL, QR);
+        }
+        #endif
+        for (int j = l; j <= R[belong[l]]; j++) {
+            int tot = bucket[a[j]];
+            if (QL <= QR) tot += cnt[a[j]][QR] - cnt[a[j]][QL - 1];
+            if (maxn < tot || (maxn == tot && uni[a[j]] < ans)) {
+                maxn = tot;
+                ans = uni[a[j]];
+            }
+        }
+        for (int j = L[belong[r]]; j <= r; j++) {
+            int tot = bucket[a[j]];
+            if (QL <= QR) tot += cnt[a[j]][QR] - cnt[a[j]][QL - 1];
+            if (maxn < tot || (maxn == tot && uni[a[j]] < ans)) {
+                maxn = tot;
+                ans = uni[a[j]];
+            }
+        }
+        for (int j = l; j <= R[belong[l]]; j++) bucket[a[j]] = 0;
+        for (int j = L[belong[r]]; j <= r; j++) bucket[a[j]] = 0;
+        printf("%d\n", ans);
+        x = ans;
+    }
     return 0;
 }

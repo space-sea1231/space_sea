@@ -1,37 +1,41 @@
 #include <iostream>
 #include <stdio.h>
+#include <cmath>
+#include <vector>
+#include <unordered_map>
 #define __Debug
-#define Mod(x) (x % MOD + MOD) % MOD
+
 using namespace std;
 typedef long long ll;
 
-const int MOD = 1e9 + 7;
+const int N = 4e4 + 10;
 
 int n, m;
-int sum;
-int Pow(int a, int b) {
-  int sum = 1;
-  while (b > 0) {
-    if (b & 1 == 1) sum = Mod((ll)sum * a);
-    a = Mod((ll)a * a);
-    b = b >> 1;
-  }
-  return sum;
-}
+int T;
+int a[N];
+int bucket[N];
+vector<int> pos[N];
+unordered_map<int, int> ump;
 
 signed main() {
-  cin.tie(nullptr) -> ios::sync_with_stdio(false);
-  /*Input*/
-  cin >> n >> m;
-  /*Init*/
-  sum = Mod(Pow(2, n) - 1);
-  int ans = 1;
-  /*Solve*/
-  for (int i = 0; i < n; i++) {
-    int res=Mod(Pow(sum, m)-Pow(Mod(sum+Pow(2, i)), m));
-    ans=Mod(ans*Mod(Pow(sum, Mod-2)));
-  }
-  printf("%d\n", ans);
-  /*Output*/
-  return 0;
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n >> m;
+    T = sqrt(n * log2(n));
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        if (ump[a[i]] == 0) ump[a[i]] = i;
+        pos[ump[a[i]]].emplace_back(i);
+    }
+    for (int i = 1; i <= (ceil(double)n / T); i++) {
+        int l = (i - 1) * T + 1;
+        int r = min(i * T, n);
+        for (int j = l; j <= r; i++) {
+            bucket[ump[a[j]]]++;
+        }
+        int id = 0, maxn = 0;
+        for (int j = 1; j <= n; j++) {
+            if (maxn < bucket[j])
+        }
+    }
+    return 0;
 }

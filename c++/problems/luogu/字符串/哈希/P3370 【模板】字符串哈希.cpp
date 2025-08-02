@@ -47,3 +47,6 @@ signed main(){
 
 	return 0;
 }
+/*
+sum=s[0]*Pow(base, len-1)+s[0]*
+*/

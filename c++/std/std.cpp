@@ -1,53 +1,43 @@
 #include <iostream>
 #include <stdio.h>
-#include <algorithm>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N=1e6+10;
+const int N = 1e5 + 10;
+const int INF = 0x3f3f3f3f;
 
-int n, m;
-int a[N], b[N];
-int suma[N], sumb[N];
+int n;
+int a[N];
 
-signed main(){
-  cin.tie(nullptr)->ios::sync_with_stdio(false);
-  /*Input*/
-  cin >> n >> m;
-  for (int i=1; i<=n; i++){
-    cin >> a[i];
-  }
-  for (int i=1; i<=n; i++){
-    cin >> b[i];
-  }
-  /*Init*/
-  for (int i=1; i<=n; i++){
-    b[i]+=a[i];
-  }
-  sort(a+1, a+n+1, greater<int>());
-  sort(b+1, b+n+1, greater<int>());
-  for (int i=1; i<=n; i++){
-    suma[i]=suma[i-1]+a[i];
-    sumb[i]=sumb[i-1]+b[i];
-  }
-  /*Solve*/
-  int ans=0;
-  int posa=0, posb=0;
-  for (int i=1; i<=m; i++){
-    if (posa>0&&b[posb+1]>a[posa]+a[posa+1]) posb++, posa--;
-    else posa++;
-    ans^=suma[posa]+sumb[posb];
-  }
-  printf("%d\n", ans);
-
-  return 0;
+bool Check(int src) {
+    int cnt = 0;
+    for (int i = 1; i <= n; i++) {
+        cnt++;
+        if (cnt == src) {
+            cnt = 0;
+            continue;
+        }
+        if (a[i] != a[])
+    }
 }
-/*
-1 101 1
-100 1 100
-a[2]
-b[1]
-a[2]+b[1]
-*/
+
+signed main() {
+    cin.tie (nullptr) -> ios::sync_with_stdio(false);
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    sort(a + 1, a + n + 1);
+    int l = 1, r = n;
+    int ans = 0;
+    while (l <= r) {
+        int mid = (l + r) >> 1;
+        if (Check(mid)) {
+            ans = l;
+            l = mid + 1;
+        }
+        r = mid - 1;
+    }
+    printf("%d\n", ans);
+    return 0;
+}

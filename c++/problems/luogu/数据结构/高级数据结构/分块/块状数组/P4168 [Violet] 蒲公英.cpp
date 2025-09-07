@@ -1,109 +1,152 @@
-#include <bits/stdc++.h>
-using namespace std;
-const int N=4e4+10;
-const int M=2e2+10;
-int n, m;
-int a[N], idx[N];
-int L[N], R[N], Z[N];
-int cnt[M][N], sum[M][N];
-int pos[N], tot[N];
-int main(){
-    ios::sync_with_stdio(0);
-    cin.tie();
-    cin >> n >> m;
-    for (int i=1; i<=n; i++){
-        cin >> a[i];
-        idx[i]=a[i];
-    }
-    sort(idx+1, idx+n+1);
-    int len=unique(idx+1, idx+n+1)-idx-1;
-    for (int i=1; i<=n; i++){
-        a[i]=lower_bound(idx+1, idx+len+1, a[i])-idx-1;
-    }
-    int siz=sqrt(n);
-    for (int i=1; i<=siz; i++){
-        L[i]=(i-1)*siz+1;
-        R[i]=i*siz;
-    }
-    if (R[siz]<n){
-        siz++;
-        L[siz]=R[siz-1]+1;
-        R[siz]=n;
-    }
-    for (int i=1; i<=siz; i++){
-        for (int j=L[i]; j<=R[i]; j++){
-            sum[i][a[j]]++;
-            pos[j]=i;
-        }
-        for (int j=1; j<=len; j++){
-            sum[i][j]+=sum[i-1][j];
-        }
-    }
-    for (int i=1; i<=siz; i++){
-        for (int j=i; j<=siz; j++){
-            int maxn=cnt[i][j-1];
-            for (int k=L[i]; k<=R[j]; k++){
-                if (sum[j][a[k]]-sum[i-1][a[k]]>sum[j][maxn]-sum[i-1][maxn]||(sum[j][a[k]]-sum[i-1][a[k]]==sum[j][maxn]-sum[i-1][maxn]&&a[j]<maxn)){
-                    maxn=a[k];
-                }
-            }
-            cnt[i][j]=maxn;
-        }
-    }
-    int z=0;
-    for (int i=1; i<=m; i++){
-        int x, y;
-        cin >> x >> y;
-        x=(x+z-1)%n+1, y=(y+z-1)%n+1;
-        if (x>y){
-            swap(x, y);
-        }
-        int l=pos[x], r=pos[y];
-        int maxn=0;
-        if (r-l>1){
-            maxn=cnt[l+1][r-1];
-            for (int j=x; j<=R[l]; j++){
-                tot[a[j]]++;
-            }
-            for (int j=L[r]; j<=y; j++){
-                tot[a[j]]++;
-            }
-            for (int j=x; j<=R[l]; j++){
-                int tmp=sum[r-1][a[j]]-sum[l][a[j]]+tot[a[j]];
-                int pre=sum[r-1][maxn]-sum[l][maxn]+tot[maxn];
-                if (tmp>pre||(tmp==pre&&a[j]<maxn)){
-                    maxn=a[j];
-                }
-            }
-            for (int j=L[r]; j<=y; j++){
-                int tmp=sum[r-1][a[j]]-sum[l][a[j]]+tot[a[j]];
-                int pre=sum[r-1][maxn]-sum[l][maxn]+tot[maxn];
-                if (tmp>pre||(tmp==pre&&a[j]<maxn)){
-                    maxn=a[j];
-                }
-            }
-            for (int j=x; j<=R[l]; j++){
-                tot[a[j]]=0;
-            }
-            for (int j=L[r]; j<=y; j++){
-                tot[a[j]]=0;
-            }
-        }else{
-            for (int j=x; j<=y; j++){
-                tot[a[j]]++;
-            }
-            for (int j=x; j<=y; j++){
-                if (tot[a[j]]>tot[maxn]||(tot[a[j]]==tot[maxn]&&a[j]<maxn)){
-                    maxn=a[j];
-                }
-            }
-            for (int j=x; j<=y; j++){
-                tot[a[j]]=0;
-            }
-        }
-        z=idx[maxn];
-        printf("%d\n", z);
-    }
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <cmath>
+#include <vector>
+// #include <unordered_map>
+// #define __Debug
 
+using namespace std;
+typedef long long ll;
+
+const int N = 4e4 + 10;
+const int M = 2e2 + 10;
+
+int n, m;
+int T;
+int a[N];
+int tmp[N];
+int L[M], R[M];
+int belong[N];
+int bucket[N];
+int cnt[N][M];
+int mode[M][M];
+int uni[N];
+
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n >> m;
+    T = sqrt(n);
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        tmp[i] = a[i];
+    }
+    sort(tmp + 1, tmp + n + 1);
+    int top = unique(tmp + 1, tmp + n + 1) - tmp - 1;
+    for (int i = 1; i <= n; i++) {
+        uni[lower_bound(tmp + 1, tmp + top + 1, a[i]) - tmp] = a[i];
+        a[i] = lower_bound(tmp + 1, tmp + top + 1, a[i]) - tmp;
+    }
+    #ifdef __Debug
+    for (int i = 1; i <= n; i++) printf("a[%d]=%d\n", i, a[i]);
+    #endif
+    for (int i = 1; i <= T; i++) {
+        L[i] = (i - 1) * (n / T) + 1;
+        R[i] = i * (n / T);
+    }
+    if (R[T] < n) {
+        T++;
+        L[T] = R[T - 1] + 1;
+        R[T] = n;
+    }
+    for (int i = 1; i <= T; i++) {
+        for (int j = L[i]; j <= R[i]; j++) {
+            belong[j] = i;
+        }
+    }
+    #ifdef __Debug
+    for (int i = 1; i <= n; i++) printf("%d:%d\n", i, belong[i]);
+    for (int i = 1; i <= T; i++) printf("%d:%d~%d\n", i, L[i], R[i]);
+    #endif
+    for (int i = 1; i <= T; i++) {
+        int l = L[i], r = R[i];
+        for (int j = l; j <= r; j++) cnt[a[j]][i]++;
+    }
+    for (int i = 1; i <= T; i++) {
+        for (int j = 1; j <= n; j++) {
+            cnt[j][i] += cnt[j][i - 1];
+        }
+    }
+    for (int i = 1; i <= T; i++) {
+        int maxn = 0, id;
+        for (int j = i; j <= T; j++) {
+            int l = L[j], r = R[j];
+            for (int k = l; k <= r; k++) bucket[a[k]]++;
+            #ifdef __Debug
+            if (i == 3 && j == 3) {
+                for (int k = 1; k <= n; k++) printf("bucket[%d]=%d\n", k, bucket[k]);
+            }
+            #endif
+            for (int k = l; k <= r; k++) {
+                if (maxn < bucket[a[k]] || (maxn == bucket[a[k]] && a[k] < id)) {
+                    maxn = bucket[a[k]];
+                    id = a[k];
+                }
+            }
+            mode[i][j] = id;
+        }
+        for (int j = 1; j <= n; j++) bucket[j] = 0;
+    }
+    #ifdef __Debug
+    for (int i = 1; i <= T; i++) {
+        for (int j = i; j <= T; j++) {
+            printf("mode[%d][%d]=%d\n", L[i], R[j], uni[mode[i][j]]);
+        }
+    }
+    #endif
+    int x = 0;
+    for (int i = 1; i <= m; i++) {
+        int l, r;
+        cin >> l >> r;
+        l = (l + x - 1) % n + 1;
+        r = (r + x - 1) % n + 1;
+        if (l > r) swap(l, r);
+        const int QL = belong[l] + 1;
+        const int QR = belong[r] - 1;
+        int ans = 0, maxn = 0;
+        if (QL <= QR) {
+            ans = uni[mode[QL][QR]];
+            maxn = cnt[mode[QL][QR]][QR] - cnt[mode[QL][QR]][QL - 1];
+        }
+
+        #ifdef __Debug
+        if (i == 0) for (int j = 1; j <= n; j++) printf("bucket[%d]=%d\n", j, bucket[j]);
+        #endif
+
+        if (belong[l] != belong[r]) {
+            for (int j = l; j <= R[belong[l]]; j++) bucket[a[j]]++;
+            for (int j = L[belong[r]]; j <= r; j++) bucket[a[j]]++;
+        }
+        else for (int j = l; j <= r; j++) bucket[a[j]]++;
+
+        #ifdef __Debug
+        if (i == 3) {
+            printf("L=%d R=%d\n", l, r);
+            printf("QL=%d QR=%d\n", QL, QR);
+            for (int j = 1; j <= n; j++) printf("bucket[%d]=%d\n", j, bucket[j]);
+        }
+        #endif
+
+        for (int j = l; j <= R[belong[l]]; j++) {
+            int tot = bucket[a[j]];
+            if (QL <= QR) tot += cnt[a[j]][QR] - cnt[a[j]][QL - 1];
+            if (maxn < tot || (maxn == tot && uni[a[j]] < ans)) {
+                maxn = tot;
+                ans = uni[a[j]];
+            }
+        }
+        for (int j = L[belong[r]]; j <= r; j++) {
+            int tot = bucket[a[j]];
+            if (QL <= QR) tot += cnt[a[j]][QR] - cnt[a[j]][QL - 1];
+            if (maxn < tot || (maxn == tot && uni[a[j]] < ans)) {
+                maxn = tot;
+                ans = uni[a[j]];
+            }
+        }
+        for (int j = l; j <= R[belong[l]]; j++) bucket[a[j]] = 0;
+        for (int j = L[belong[r]]; j <= r; j++) bucket[a[j]] = 0;
+        printf("%d\n", ans);
+        x = ans;
+    }
     return 0;
 }

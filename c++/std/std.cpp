@@ -44,13 +44,8 @@ signed main() {
         for (int j = L[i]; j <= R[i]; j++) bucket[i][a[j]]++;
     }
     for (int i = 1; i <= tot; i++) {
-        for (int j = 1; j <= n; j++) bucket[i][j] = bucket[i - 1][j];
         for (int j = i; j <= tot; j++) {
-            ans[i][j] = ans[i][j - 1];
-            for (int k = L[j]; k <= R[j]; k++) {
-                ans[i][j] += bucket[a[k]];
-                bucket[a[k]]++;
-            }
+            ans[i][j] = ;
         }
     }
     for (int i = 1; i <= n; i++) cin >> a[i];

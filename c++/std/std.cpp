@@ -1,43 +1,65 @@
 #include <iostream>
 #include <stdio.h>
+#include <cmath>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N = 1e5 + 10;
-const int INF = 0x3f3f3f3f;
+const int N = 5e4 + 10;
+const int M = 3e2 + 10;
 
-int n;
+int n, m;
+int tot;
 int a[N];
+int belong[N];
+int L[M], R[M];
+int bucket[M][N];
+int ans[M][M];
 
-bool Check(int src) {
-    int cnt = 0;
-    for (int i = 1; i <= n; i++) {
-        cnt++;
-        if (cnt == src) {
-            cnt = 0;
-            continue;
-        }
-        if (a[i] != a[])
-    }
+int Gcd(int a, int b) {
+    while (b ^= a ^= b ^= a %= b);
+    return a;
 }
 
 signed main() {
-    cin.tie (nullptr) -> ios::sync_with_stdio(false);
-    cin >> n;
-    for (int i = 1; i <= n; i++) cin >> a[i];
-    sort(a + 1, a + n + 1);
-    int l = 1, r = n;
-    int ans = 0;
-    while (l <= r) {
-        int mid = (l + r) >> 1;
-        if (Check(mid)) {
-            ans = l;
-            l = mid + 1;
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n >> m;
+    int size = sqrt(n);
+    for (int i = 1; i <= n / size; i++) {
+        for (int j = (i - 1) * size + 1; j <= i * size; j++) {
+            belong[j] = i;
         }
-        r = mid - 1;
+        tot++;
+        L[tot] = (tot - 1) * size + 1;
+        R[tot] = tot * size;
     }
-    printf("%d\n", ans);
+    if (R[tot] != n) {
+        tot++;
+        L[tot] = R[tot - 1] + 1;
+        R[tot] = n;
+    }
+    for (int i = 1; i <= tot; i++) {
+        for (int j = 1; j <= n; j++) bucket[i][j] = bucket[i - 1][j];
+        for (int j = L[i]; j <= R[i]; j++) bucket[i][a[j]]++;
+    }
+    for (int i = 1; i <= tot; i++) {
+        for (int j = 1; j <= n; j++) bucket[i][j] = bucket[i - 1][j];
+        for (int j = i; j <= tot; j++) {
+            ans[i][j] = ans[i][j - 1];
+            for (int k = L[j]; k <= R[j]; k++) {
+                ans[i][j] += bucket[a[k]];
+                bucket[a[k]]++;
+            }
+        }
+    }
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    for (int i = 1; i <= m; i++) {
+        int l, r;
+        cin >> l >> r;
+
+        int d = Gcd(ans[])
+        printf("%d\n", )
+    }
     return 0;
 }

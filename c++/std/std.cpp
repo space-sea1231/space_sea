@@ -1,42 +1,87 @@
 #include <iostream>
 #include <stdio.h>
-#include <cstring>
 #define __Debug
 
-typedef long long ll;
 using namespace std;
+typedef long long ll;
 
-const int N = 40;
+const int N = 5e4 + 10;
+const int K = 30;
 
-int k;
-int a[N];
+int n, k;
+int cnt;
+int head[N], to[N << 1], nxt[N << 1];
+int sum[N];
+int father[N][K], dep[N];
 
-signed main() {
-    // freopen("std.in", "r", stdin);
-    // freopen("std.out", "w", stdout);
-    cin.tie() -> ios::sync_with_stdio(0);
-    while (cin >> k, k) {
-        memset(a, 0, sizeof(a));
-        for (int i = 1; i <= k; i++) cin >> a[i];
-        ll f[a[1] + 1][a[2] + 1][a[3] + 1][a[4] + 1][a[5] + 1];
-        memset(f, 0, sizeof(f));
-        f[0][0][0][0][0] = 1;
-        for (int i1 = 0; i1 <= a[1]; i1++) {
-            for (int i2 = 0; i2 <= a[2]; i2++) {
-                for (int i3 = 0; i3 <= a[3]; i3++) {
-                    for (int i4 = 0; i4 <= a[4]; i4++) {
-                        for (int i5 = 0; i5 <= a[5]; i5++) {
-                            if (i1 < a[1]) f[i1 + 1][i2][i3][i4][i5] += f[i1][i2][i3][i4][i5];
-                            if (i2 < a[2] && i2 < i1) f[i1][i2 + 1][i3][i4][i5] += f[i1][i2][i3][i4][i5];
-                            if (i3 < a[3] && i3 < i2) f[i1][i2][i3 + 1][i4][i5] += f[i1][i2][i3][i4][i5];
-                            if (i4 < a[4] && i4 < i3) f[i1][i2][i3][i4 + 1][i5] += f[i1][i2][i3][i4][i5];
-                            if (i5 < a[5] && i5 < i4) f[i1][i2][i3][i4][i5 + 1] += f[i1][i2][i3][i4][i5];
-                        }
-                    }
-                }
-            } 
+void Add(int u, int v) {
+    cnt++;
+    to[cnt] = v;
+    nxt[cnt] = head[u];
+    head[u] = cnt;
+    return;
+}
+
+void Dfs1(int u, int fa) {
+    for (int i = head[u]; i; i = nxt[i]) {
+        int v = to[i];
+        if (v == fa) continue;
+        father[v][0] = u;
+        dep[v] = dep[u] + 1;
+        for (int j = 1; j < K; j++) {
+            father[v][j] = father[father[v][j - 1]][j - 1];
         }
-        printf("%lld\n", f[a[1]][a[2]][a[3]][a[4]][a[5]]);
+        Dfs1(v, u);
     }
+    return;
+}
+
+void Dfs2(int u, int fa) {
+    for (int i = head[u]; i; i = nxt[i]) {
+        int v = to[i];
+        if (v == fa) continue;
+        Dfs2(v, u);
+        sum[u] += sum[v];
+    }
+    return;
+}
+int LCA(int x, int y) {
+    if (dep[x] < dep[y]) swap(x, y);
+    for (int i = K - 1; i >= 0; i--) {
+        if (dep[father[x][i]] >= dep[y]) {
+            x = father[x][i];
+        }
+    }
+    if (x == y) return x;
+    for (int i = K - 1; i >= 0; i--) {
+        if (father[x][i] != father[y][i]) {
+            x = father[x][i];
+            y = father[y][i];
+        }
+    }
+    return father[x][0];
+}
+
+signed main(){
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n >> k;
+    for (int i = 1; i < n; i++) {
+        int u, v;
+        cin >> u >> v;
+        Add(u, v);
+        Add(v, u);
+    }
+    Dfs1(1, 0);
+    for (int i = 1; i <= k; i++) {
+        int x, y;
+        cin >> x >> y;
+        sum[LCA(x, y)]--;
+        sum[father[LCA(x, y)][0]]--;
+        sum[x]++, sum[y]++;
+    }
+    Dfs2(1, 0);
+    int ans = 0;
+    for (int i = 1; i <= n; i++) ans = max(ans, sum[i]);
+    printf("%d\n", ans);
     return 0;
 }

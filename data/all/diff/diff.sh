@@ -1,0 +1,1 @@
+diff -Bb std.txt ans.txt

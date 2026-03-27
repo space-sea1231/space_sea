@@ -1,1 +1,0 @@
-{"name":"Local: ge","url":"/home/noilinux/code/CJ-xiongjingping/ge.cpp","tests":[{"id":1729132586439,"input":"2\n2 2\n-1 1\n1 -1\n1 1\n1 3\n-41719\n100\n41719\n0 1 0\n","output":"4 12\n125057 1"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/noilinux/code/CJ-xiongjingping/ge.cpp","group":"local","local":true}

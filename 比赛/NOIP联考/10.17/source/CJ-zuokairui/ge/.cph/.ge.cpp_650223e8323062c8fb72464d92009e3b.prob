@@ -1,1 +1,0 @@
-{"name":"Local: ge","url":"/home/lovelyrex/桌面/CJ-zuokairui/ge/ge.cpp","tests":[{"id":1729133289434,"input":"2\n2 2\n-1 1\n1 -1\n1 1\n1 3\n-41719\n100\n41719\n0 1 0","output":"4 12\n125057 1\n"}],"interactive":false,"memoryLimit":1024,"timeLimit":3000,"srcPath":"/home/lovelyrex/桌面/CJ-zuokairui/ge/ge.cpp","group":"local","local":true}

@@ -9,7 +9,7 @@ const int N = 1e2 + 10;
 const int M = 11;
 
 int n, m;
-bool a[N][M];
+int a[N];
 int num;
 int sit[1 << M], sta[1 << M];
 
@@ -30,10 +30,10 @@ signed main() {
         for (int j = 1; j <= m; j++) {
             char c;
             cin >> c;
-            a[i][j] = c == 'P' ? true : false;
+            a[i] += c == 'H' ? (1 << (j - 1)) : 0;
         }
     }
     Dfs(0, 0, 0);
-    
+
     return 0;
 }

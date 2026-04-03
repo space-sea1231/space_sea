@@ -5,39 +5,35 @@
 using namespace std;
 typedef long long ll;
 
-const int N = 5e4 + 10;
-int n, L;
-int top = 1, back = 1;
-int a[N], sum[N];
-int que[N];
-ll f[N];
+const int N = 1e2 + 10;
+const int M = 11;
 
-ll X(int src) {
-    return sum[src];
-}
-ll Y(int src) {
-    return f[src] + (sum[src] + L) * (sum[src] + L);
-}
-double Cal(int a, int b) {
-    return (double)(Y(b) - Y(a)) / (X(b) - X(a));
+int n, m;
+bool a[N][M];
+int num;
+int sit[1 << M], sta[1 << M];
+
+void Dfs(int x, int cnt, int cur) {
+    if (cur >= n) {
+        sit[++num] = x;
+        sta[num] = cnt;
+        return;
+    }
+    Dfs(x, cnt, cur + 1);
+    Dfs(x + (1 << cur), cnt + 1, cur + 3);
+    return;
 }
 signed main() {
     cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> n >> L;
-    que[top++] = 0, L++;
+    cin >> n >> m;
     for (int i = 1; i <= n; i++) {
-        cin >> a[i];
-        sum[i] = sum[i - 1] + a[i] + 1;
+        for (int j = 1; j <= m; j++) {
+            char c;
+            cin >> c;
+            a[i][j] = c == 'P' ? true : false;
+        }
     }
-    for (int i = 1; i <= n; i++) {
-        while (back + 1 < top && Cal(que[top - 2], que[top - 1]) >= Cal(que[top - 2], i)) top--;
-        que[top++] = i;
-        while (back + 1 < top && Cal(que[back], que[back + 1]) <= (sum[i] << 1)) back++;
-        f[i] = f[que[back]] + (sum[i] - sum[que[back]] - L) * (sum[i] - sum[que[back]] - L);
-    }
-    printf("%lld\n", f[n]);
+    Dfs(0, 0, 0);
+    
     return 0;
 }
-/*
-
-*/

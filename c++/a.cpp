@@ -1,149 +1,107 @@
-#include <iostream>
-#include <stdio.h>
-#include <algorithm>
-#include <cmath>
-#include <vector>
-// #include <unordered_map>
-// #define __Debug
-
-using namespace std;
-typedef long long ll;
-
-const int N = 1e5 + 10;
-const int M = 2e2 + 10;
+#include <cstdio>
+#include <cctype>
+#include <cstring>
+inline int getint()
+{
+	int res = 0, neg = 0, ch = getchar();
+	//亲测多种手写isdigit都比<cctype>的isdigit慢
+    //更快者欢迎私信 
+	while(!(isdigit(ch) || ch == '-') && ch != EOF)
+		ch = getchar();
+	if(ch == '-')
+		neg = 1;
+	while(isdigit(ch))
+		res = (res << 3) + (res << 1) + (ch - '0'), ch = getchar();
+	return neg ? -res : res;
+}
+#define re register
+#define LL long long
+#define INF 2147483647
+inline LL min(LL x, LL y) {return x < y ? x : y; }
+inline LL abs(LL x) {return x < 0 ? -x : x; }
+//inline也才比<algorithm>快一点。宏定义日常写挂
 
 int n;
-int T;
-int a[N];
-int tmp[N];
-int uni[N];
-int L[M], R[M];
-int belong[N];
-int bucket[N];
-int cnt[N][M];
-int mode[M][M];
+int a[40010], b[40010];
+int Minof[40010], len = 0, Longest[40010];
 
-signed main() {
-    cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> n;
-    T = sqrt(n);
-    for (int i = 1; i <= n; i++) {
-        cin >> a[i];
-        tmp[i] = a[i];
-    }
-    sort(tmp + 1, tmp + n + 1);
-    int top = unique(tmp + 1, tmp + n + 1) - tmp - 1;
-    for (int i = 1; i <= n; i++) {
-        uni[lower_bound(tmp + 1, tmp + top + 1, a[i]) - tmp] = a[i];
-        a[i] = lower_bound(tmp + 1, tmp + top + 1, a[i]) - tmp;
-    }
-    #ifdef __Debug
-    for (int i = 1; i <= n; i++) printf("a[%d]=%d\n", i, a[i]);
-    #endif
-    for (int i = 1; i <= T; i++) {
-        L[i] = (i - 1) * (n / T) + 1;
-        R[i] = i * (n / T);
-    }
-    if (R[T] < n) {
-        T++;
-        L[T] = R[T - 1] + 1;
-        R[T] = n;
-    }
-    for (int i = 1; i <= T; i++) {
-        for (int j = L[i]; j <= R[i]; j++) {
-            belong[j] = i;
-        }
-    }
-    #ifdef __Debug
-    for (int i = 1; i <= n; i++) printf("%d:%d\n", i, belong[i]);
-    for (int i = 1; i <= T; i++) printf("%d:%d~%d\n", i, L[i], R[i]);
-    #endif
-    for (int i = 1; i <= T; i++) {
-        int l = L[i], r = R[i];
-        for (int j = l; j <= r; j++) cnt[a[j]][i]++;
-    }
-    for (int i = 1; i <= T; i++) {
-        for (int j = 1; j <= n; j++) {
-            cnt[j][i] += cnt[j][i - 1];
-        }
-    }
-    for (int i = 1; i <= T; i++) {
-        int maxn = 0, id;
-        for (int j = i; j <= T; j++) {
-            int l = L[j], r = R[j];
-            for (int k = l; k <= r; k++) bucket[a[k]]++;
-            #ifdef __Debug
-            if (i == 3 && j == 3) {
-                for (int k = 1; k <= n; k++) printf("bucket[%d]=%d\n", k, bucket[k]);
-            }
-            #endif
-            for (int k = l; k <= r; k++) {
-                if (maxn < bucket[a[k]] || (maxn == bucket[a[k]] && a[k] < id)) {
-                    maxn = bucket[a[k]];
-                    id = a[k];
-                }
-            }
-            mode[i][j] = id;
-        }
-        for (int j = 1; j <= n; j++) bucket[j] = 0;
-    }
-    #ifdef __Debug
-    for (int i = 1; i <= T; i++) {
-        for (int j = i; j <= T; j++) {
-            printf("mode[%d][%d]=%d\n", L[i], R[j], uni[mode[i][j]]);
-        }
-    }
-    #endif
-    int x = 0;
-    for (int i = 1; i <= n; i++) {
-        int l, r;
-        cin >> l >> r;
-        const int QL = belong[l] + 1;
-        const int QR = belong[r] - 1;
-        int ans = 0, maxn = 0;
-        if (QL <= QR) {
-            ans = uni[mode[QL][QR]];
-            maxn = cnt[mode[QL][QR]][QR] - cnt[mode[QL][QR]][QL - 1];
-        }
+int first[40010], to[40010], nxt[40010], cnt = 0;
+LL f[40010];
+LL sumL[40010], sumR[40010];
 
-        #ifdef __Debug
-        if (i == 0) for (int j = 1; j <= n; j++) printf("bucket[%d]=%d\n", j, bucket[j]);
-        #endif
+inline void addE(int u, int v)
+{
+	++cnt;
+	to[cnt] = v;
+	nxt[cnt] = first[u];
+	first[u] = cnt;
+}
 
-        if (belong[l] != belong[r]) {
-            for (int j = l; j <= R[belong[l]]; j++) bucket[a[j]]++;
-            for (int j = L[belong[r]]; j <= r; j++) bucket[a[j]]++;
-        }
-        else for (int j = l; j <= r; j++) bucket[a[j]]++;
+int main()
+{
+	n = getint();
+	for(re int i = 1; i <= n; ++i)
+		a[i] = getint(), b[i] = a[i]-i;
+	//想要保留i和j，前提是他们中间能好好放东西 
+	//保留的数目越多越好
+	
+	b[n+1] = INF;
+	for(re int i = 1; i <= n+1; ++i)
+	{
+		int l = 0, r = len;
+		while(l < r)
+		{
+			int mid = (l + r + 1) >> 1;
+			if(Minof[mid] <= b[i])
+				l = mid;
+			else
+				r = mid - 1;
+		}
+		if(l == len) 
+			++len;
+			
+		Longest[i] = l+1;
+		addE(Longest[i], i);
+		//以i结尾的最长不降子序列长度为Longest[i]。
+		//如果b[j]想拼上合适的b[i]，就去前面找长度为Longest[b[j]]-1且能接上的。
+		//因此要记录各个长度的子序列的结尾。用vector会更直观
 
-        #ifdef __Debug
-        if (i == 3) {
-            printf("L=%d R=%d\n", l, r);
-            printf("QL=%d QR=%d\n", QL, QR);
-            for (int j = 1; j <= n; j++) printf("bucket[%d]=%d\n", j, bucket[j]);
-        }
-        #endif
-
-        for (int j = l; j <= R[belong[l]]; j++) {
-            int tot = bucket[a[j]];
-            if (QL <= QR) tot += cnt[a[j]][QR] - cnt[a[j]][QL - 1];
-            if (maxn < tot || (maxn == tot && uni[a[j]] < ans)) {
-                maxn = tot;
-                ans = uni[a[j]];
-            }
-        }
-        for (int j = L[belong[r]]; j <= r; j++) {
-            int tot = bucket[a[j]];
-            if (QL <= QR) tot += cnt[a[j]][QR] - cnt[a[j]][QL - 1];
-            if (maxn < tot || (maxn == tot && uni[a[j]] < ans)) {
-                maxn = tot;
-                ans = uni[a[j]];
-            }
-        }
-        for (int j = l; j <= R[belong[l]]; j++) bucket[a[j]] = 0;
-        for (int j = L[belong[r]]; j <= r; j++) bucket[a[j]] = 0;
-        printf("%d\n", ans);
-        x = ans;
-    }
-    return 0;
+		Minof[l+1] = b[i];
+	}
+	addE(0, 0);//这么做因为：长度为1的最长不下降子序列的前面几个数也要处理 
+	printf("%d\n", n-(len-1));
+	
+	memset(f, 20, sizeof(f));
+	
+	b[0] = -INF; //将自动处理“真正的最长不降子序列”前面的几个数 
+	f[0] = 0;//把前i个数，改成单调不降子序列且该序列以i结尾的最小代价
+	for(re int i = 1; i <= n+1; ++i)//末尾多一个INF，然后依然是把序列变成不下降，
+	//将自动处理“真正的最长不降子序列”的后面几个数（也要改啊） 
+	{
+		for(re int p = first[Longest[i]-1]; p; p = nxt[p])//枚举长度为“b[j]的长度-1”的所有b[i] 
+		{
+			int u = to[p];
+			if(u > i || b[u] > b[i])//嗯，虽然它的长度确实是“我的长度-1”，但可能我并不能接在它后面 
+				continue;
+			
+			//下面注意利用前缀和 
+			sumL[u] = 0;//最小代价形态在“i____--------j” 
+			for(re int k = u+1; k <= i-1; ++k)
+				sumL[k] = sumL[k-1] + abs(b[k] - b[u]);
+			//u+1 to k     
+			
+			//k+1 to i-1
+			sumR[i-1] = 0;
+			for(re int k = i-2; k >= u; --k)
+				sumR[k] = sumR[k+1] + abs(b[k+1] - b[i]);
+			//这里求前缀和的时候要弄清楚…… 
+			
+			for(re int k = u; k <= i-1; ++k)
+				f[i] = min(f[i], f[u] + sumL[k] + sumR[k]);
+		}	
+	}
+	//题解看懂，但后半段代码看不懂就打个记忆化搜索好了 
+	
+	printf("%lld\n", f[n+1]);
+	return 0;
 }

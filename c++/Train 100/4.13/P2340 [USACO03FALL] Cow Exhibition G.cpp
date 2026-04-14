@@ -23,7 +23,7 @@ signed main() {
     for (int i = 1; i <= n; i++) {
         if (v[i] >= 0) {
             for (int j = K * 2; j >= v[i]; j--) {
-                f[j] = max(f[j],21 f[j - v[i]] + w[i]);
+                f[j] = max(f[j], f[j - v[i]] + w[i]);
             }
         }
         else {

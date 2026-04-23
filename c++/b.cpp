@@ -1,76 +1,77 @@
 #include <iostream>
 #include <stdio.h>
 #include <algorithm>
-// #define __Debug
+#include <set>
+#include <vector>
+#define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N = 2e5 + 10;
+const int N = 5e5 + 10;
 
 int n;
+int a[N];
+int tmp[N];
+int ans[N];
+bool flag[N];
+int anss;
+set<int> b, u;
+vector<int> pos[N];
 
-struct Person {
-    #ifdef __Debug
-    int a, b;
-    #else
-    int a, b, c;
-    #endif
-};
-
-Person person[N];
-
-#ifdef __Debug
-bool Cmp1(Person srca, Person srcb) {
-    if (srca.a != srcb.a) return srca.a < srcb.a;
-    return srca.b < srcb.b;
+void Insert(int x) {
+    if (x > 1 && !flag[x - 1]) b.erase(x - 1);
+    else b.insert(x - 1);
+    if (x < n && !flag[x + 1]) b.erase(x);
+    else b.insert(x);
+    flag[x] = true;
 }
-bool Cmp2(Person srca, Person srcb) {
-    return srca.b < srcb.b;
-}
-#else
-bool Cmp1(Person srca, Person srcb) {
-    if (srca.a != srcb.a) return srca.a < srcb.a;
-    if (srca.b != srcb.b) return srca.b < srcb.b;
-    return srca.c < srcb.c;
-}
-bool Cmp2(Person srca, Person srcb) {
-    if (srca.b != srcb.b) return srca.b < srcb.b;
-    return srca.c < srcb.c;
-}
-#endif
-int ans;
-
-void Cdq(int l, int r) {
-    if (l == r) return;
-    int mid = (l + r) >> 1;
-    Cdq(l, mid);
-    Cdq(mid + 1, r);
-    sort(person + l, person + mid + 1, Cmp2);
-    sort(person + mid + 1, person + r + 1, Cmp2);
-    int i = l, j = mid + 1;
-    while (j <= r) {
-        while (i <= mid && person[j].b < person[i].b) {
-            ans = max(ans, person[j].a + person[i].b);
-            i++;
-        }
-        j++;
+void Change(int l, int r, int w) {
+    auto it = u.lower_bound(l);
+    while (it != u.end() && *it <= r) {
+        ans[*it] = w;
+        it++;
+        u.erase(*it);
     }
-    return;
+}
+void Update(int x, int w) {
+    auto it = b.lower_bound(x);
+    int l = (*--it) + 1, r = *it;
+    anss = max(anss, r - l >> 1);
+    int mid = l + r >> 1;
+    if (flag[l]) Change(l, mid, w);
+    if (flag[r]) Change(mid + 1, r, w);
 }
 signed main() {
     cin.tie(nullptr) -> ios::sync_with_stdio(false);
     cin >> n;
     for (int i = 1; i <= n; i++) {
-        #ifdef __Debug
-        cin >> person[i].a >> person[i].b;
-        #else
-        cin >> person[i].a >> person[i].b >> person[i].c;
-        #endif
+        cin >> a[i];
+        tmp[i] = a[i];
+        b.insert(i);
+        u.insert(i);
     }
-    sort(person + 1, person + n + 1, Cmp1);
-    Cdq(1, n);
-    if (!ans) printf("-1\n");
-    else printf("%d\n", ans);
+    b.insert(0);
+    sort(tmp + 1, tmp + n + 1);
+    int len = unique(tmp + 1, tmp + n + 1) - tmp - 1;
+    for (int i = 1; i <= n; i++) a[i] = lower_bound(tmp + 1, tmp + len + 1, a[i]) - tmp;
+    for (int i = 1; i <= n; i++) printf("%d ", a[i]);
+    printf("\n");
+    for (int i = 1; i <= n; i++) pos[a[i]].emplace_back(i);
+    for (int i = 1; i <= len; i++) {
+        for (auto j:pos[i]) Insert(j);
+        for (auto j:pos[i]) {
+            Update(j, i);
+            if (j > 1) Update(j - 1, i);
+            if (j < n) Update(j + 1, i);
+        }
+    }
+    printf("%d\n", anss);
+    for (int i = 1; i <= n; i++) printf("%d ", tmp[ans[i]]);
     return 0;
 }
+/*
+[1 0 1 0] 0 0
+1 [1 0] 0 0 0
+
+*/

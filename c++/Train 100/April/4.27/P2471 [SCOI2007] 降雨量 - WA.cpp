@@ -1,0 +1,97 @@
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <cstring>
+#define __Debug
+
+using namespace std;
+typedef long long ll;
+
+const int N = 5e4 + 10;
+const int INF = 0x3f3f3f3f;
+
+int n, m;
+int top;
+int a[N], b[N];
+int pos[N], repos[N];
+bool flag;
+
+namespace SegmentTree {
+    struct Node {
+        int maxn, minn;
+        bool vis;
+    };
+
+    Node node[N << 2];
+
+    void Build(int x, int l, int r) {
+        if (l == r) {
+            node[x].maxn = node[x].minn = b[pos[l]];
+            if (pos[l] == n) node[x].vis = false;
+            else node[x].vis = (a[pos[l]] != a[pos[l] + 1] - 1);
+            return ;
+        }
+        int mid = (l + r) >> 1;
+        Build(x << 1, l, mid);
+        Build(x << 1 | 1, mid + 1, r);
+        node[x].maxn = max(node[x << 1].maxn, node[x << 1 | 1].maxn);
+        node[x].vis = node[x << 1].vis|node[x << 1 | 1].vis;
+    }
+
+    pair<int, int> Query(int x, int l, int r, int L, int R) {
+        if (L <= l && r <= R) {
+            flag |= node[x].vis;
+            return node[x].maxn;
+        }
+        int mid = (l + r) >> 1, ans = 0;
+        if (L <= mid) ans = max(ans, Query(x << 1, l, mid, L, R));
+        if (mid + 1 <= R) ans = max(ans, Query(x << 1 | 1, mid + 1, r, L, R));
+        return ans;
+    }
+} using namespace SegmentTree;
+
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n;
+    a[0] = -INF, b[0] = -INF, top = -1;
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i] >> b[i];
+        if (a[i] - 1 != a[i - 1]) pos[++top] = 0;
+        pos[++top] = i, repos[i] = top;
+    }
+    #ifdef __Debug
+    for (int i = 1; i <= top; i++) printf("repos[%d]=%d\n", a[pos[i]], repos[pos[i]]);
+    #endif
+    Build(1, 1, top);
+    cin >> m;
+    for (int i = 1; i <= m; i++) {
+        int x, y;
+        cin >> x >> y;
+        if (y < x) {
+            printf("false\n");
+            continue;
+        }
+        bool flagx = (x != a[lower_bound(a + 1, a + n + 1, x) - a]);
+        bool flagy = (y != a[lower_bound(a + 1, a + n + 1, y) - a]);
+        flag = flagx | flagy;
+        if (flagx && flagy) {
+            printf("maybe\n");
+            continue;
+        }
+        x = repos[lower_bound(a + 1, a + n + 1, x) - a];
+        y = repos[lower_bound(a + 1, a + n + 1, y) - a];
+        if (flagx) x--;
+        #ifdef __Debug
+        printf("%d %d %d %d\n", x, y, pos[x], pos[y]);
+        printf("%d %d\n",Query(1, 1, top, x + 1, y - 1), b[pos[y]]);
+        #endif
+        // printf("%d %d %d\n", top, x + 1, y - 1);    
+        // cerr << top << " " <<  x + 1 << " " <<  y - 1 << "\n";    
+        bool ans = (y == x + 1) ? true : (Query(1, 1, top, x + 1, y - 1) < b[pos[y]]) && (Query(1, 1, top, x + 1, y - 1) > b[pos[x]]);
+        if (!flagy && !flagx && b[pos[y]] >= b[pos[x]]) ans = false;
+        if (flag && ans) printf("maybe\n");
+        else if (ans) printf("true\n");
+        else printf("false\n");
+    }
+    return 0;
+}

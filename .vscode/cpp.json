@@ -9,6 +9,8 @@
 		"body": [
 			"#include <iostream>",
 			"#include <stdio.h>",
+			"#include <algorithm>",
+			"#include <cstring>",
 			"#define __Debug",
 			"",
 			"using namespace std;",

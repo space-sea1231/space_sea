@@ -1,77 +1,77 @@
 #include <iostream>
 #include <stdio.h>
 #include <algorithm>
-#include <set>
-#include <vector>
+#include <cstring>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N = 5e5 + 10;
+const int N = 1e5 + 10;
 
-int n;
-int a[N];
-int tmp[N];
-int ans[N];
-bool flag[N];
-int anss;
-set<int> b, u;
-vector<int> pos[N];
+int n, m;
+double a[N];
 
-void Insert(int x) {
-    if (x > 1 && !flag[x - 1]) b.erase(x - 1);
-    else b.insert(x - 1);
-    if (x < n && !flag[x + 1]) b.erase(x);
-    else b.insert(x);
-    flag[x] = true;
-}
-void Change(int l, int r, int w) {
-    auto it = u.lower_bound(l);
-    while (it != u.end() && *it <= r) {
-        ans[*it] = w;
-        it++;
-        u.erase(*it);
+namespace SegmentTree
+{
+    struct Node
+    {
+        double maxn;
+        int sum;
+    };
+
+    Node node[N << 2];
+
+    void Up(int x)
+    {
+        node[x].maxn = max(node[x << 1].maxn, node[x << 1 | 1].maxn);
     }
-}
-void Update(int x, int w) {
-    auto it = b.lower_bound(x);
-    int l = (*--it) + 1, r = *it;
-    anss = max(anss, r - l >> 1);
-    int mid = l + r >> 1;
-    if (flag[l]) Change(l, mid, w);
-    if (flag[r]) Change(mid + 1, r, w);
-}
-signed main() {
-    cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> n;
-    for (int i = 1; i <= n; i++) {
-        cin >> a[i];
-        tmp[i] = a[i];
-        b.insert(i);
-        u.insert(i);
+
+    int Down(int x, int l, int r, double val)
+    {
+        if (l == r)
+            return a[l] > val;
+        if (node[x].maxn <= val)
+            return 0;
+        if (a[l] > val)
+            return node[x].sum;
+        int mid = l + r >> 1;
+        if (node[x << 1].maxn <= val)
+            return Down(x << 1 | 1, mid + 1, r, val);
+        else
+            return Down(x << 1, l, mid, val) + node[x].sum - node[x << 1].sum;
     }
-    b.insert(0);
-    sort(tmp + 1, tmp + n + 1);
-    int len = unique(tmp + 1, tmp + n + 1) - tmp - 1;
-    for (int i = 1; i <= n; i++) a[i] = lower_bound(tmp + 1, tmp + len + 1, a[i]) - tmp;
-    for (int i = 1; i <= n; i++) printf("%d ", a[i]);
-    printf("\n");
-    for (int i = 1; i <= n; i++) pos[a[i]].emplace_back(i);
-    for (int i = 1; i <= len; i++) {
-        for (auto j:pos[i]) Insert(j);
-        for (auto j:pos[i]) {
-            Update(j, i);
-            if (j > 1) Update(j - 1, i);
-            if (j < n) Update(j + 1, i);
+
+    void Change(int x, int l, int r, int pos, int val)
+    {
+        if (l == r)
+        {
+            node[x].maxn = (double)val / pos;
+            node[x].sum = 1;
+            return;
         }
+        int mid = l + r >> 1;
+        if (pos <= mid)
+            Change(x << 1, l, mid, pos, val);
+        if (mid + 1 <= pos)
+            Change(x << 1 | 1, mid + 1, r, pos, val);
+        Up(x);
+        node[x].sum = node[x << 1].sum + Down(x << 1 | 1, mid + 1, r, node[x << 1].maxn);
     }
-    printf("%d\n", anss);
-    for (int i = 1; i <= n; i++) printf("%d ", tmp[ans[i]]);
+}
+using namespace SegmentTree;
+
+signed main()
+{
+    cin.tie(nullptr)->ios::sync_with_stdio(false);
+    cin >> n >> m;
+    for (int i = 1; i <= m; i++)
+    {
+        int x, y;
+        cin >> x >> y;
+        a[x] = (double)y / x;
+        Change(1, 1, n, x, y);
+        printf("%d\n", node[1].sum);
+    }
     return 0;
 }
-/*
-[1 0 1 0] 0 0
-1 [1 0] 0 0 0
-
-*/

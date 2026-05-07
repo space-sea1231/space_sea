@@ -1,77 +1,85 @@
-#include <iostream>
-#include <stdio.h>
-#include <algorithm>
-#include <cstring>
-#define __Debug
-
+#include<cstdio>
+#include<iostream>
 using namespace std;
-typedef long long ll;
-
-const int N = 1e5 + 10;
-
-int n, m;
-double a[N];
-
-namespace SegmentTree
-{
-    struct Node
-    {
-        double maxn;
-        int sum;
-    };
-
-    Node node[N << 2];
-
-    void Up(int x)
-    {
-        node[x].maxn = max(node[x << 1].maxn, node[x << 1 | 1].maxn);
-    }
-
-    int Down(int x, int l, int r, double val)
-    {
-        if (l == r)
-            return a[l] > val;
-        if (node[x].maxn <= val)
-            return 0;
-        if (a[l] > val)
-            return node[x].sum;
-        int mid = l + r >> 1;
-        if (node[x << 1].maxn <= val)
-            return Down(x << 1 | 1, mid + 1, r, val);
-        else
-            return Down(x << 1, l, mid, val) + node[x].sum - node[x << 1].sum;
-    }
-
-    void Change(int x, int l, int r, int pos, int val)
-    {
-        if (l == r)
-        {
-            node[x].maxn = (double)val / pos;
-            node[x].sum = 1;
-            return;
-        }
-        int mid = l + r >> 1;
-        if (pos <= mid)
-            Change(x << 1, l, mid, pos, val);
-        if (mid + 1 <= pos)
-            Change(x << 1 | 1, mid + 1, r, pos, val);
-        Up(x);
-        node[x].sum = node[x << 1].sum + Down(x << 1 | 1, mid + 1, r, node[x << 1].maxn);
-    }
+#define re register
+#define no printf("Poor QLW\n")
+int n,m,t; // n hang m lie t tian
+int a1,b1,a2,b2,h;
+int page[202][202];
+int value[202][202][1002];
+int num[202][202][1002];
+inline int get_value(int a1,int b1,int a2,int b2,int k){
+    return value[a2][b2][k]-value[a1-1][b2][k]+value[a1-1][b1-1][k]-value[a2][b1-1][k];
 }
-using namespace SegmentTree;
-
-signed main()
-{
-    cin.tie(nullptr)->ios::sync_with_stdio(false);
-    cin >> n >> m;
-    for (int i = 1; i <= m; i++)
-    {
-        int x, y;
-        cin >> x >> y;
-        a[x] = (double)y / x;
-        Change(1, 1, n, x, y);
-        printf("%d\n", node[1].sum);
+inline int get_num(int a1,int b1,int a2,int b2,int k){
+    return num[a2][b2][k]-num[a1-1][b2][k]+num[a1-1][b1-1][k]-num[a2][b1-1][k];
+}
+inline void work1(){
+    re int maxn=0;
+    for(re int i=1;i<=n;++i)
+        for(re int j=1;j<=m;++j){
+            scanf("%d",&page[i][j]);
+            if(page[i][j]>maxn) maxn=page[i][j];
+        }
+    for(re int k=0;k<=maxn;++k) // 前缀和,容斥原理
+        for(re int i=1;i<=n;++i)
+            for(re int j=1;j<=m;++j){
+                value[i][j][k]=value[i-1][j][k]+value[i][j-1][k]-value[i-1][j-1][k]+(page[i][j]>=k?page[i][j]:0);
+                num[i][j][k]=num[i-1][j][k]+num[i][j-1][k]-num[i-1][j-1][k]+(page[i][j]>=k?1:0);
+                // value[i][j][k] 从(1,1)到(i,j)的矩阵中数值>=k的数的总和
+                // num[i][j][k] 从(1,1)到(i,j)的矩阵中数值>=k的数的个数
+        }
+    while(t--){
+        scanf("%d%d%d%d%d",&a1,&b1,&a2,&b2,&h);
+        if(get_value(a1,b1,a2,b2,0)<h) {no;continue;}
+        re int l=0,r=maxn+1,ans=-1;
+        while(l+1<r){
+            re int mid=l+r>>1;
+            if(get_value(a1,b1,a2,b2,mid)>=h) l=mid,ans=mid;
+            else r=mid;
+        }
+        if(ans==-1) no;
+        else printf("%d\n",get_num(a1,b1,a2,b2,ans)-(get_value(a1,b1,a2,b2,ans)-h)/ans);
+    }    
+}
+#define N 5500002
+int L[N],R[N],size[N],sum[N],root[N],cnt;
+inline void update(int A,int &B,int l,int r,int x){
+    B=++cnt;
+    size[B]=size[A]+1;
+    sum[B]=sum[A]+x;
+    re int mid=l+r>>1;
+    if(l==r) return;
+    if(x<=mid) update(L[A],L[B],l,mid,x),R[B]=R[A];
+    else update(R[A],R[B],mid+1,r,x),L[B]=L[A];        
+}
+inline int query(int A,int B,int l,int r,int k){
+    re int ans=0;
+    while(l<r){
+        re int mid=l+r>>1;
+        re int lch=sum[R[B]]-sum[R[A]];
+        if(lch<k) ans+=size[R[B]]-size[R[A]],k-=lch,r=mid,B=L[B],A=L[A];
+        else l=mid+1,B=R[B],A=R[A];
     }
+    ans+=(k+l-1)/l;
+    return ans;
+}
+inline void work2(){
+    for(re int i=1;i<=m;++i){
+        re int a; scanf("%d",&a);
+        update(root[i-1],root[i],1,1000,a);
+    }
+    while(t--){
+        scanf("%d%d%d%d%d",&a1,&b1,&a2,&b2,&h);
+        if(sum[root[b2]]-sum[root[b1-1]]<h) {no;continue;}
+        printf("%d\n",query(root[b1-1],root[b2],1,1000,h));
+    }    
+}
+inline int dy(){
+    scanf("%d%d%d",&n,&m,&t);
+    if(n==1) work2();
+    else work1();
     return 0;
 }
+int QAQ = dy();
+int main(){;}

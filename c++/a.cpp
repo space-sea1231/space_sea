@@ -1,63 +1,68 @@
-#include<iostream>
-#include<cstdio>
-#include<cmath>
-#define re register
-#define il inline
-#define ll long long
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <cmath>
+#define __Debug
+
 using namespace std;
+typedef long long ll;
 
-il ll read(){
-    ll s=0,f=0;char c=getchar();
-    while(c<'0'||c>'9') f=(c=='-'),c=getchar();
-    while(c>='0'&&c<='9') s=(s<<3)+(s<<1)+(c^'0'),c=getchar();
-    return f?-s:s;
-}
+const int N = 1e5 + 10;
 
-const int N=405,mod=1e9+7;
-int n;
-ll a[N][N<<1];
-il ll qpow(ll x,ll k){
-	ll ans=1;
-	while(k){
-		if(k&1) ans=ans*x%mod;
-		x=x*x%mod;
-		k>>=1;
-	}
-	return ans%mod;
-}
+int n, m, k;
+int block;
+int a[N];
+ll ans[N];
 
-il void Gauss_j(){	
-	for(re int i=1,r;i<=n;++i){
-		r=i;
-		for(re int j=i+1;j<=n;++j)
-			if(a[j][i]>a[r][i]) r=j;
-		if(r!=i) swap(a[i],a[r]);
-		if(!a[i][i]){puts("No Solution");return;}
-		
-		int kk=qpow(a[i][i],mod-2);	//求逆元 
-		for(re int k=1;k<=n;++k){
-			if(k==i) continue;
-			int p=a[k][i]*kk%mod;
-			for(re int j=i;j<=(n<<1);++j) 
-				a[k][j]=((a[k][j]-p*a[i][j])%mod+mod)%mod;
-		} 
-		
-		for(re int j=1;j<=(n<<1);++j) a[i][j]=(a[i][j]*kk%mod);
-		//更新当前行 如果放在最后要再求一次逆元,不如直接放在这里  
-	}	
-	
-	for(re int i=1;i<=n;++i){
-		for(re int j=n+1;j<(n<<1);++j) printf("%lld ",a[i][j]);
-		printf("%lld\n",a[i][n<<1]);
-	}
-}
-int main(){
-	n=read();
-	for(re int i=1;i<=n;++i)
-		for(re int j=1;j<=n;++j)
-			a[i][j]=read(),a[i][i+n]=1;
-	
-	Gauss_j();
+struct Node {
+    int l, r;
+    int pos;
+
+    bool operator<(const Node src) {
+        if (l / block != src.l / block) return l < src.l;
+        return ((l / block) & 1) ? r > src.r : r < src.r;
+    }
+};
+Node node[N];
+
+namespace Mos {
+    ll now;
+    int cnt[N];
+
+    void Add(int x) {
+        // now -= cnt[x] * cnt[x];
+        // cnt[x]++;
+        // now += cnt[x] * cnt[x];
+        now += (cnt[x]++ << 1) + 1;
+        return;
+    }
+    void Delete(int x) {
+        // now -= cnt[x] * cnt[x];
+        // cnt[x]--;
+        // now += cnt[x] * cnt[x];
+        now -= (cnt[x]-- << 1) - 1;
+        return;
+    }
+} using namespace Mos;
+
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n >> m >> k;
+    block = sqrt(n);
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    for (int i = 1; i <= m; i++) {
+        cin >> node[i].l >> node[i].r;
+        node[i].pos = i;
+    }
+    sort(node + 1, node + m + 1);
+    int l = 1, r = 0;
+    for (int i = 1; i <= m; i++) {
+        while (l > node[i].l) Add(a[--l]);
+        while (r < node[i].r) Add(a[++r]);
+        while (l < node[i].l) Delete(a[l++]);
+        while (r > node[i].r) Delete(a[r--]);
+        ans[node[i].pos] = now;
+    }
+    for (int i = 1; i <= m; i++) printf("%lld\n", ans[i]);
     return 0;
 }
-

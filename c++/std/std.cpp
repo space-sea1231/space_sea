@@ -2,70 +2,41 @@
 #include <stdio.h>
 #include <algorithm>
 #include <cstring>
-#include <cmath>
-#define int long long
 #define __Debug
 
 using namespace std;
 typedef long long ll;
+typedef unsigned int uint;
 
-const int N = 4e2 + 10;
-const int Mod = 1e9 + 7;
+const int N = 2e7 + 10;
 
 int n;
-int a[N][N << 1];
+uint seed;
+uint a[N];
+bool vis[N];
 
-int Pow(int a, int b) {
-	int sum = 1;
-	while (b) {
-		if (b & 1) sum = sum * a % Mod;
-		a = a * a % Mod;
-		b >>= 1;
-	}
-	return sum;
+uint getnext(){
+	seed ^= seed << 13;
+	seed ^= seed >> 17;
+	seed ^= seed << 5;
+	return seed;
 }
 
 signed main() {
-	cin.tie(nullptr) -> ios::sync_with_stdio(false);
-	cin >> n;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			cin >> a[i][j];
-		}
-		a[i][i + n] = 1;
-	}
-	// for (int i = 1; i <= n; i++) {
-	// 	for (int j = 1; j <= n * 2; j++) {
-	// 		printf("%d ", a[i][j]);
-	// 	}
-	// 	printf("\n");
-	// }
-	// printf("\n");
-	for (int i = 1; i <= n; i++) {
-		int cur = i;
-		for (int j = i + 1; j <= n; j++) {
-			if (a[cur][i] < a[j][i]) cur = j;
-		}
-		if (!a[cur][i]) {
-			printf("No Solution\n");
-			return 0;
-		}
-		swap(a[i], a[cur]);
-		int div = Pow(a[i][i], Mod - 2);
-		for (int j = 1; j <= n; j++) {
-			if (j == i) continue;
-			int p = a[j][i] * div % Mod;
-			for (int k = i; k <= (n << 1); k++) {
-				a[j][k] = ((a[j][k] - a[i][k] * p) % Mod + Mod) % Mod;
-			}
-		}
-		for (int j = 1; j <= (n << 1); j++) a[i][j] = a[i][j] * div % Mod;
-	}
-	for (int i = 1; i <= n; i++) {
-		for (int j = n + 1; j <= (n << 1); j++) {
-			printf("%lld ", a[i][j]);
-		}
-		printf("\n");
-	}
-	return 0;
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n >> seed;
+    for (int i = 1; i <= n; i++) a[i] = getnext();
+    vis[1] = 1;
+    for (int i = 2; i <= n; i++) {
+        if (!vis[i]) {
+            for (int j = i, k = 1; j <= n; j += i, k++) {
+                a[j] += a[k];
+                vis[j] = 1;
+            }
+        }
+    }
+    uint ans = 0;
+    for (int i = 1; i <= n; i++) ans ^= a[i];
+    printf("%u\n", ans); 
+    return 0;
 }

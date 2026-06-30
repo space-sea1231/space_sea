@@ -2,41 +2,87 @@
 #include <stdio.h>
 #include <algorithm>
 #include <cstring>
+#include <queue>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
-typedef unsigned int uint;
 
-const int N = 2e7 + 10;
+const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
+const int N = 2e5 + 10;
+const int M = 2e6 + 10;
 
-int n;
-uint seed;
-uint a[N];
-bool vis[N];
+namespace AC {
+    const int K = 27;
 
-uint getnext(){
-	seed ^= seed << 13;
-	seed ^= seed >> 17;
-	seed ^= seed << 5;
-	return seed;
-}
+    struct Node {
+        int ru, fail;
+        int ans, idx;
+        int son[K];
+    };
 
-signed main() {
-    cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> n >> seed;
-    for (int i = 1; i <= n; i++) a[i] = getnext();
-    vis[1] = 1;
-    for (int i = 2; i <= n; i++) {
-        if (!vis[i]) {
-            for (int j = i, k = 1; j <= n; j += i, k++) {
-                a[j] += a[k];
-                vis[j] = 1;
+    Node node[M];
+    int ans[N];
+    int dfn, num;
+
+    void Insert(string s, int &idx) {
+        int len = s.size(), u = 0;
+        for (int i = 0; i < len; i++) {
+            int &son = node[u].son[s[i] - 'a'];
+            if (!son) son = ++dfn;
+            u = son;
+        }
+        if (!node[u].idx) node[u].idx = ++num;
+        idx = node[u].idx;
+    }
+    void Build() {
+        queue<int> q;
+        for (int i = 0; i < 26; i++) if (node[0].son[i]) q.push(node[0].son[i]);
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            for (int i = 0; i < 26; i++) {
+                if (node[u].son[i]) {
+                    node[node[u].son[i]].fail = node[node[u].fail].son[i];
+                    node[node[node[u].fail].son[i]].ru++;
+                    q.push(node[u].son[i]);
+                } else node[u].son[i] = node[node[u].fail].son[i];
             }
         }
     }
-    uint ans = 0;
-    for (int i = 1; i <= n; i++) ans ^= a[i];
-    printf("%u\n", ans); 
+    void Query(string s) {
+        int len = s.size(), u = 0;
+        for (int i = 0; i < len; i++) {
+            u = node[u].son[s[i] - 'a'];
+            node[u].ans++;
+        }
+    }
+    void Topu() {
+        queue<int> q;
+        for (int i = 0; i <= dfn; i++) if (!node[i].ru) q.push(i);
+        while (!q.empty()) {
+            int u = q.front(); q.pop();
+            ans[node[u].idx] = node[u].ans;
+            int v = node[u].fail;
+            node[v].ans += node[u].ans;
+            if (!--node[v].ru) q.push(v);
+        }
+    }
+} using namespace AC;
+int n;
+int idx[N];
+string s;
+
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        cin >> s;
+        Insert(s, idx[i]);
+    }
+    cin >> s;
+    Build();
+    Query(s);
+    Topu();
+    for (int i = 1; i <= n; i++) printf("%d\n", ans[idx[i]]);
     return 0;
 }

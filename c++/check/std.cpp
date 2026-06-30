@@ -1,38 +1,60 @@
 #include <iostream>
 #include <stdio.h>
+#include <algorithm>
 #include <cstring>
 #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N = 55;
-const int M = 2e5 + 10;
+const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
 
-char c[N];
+int t;
 int n;
-int sum[N][N];
-int f[N][M];
 
 signed main() {
     cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> (c + 1) >> n;
-    int len = strlen(c + 1);
-    for (int i = 1; i <= len; i++) {
-        for (int j = i; sum[i][j - 1] <= 1000000 && j <= len; j++) {
-            sum[i][j] = sum[i][j - 1] * 10 + (c[j] - '0');
+    cin >> t;
+    while (t--) {
+        printf("---%d---\n", t);
+        cin >> n;
+        int lim;
+        if (n < 3) lim = n;
+        else lim = n / 3 + 2 + n % 3;
+        int cnt = 0;
+        cerr<<lim;
+        for (int i = 1; i <= lim; i++) {
+            printf("%d %d\n", 1, i + 1);
+            cnt++;
         }
-    }
-    memset(f, 0x3f, sizeof(f));
-    f[0][0] = -1;
-    for (int i = 1; i <= len; i++) {
-        for (int j = 0; j <= n; j++) {
-            for (int k = i - 1; k >= 0 && sum[k + 1][i] <= min(n, j); k--) {
-                f[i][j] = min(f[i][j], f[k][j - sum[k + 1][i]] + 1);
+        if (n <= 8) {
+            if ((n - lim) / 2 >= 1) {
+                printf("%d %d\n", 2, 3);
+                printf("%d %d\n", 2, 4);
+            }
+            for (int i = 4; i <= (n - lim) / 2; i++) printf("%d %d\n", 2, i + 1);
+    
+            if ((n - lim) / 2 >= 2) {
+                printf("%d %d\n", 3, 4);
+                printf("%d %d\n", 3, 5);
+            }
+            for (int i = 5; i <= (n - lim) / 2; i++) printf("%d %d\n", 3, i + 1);
+            if ((n - lim) / 2 >= 3) {
+                printf("%d %d\n", 4, 5);
+                printf("%d %d\n", 4, 6);
+            }
+            if ((n - lim) / 2 >= 4) {
+                printf("%d %d\n", 5, 6);
+            }
+        } else {
+            for (int i = 3; i <= n / 3 + 2; i++) {
+                printf("%d %d\n", 2, i);
+                cnt++;
+            }
+            for (int i = cnt; i < n; i++) {
+                printf("%d %d\n", 3, i - cnt + 4);
             }
         }
     }
-    if (f[len][n] < 41) printf("%d\n", f[len][n]);
-    else printf("-1\n");
     return 0;
 }

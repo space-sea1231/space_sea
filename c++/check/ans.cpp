@@ -1,52 +1,63 @@
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 using namespace std;
-string s;
-int n;
-bool pls[45];
-clock_t st;
-int tonum(string n){//将字符串转换为数字
-	int reans=0;
-	for(int i=0;i<n.size();i++)
-		reans=reans*10+(n[i]-'0');
-	return reans;
+#define Re char y_y
+#define rint register int
+#define tam cerr << 1e3 * clock ( ) / CLOCKS_PER_SEC << 'm' << 's' << ' ' << ( &y_y - &x_x ) / 1024.0 / 1024.0 << 'M' << 'B' << '\n' , 0
+char x_x;
+const int N = 2e5 + 5;
+char buf[ 1 << 23 ] , *p1 = buf , *p2 = buf , obuf[ 1 << 23 ] , *p3 = obuf;
+#define getchar( ) ( p1 == p2 && ( p2 = ( p1 = buf ) + fread( buf , 1 , 1 << 23 , stdin ) , p1 == p2 ) ? EOF : *p1 ++ )
+#define putchar( x ) ( p3 - obuf < 1 << 23 ) ? ( *p3 ++ = x ) : ( fwrite ( obuf , p3 - obuf , 1 , stdout ) , p3 = obuf , * p3 ++ = x )
+template < class T >
+inline void read ( T & s )
+{
+  s = 0; 
+  bool q = false;
+  char c = getchar ();
+  while ( ! isdigit ( c ) ) { if (c == '-') q = true; c = getchar (); }
+  while (isdigit (c) ) { s = (s << 1) + (s << 3) + (c ^ 48); c = getchar (); }
+  if (q) s = -s;
 }
-bool dfs(int p,int now,int len,bool bx){
-	if(clock()-st>=9888){//剪枝三
-		cout<<-1;
-		exit(0);
-	}
-	if(now>=len){//剪枝一
-		string cut[45];
-		int l=1;
-		for(int i=0;i<s.size();i++){
-			cut[l]+=s[i];
-			if(pls[i])
-				l++;
-		}
-		int reans=0;
-		for(int i=1;i<=l;i++)
-			reans+=tonum(cut[i]);
-		return reans==n;
-	}
-	if(!bx&&dfs(p+1,now,len,s.size()-p-1<=len))//剪枝二，无需再多搜一个分支
-		return true;
-	pls[p]=true;
-	bool reans=dfs(p+1,now+1,len,bx);
-	pls[p]=false;
-	return reans;
+template < class T , class ...Args >
+inline void read ( T &s , Args &...x ) { read ( s ) , read ( x... ); }
+#define pc putchar
+stack < char > so;
+template <class S>
+inline void print ( S x )
+{
+  if ( x == 0 ) return pc ( '0' ) , pc ( ' ' ) , void ();
+  if ( x < 0 ) x = - x , pc ( '-' );
+  while ( x ) { so. push ( x % 10 + 48 ) , x /= 10; }
+  while ( ! so. empty () ) pc ( so. top () ) , so. pop ();
+  putchar ( ' ' );
 }
-int main(){
-	cin.tie(0)->sync_with_stdio(false);//由于要用string所以这个人就勉为其难地不用scanf和printf了
-	cout.tie(0);
-	cin>>s>>n;
-	st=clock();
-	for(int i=0;i<s.size();i++){//枚举可能的答案，i为必须要添加加号的数量
-		memset(pls,false,sizeof(pls));
-		if(dfs(0,0,i,i==0)){
-			cout<<i;
-			return 0;
-		}
-	}
-	cout<<-1;
-	return 0;
+template <class S , class ...Args>
+inline void print ( S x , Args ...y ) { print ( x ) , print ( y ... ); }
+#undef pc
+inline void flush ( ) { fwrite ( obuf , p3 - obuf , 1 , stdout ) , p3 = obuf; }
+#define endl putchar ( '\n' )
+int t , n;
+vector < pair < int , int > > e;
+Re; signed main ()
+{ 
+  read ( t );
+  while ( t -- )
+  {
+    printf("---%d---\n", t);
+    e. clear ();
+    read ( n );
+    int p = n - 3;
+    int z = ( p / 3 ) * 2;
+    for ( rint i = 2 ; i <= 1 + n - z ; i ++ ) e. push_back ( { 1 , i } );
+    if ( n >= 6 ) e. push_back ( { 2 , 3 } ) , e. push_back ( { 2 , 3 + z / 2 } );
+    for ( rint i = 4 ; i <= 2 + z / 2 ; i ++ ) 
+    {
+      e. push_back ( { 2 , i } );
+      e. push_back ( { 3 , i } );
+    }
+    sort ( e. begin () , e. end () );
+    for ( auto [ u , v ] : e ) printf ("%d %d\n", u , v );
+  }
+  // return flush ( ) , tam;
+  return flush ( ) , 0;
 }

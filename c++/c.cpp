@@ -2,60 +2,85 @@
 #include <stdio.h>
 #include <algorithm>
 #include <cstring>
+#define lson x << 1
+#define rson x << 1 | 1
+#define mid (l + r) >> 1
 #define __Debug
 
 using namespace std;
 typedef long long ll;
 
-const int N=1e5+10;
+const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
+const int N = 1e5 + 10;
 
 int n, m;
-double a[N];
+int a[N];
 
-namespace SegmentTree{
-    struct Node{
-        double maxn;
-        int sum;
+namespace SegmentTree {
+    struct Node {
+        bool up, down, equal;
+        int maxn, minn;
     };
 
     Node node[N << 2];
 
-    void Up(int x){
-        node[x].maxn=max(node[x<<1].maxn, node[x<<1|1].maxn);
+    void Up(int x) {
+        if (node[lson].maxn < node[rson].minn) node[x].up = node[lson].up & node[rson].up;
+        if (node[lson].minn > node[rson].maxn) node[x].down = node[lson].down & node[rson].down;
+        if (node[lson].maxn == node[rson].maxn) node[x].equal = node[lson].equal & node[rson].equal;
+        node[x].maxn = max(node[lson].maxn, node[rson].maxn);
+        node[x].minn = min(node[lson].minn, node[rson].minn);
     }
-
-    int Down(int x, int l, int r, double val){
-        if (l==r) return a[l]>val;
-        if (node[x].maxn<=val) return 0;
-        if (a[l]>val) return node[x].sum;
-        int mid=l+r>>1;
-        if (node[x<<1].maxn<=val) return Down(x<<1|1, mid+1, r, val);
-        else return Down(x<<1, l, mid, val)+node[x].sum-node[x<<1].sum;
-    }
-
-    void Change(int x, int l, int r, int pos, int val){
-        if (l==r){
-            node[x].maxn=(double)val/pos;
-            node[x].sum=1;
+    void Build(int x, int l, int r) {
+        if (l == r) {
+            node[x].up = node[x].down = node[x].equal = true;
+            node[x].maxn = node[x].minn = a[l];
             return;
         }
-        int mid=l+r>>1;
-        if (pos<=mid) Change(x<<1, l, mid, pos, val);
-        if (mid+1<=pos) Change(x<<1|1, mid+1, r, pos, val);
+        Build(lson, l, mid);
+        Build(rson, mid + 1, r);
         Up(x);
-        node[x].sum=node[x<<1].sum+Down(x<<1|1, mid+1, r, node[x<<1].maxn);
     }
-} using namespace SegmentTree;
-
-signed main(){
-    cin.tie(nullptr)->ios::sync_with_stdio(false);
-    cin >> n >> m;
-    for (int i=1; i<=m; i++){
-        int x, y;
-        cin >> x >> y;
-        a[x]=(double)y/x;
-        Change(1, 1, n, x, y);
-        printf("%d\n", node[1].sum);
+    void Add(int x, int l, int r, int L, int R, int y) {
+        if (L <= l && r <= R) {
+            node[x].maxn += y; node[x].minn += y;
+            return;
+        }
+        if (L <= mid) Add(x << 1, l, mid, L, R, y);
+        if (mid < R) Add(x << 1 | 1, mid + 1, r, L, R, y);
+        Up(x);
+    }
+}
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    Build(1, 1, n);
+    cin >> m;
+    for (int i = 1; i <= m; i++) {
+        int opt;
+        cin >> opt;
+        if (opt == 1) {
+            int l, r, x;
+            cin >> l >> r >> x;
+            Add(1, 1, n, l, r, x);
+        }
+        if (opt == 2) {
+            int l, r;
+            cin >> l >> r;
+        }
+        if (opt == 1) {
+            int l, r;
+            cin >> l >> r;
+        }
+        if (opt == 1) {
+            int l, r;
+            cin >> l >> r;
+        }
+        if (opt == 1) {
+            int l, r;
+            cin >> l >> r;
+        }
     }
     return 0;
 }

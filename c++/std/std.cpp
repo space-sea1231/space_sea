@@ -1,88 +1,49 @@
-#include <iostream>
-#include <stdio.h>
-#include <algorithm>
-#include <cstring>
-#include <queue>
-#define __Debug
-
+#include<iostream>
+#include<cstdio>
+#include<cstring>
+#include<cmath>
 using namespace std;
-typedef long long ll;
-
-const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
-const int N = 2e5 + 10;
-const int M = 2e6 + 10;
-
-namespace AC {
-    const int K = 27;
-
-    struct Node {
-        int ru, fail;
-        int ans, idx;
-        int son[K];
-    };
-
-    Node node[M];
-    int ans[N];
-    int dfn, num;
-
-    void Insert(string s, int &idx) {
-        int len = s.size(), u = 0;
-        for (int i = 0; i < len; i++) {
-            int &son = node[u].son[s[i] - 'a'];
-            if (!son) son = ++dfn;
-            u = son;
+const int Maxn=1e6+5;
+char s[Maxn];
+int n,m,x[Maxn],y[Maxn],c[Maxn],sa[Maxn];//c->原字符串出现次数的前缀和
+int height[Maxn],rk[Maxn];
+void SA()
+{	
+    for(int i=1;i<=n;i++){x[i]=s[i];++c[x[i]];}
+    for(int i=2;i<=m;i++)c[i]+=c[i-1];
+    for(int i=n;i>=1;i--)sa[c[x[i]]--]=i;
+    for(int i=1;i<=n;i++) printf("%d ", sa[i]);//sa->排名第i的字符的位置
+    printf("\n");
+    for(int k=1;k<=n;k=k<<1)
+    {	
+        int num=0;
+        for (int i=n-k+1;i<=n;++i) y[++num]=i;
+        for(int i=1;i<=n;i++)
+            if(sa[i]>k)y[++num]=sa[i]-k;
+        for(int i=1;i<=m;i++)c[i]=0;
+        for(int i=1;i<=n;i++)c[x[i]]++;
+        for(int i=2;i<=m;i++)c[i]+=c[i-1];
+        for(int i=n;i>=1;i--){sa[c[x[y[i]]]--]=y[i];y[i]=0;}
+        swap(x,y);
+        num=1;x[sa[1]]=1;
+        for(int i=2;i<=n;i++)
+        {	
+            if(y[sa[i]]==y[sa[i-1]]&&y[sa[i]+k]==y[sa[i-1]+k])x[sa[i]]=num;
+            else x[sa[i]]=++num;
         }
-        if (!node[u].idx) node[u].idx = ++num;
-        idx = node[u].idx;
+        if(num==n)break;
+        m=num;
     }
-    void Build() {
-        queue<int> q;
-        for (int i = 0; i < 26; i++) if (node[0].son[i]) q.push(node[0].son[i]);
-        while (!q.empty()) {
-            int u = q.front(); q.pop();
-            for (int i = 0; i < 26; i++) {
-                if (node[u].son[i]) {
-                    node[node[u].son[i]].fail = node[node[u].fail].son[i];
-                    node[node[node[u].fail].son[i]].ru++;
-                    q.push(node[u].son[i]);
-                } else node[u].son[i] = node[node[u].fail].son[i];
-            }
-        }
-    }
-    void Query(string s) {
-        int len = s.size(), u = 0;
-        for (int i = 0; i < len; i++) {
-            u = node[u].son[s[i] - 'a'];
-            node[u].ans++;
-        }
-    }
-    void Topu() {
-        queue<int> q;
-        for (int i = 0; i <= dfn; i++) if (!node[i].ru) q.push(i);
-        while (!q.empty()) {
-            int u = q.front(); q.pop();
-            ans[node[u].idx] = node[u].ans;
-            int v = node[u].fail;
-            node[v].ans += node[u].ans;
-            if (!--node[v].ru) q.push(v);
-        }
-    }
-} using namespace AC;
-int n;
-int idx[N];
-string s;
-
-signed main() {
-    cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> n;
-    for (int i = 1; i <= n; i++) {
-        cin >> s;
-        Insert(s, idx[i]);
-    }
-    cin >> s;
-    Build();
-    Query(s);
-    Topu();
-    for (int i = 1; i <= n; i++) printf("%d\n", ans[idx[i]]);
+    for(int i=1;i<=n;i++)
+        printf("%d ",sa[i]);
+    printf("\n");
+}
+int main()
+{	
+    scanf("%s",s+1);
+    n=strlen(s+1);
+    m=122;
+    SA();
+    //LCP(); 
     return 0;
 }

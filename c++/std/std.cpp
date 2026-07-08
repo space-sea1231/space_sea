@@ -1,49 +1,75 @@
-#include<iostream>
-#include<cstdio>
-#include<cstring>
-#include<cmath>
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <cstring>
+#include <queue>
+#define __Debug
+
 using namespace std;
-const int Maxn=1e6+5;
-char s[Maxn];
-int n,m,x[Maxn],y[Maxn],c[Maxn],sa[Maxn];//c->原字符串出现次数的前缀和
-int height[Maxn],rk[Maxn];
-void SA()
-{	
-    for(int i=1;i<=n;i++){x[i]=s[i];++c[x[i]];}
-    for(int i=2;i<=m;i++)c[i]+=c[i-1];
-    for(int i=n;i>=1;i--)sa[c[x[i]]--]=i;
-    for(int i=1;i<=n;i++) printf("%d ", sa[i]);//sa->排名第i的字符的位置
-    printf("\n");
-    for(int k=1;k<=n;k=k<<1)
-    {	
-        int num=0;
-        for (int i=n-k+1;i<=n;++i) y[++num]=i;
-        for(int i=1;i<=n;i++)
-            if(sa[i]>k)y[++num]=sa[i]-k;
-        for(int i=1;i<=m;i++)c[i]=0;
-        for(int i=1;i<=n;i++)c[x[i]]++;
-        for(int i=2;i<=m;i++)c[i]+=c[i-1];
-        for(int i=n;i>=1;i--){sa[c[x[y[i]]]--]=y[i];y[i]=0;}
-        swap(x,y);
-        num=1;x[sa[1]]=1;
-        for(int i=2;i<=n;i++)
-        {	
-            if(y[sa[i]]==y[sa[i-1]]&&y[sa[i]+k]==y[sa[i-1]+k])x[sa[i]]=num;
-            else x[sa[i]]=++num;
-        }
-        if(num==n)break;
-        m=num;
-    }
-    for(int i=1;i<=n;i++)
-        printf("%d ",sa[i]);
-    printf("\n");
+typedef long long ll;
+
+const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
+const int N = 1e5 + 10;
+
+int t, n;
+int cnt[4];
+struct Node {
+    int val, pos;
+};
+
+Node node[N];
+priority_queue<int> q;
+
+void Init() {
+    for (int i = 1; i <= 3; i++) cnt[i] = 0;
+    while (!q.empty()) q.pop();
 }
-int main()
-{	
-    scanf("%s",s+1);
-    n=strlen(s+1);
-    m=122;
-    SA();
-    //LCP(); 
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> t;
+    while (t--) {
+        Init();
+        cin >> n;
+        int ans = 0;
+        for (int i = 1; i <= n; i++) {
+            int a, b, c;
+            cin >> a >> b >> c;
+            int maxn = max(a, max(b, c));
+            if (a == maxn) {
+                // cerr << "a " << a << " " << maxn << endl;
+                node[i].val = max(b, c) - a;
+                node[i].pos = 1; cnt[1]++; ans += a;
+                // printf("Debuga: node[%d]=%d\n", i, node[i].pos);
+            } else if (b == maxn) {
+                // cerr << "b " << b << " " << maxn << endl;
+                node[i].val = max(a, c) - b;
+                node[i].pos = 2; cnt[2]++; ans += b;
+                // printf("Debugb: node[%d]=%d\n", i, node[i].pos);
+            } else if (c == maxn) {
+                // cerr << "c " << c << " " << maxn << endl;
+                node[i].val = max(a, b) - c;
+                node[i].pos = 3; cnt[3]++; ans += c;
+                // printf("Debugc: node[%d]=%d\n", i, node[i].pos);
+            }
+        }
+        // cerr<<"\n";
+        int pos = -1;
+        for (int i = 1; i <= 3; i++) if (cnt[i] * 2 > n) pos = i;
+        if (pos == -1) {
+            printf("%d\n", ans);
+            continue;
+        }
+        // for (int i = 1; i <= n; i++) printf("node[%d]=%d\n", i, node[i].pos);
+        for (int i = 1; i <= n; i++) if (node[i].pos == pos) q.push(node[i].val);
+        int tot = cnt[pos] - (n / 2);
+        // cerr<<"t=" << t << " " << q.size() << endl;
+        while (tot--) {
+            // cerr<<t << " " << tot << " " << q.size() << endl;
+            if (tot<-10) break;
+            ans += q.top();
+            q.pop();
+        }
+        printf("%d\n", ans);
+    }
     return 0;
 }

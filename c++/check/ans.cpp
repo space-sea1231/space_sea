@@ -1,63 +1,91 @@
-#include <bits/stdc++.h>
+#include<bits/stdc++.h>
 using namespace std;
-#define Re char y_y
-#define rint register int
-#define tam cerr << 1e3 * clock ( ) / CLOCKS_PER_SEC << 'm' << 's' << ' ' << ( &y_y - &x_x ) / 1024.0 / 1024.0 << 'M' << 'B' << '\n' , 0
-char x_x;
-const int N = 2e5 + 5;
-char buf[ 1 << 23 ] , *p1 = buf , *p2 = buf , obuf[ 1 << 23 ] , *p3 = obuf;
-#define getchar( ) ( p1 == p2 && ( p2 = ( p1 = buf ) + fread( buf , 1 , 1 << 23 , stdin ) , p1 == p2 ) ? EOF : *p1 ++ )
-#define putchar( x ) ( p3 - obuf < 1 << 23 ) ? ( *p3 ++ = x ) : ( fwrite ( obuf , p3 - obuf , 1 , stdout ) , p3 = obuf , * p3 ++ = x )
-template < class T >
-inline void read ( T & s )
-{
-  s = 0; 
-  bool q = false;
-  char c = getchar ();
-  while ( ! isdigit ( c ) ) { if (c == '-') q = true; c = getchar (); }
-  while (isdigit (c) ) { s = (s << 1) + (s << 3) + (c ^ 48); c = getchar (); }
-  if (q) s = -s;
-}
-template < class T , class ...Args >
-inline void read ( T &s , Args &...x ) { read ( s ) , read ( x... ); }
-#define pc putchar
-stack < char > so;
-template <class S>
-inline void print ( S x )
-{
-  if ( x == 0 ) return pc ( '0' ) , pc ( ' ' ) , void ();
-  if ( x < 0 ) x = - x , pc ( '-' );
-  while ( x ) { so. push ( x % 10 + 48 ) , x /= 10; }
-  while ( ! so. empty () ) pc ( so. top () ) , so. pop ();
-  putchar ( ' ' );
-}
-template <class S , class ...Args>
-inline void print ( S x , Args ...y ) { print ( x ) , print ( y ... ); }
-#undef pc
-inline void flush ( ) { fwrite ( obuf , p3 - obuf , 1 , stdout ) , p3 = obuf; }
-#define endl putchar ( '\n' )
-int t , n;
-vector < pair < int , int > > e;
-Re; signed main ()
-{ 
-  read ( t );
-  while ( t -- )
-  {
-    printf("---%d---\n", t);
-    e. clear ();
-    read ( n );
-    int p = n - 3;
-    int z = ( p / 3 ) * 2;
-    for ( rint i = 2 ; i <= 1 + n - z ; i ++ ) e. push_back ( { 1 , i } );
-    if ( n >= 6 ) e. push_back ( { 2 , 3 } ) , e. push_back ( { 2 , 3 + z / 2 } );
-    for ( rint i = 4 ; i <= 2 + z / 2 ; i ++ ) 
-    {
-      e. push_back ( { 2 , i } );
-      e. push_back ( { 3 , i } );
+int a[110],qian[110],hou[110];
+
+int main(){
+    int T;
+    cin>>T;
+    while(T--){
+        int n;
+        cin>>n;
+        int minn=1e9;
+        for(int i=1;i<=n;i++){
+            cin>>a[i];
+            minn=min(minn,a[i]);
+        }
+        bool fl=1;
+        for(int i=1;i<=n;i++){
+            if(a[i]%minn){
+                fl=0;break;
+            }
+        }
+        if(fl){
+            cout<<n-1<<"\n";
+            continue;
+        }
+        hou[n+1]=0;
+        for(int i=1;i<=n;i++)qian[i]=__gcd(qian[i-1],a[i]);
+        for(int i=n;i>=1;i--)hou[i]=__gcd(hou[i+1],a[i]);
+        fl=0;
+        for(int i=1;i<=n;i++){
+            int G=0;
+            for(int j=1;j<=n;j++){
+                if(j==i)continue;
+                if(a[j]%a[i]==0)continue;
+                G=__gcd(G,a[j]);
+            }
+            if(G>a[i]){
+                fl=1;break;
+            }
+        }
+        if(fl){
+            cout<<n<<"\n";
+            continue;
+        }
+        for(int i=1;i<=n;i++){
+            for(int j=1;j<=n;j++){
+                if(a[i]%a[j]==1){
+                    fl=1;break;
+                }
+            }
+        }
+        if(fl){
+            cout<<n<<"\n";
+            continue;
+        }
+        for(int i=1;i<=n;i++){
+            for(int j=i+1;j<=n;j++){
+                int A=min(a[i],a[j]),B=max(a[i],a[j]);
+                int yu=B%A;
+                if(yu==0)continue;
+                if(a[i]==B){
+                    if(__gcd(qian[i-1],hou[i+1])%yu==0){
+                        fl=1;
+                        break;
+                    }
+                }
+                else{
+                    if(__gcd(qian[j-1],hou[j+1])%yu==0){
+                        fl=1;
+                        break;
+                    }
+                }
+            }
+        }
+        if(fl){
+            cout<<n<<"\n";
+            continue;
+        }
+        cout<<n+1<<"\n";
     }
-    sort ( e. begin () , e. end () );
-    for ( auto [ u , v ] : e ) printf ("%d %d\n", u , v );
-  }
-  // return flush ( ) , tam;
-  return flush ( ) , 0;
+    return 0;
 }
+/*
+3 3 3
+4 3 4
+5 3 5
+6 3 3
+7 3 3
+8 3 4
+
+*/

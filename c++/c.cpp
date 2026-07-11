@@ -1,86 +1,99 @@
-#include <iostream>
-#include <stdio.h>
-#include <algorithm>
-#include <cstring>
-#define lson x << 1
-#define rson x << 1 | 1
-#define mid (l + r) >> 1
-#define __Debug
-
+#include<iostream>
+#include<algorithm>
+#include<queue>
+#include<unordered_map>
+#include<cstring>
+#include<set>
+#include<map>
+#include<climits>
+#include<bits/extc++.h>
 using namespace std;
-typedef long long ll;
-
-const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
-const int N = 1e5 + 10;
-
-int n, m;
-int a[N];
-
-namespace SegmentTree {
-    struct Node {
-        bool up, down, equal;
-        int maxn, minn;
-    };
-
-    Node node[N << 2];
-
-    void Up(int x) {
-        if (node[lson].maxn < node[rson].minn) node[x].up = node[lson].up & node[rson].up;
-        if (node[lson].minn > node[rson].maxn) node[x].down = node[lson].down & node[rson].down;
-        if (node[lson].maxn == node[rson].maxn) node[x].equal = node[lson].equal & node[rson].equal;
-        node[x].maxn = max(node[lson].maxn, node[rson].maxn);
-        node[x].minn = min(node[lson].minn, node[rson].minn);
-    }
-    void Build(int x, int l, int r) {
-        if (l == r) {
-            node[x].up = node[x].down = node[x].equal = true;
-            node[x].maxn = node[x].minn = a[l];
-            return;
+int n,k;
+struct Item{
+    long long tim,need;
+    bool flag;
+    int index;
+    vector<pair<int,int>> req;
+}a[100005];
+void DFS(int now){
+    int cnt=0;
+    long long maxt=0;
+    for(auto v:a[now].req){
+        if(a[now].need*v.first>1e9){
+            a[v.second].flag=1;
         }
-        Build(lson, l, mid);
-        Build(rson, mid + 1, r);
-        Up(x);
-    }
-    void Add(int x, int l, int r, int L, int R, int y) {
-        if (L <= l && r <= R) {
-            node[x].maxn += y; node[x].minn += y;
-            return;
+        else{
+            a[v.second].need=a[now].need*v.first;
         }
-        if (L <= mid) Add(x << 1, l, mid, L, R, y);
-        if (mid < R) Add(x << 1 | 1, mid + 1, r, L, R, y);
-        Up(x);
+        DFS(v.second);
+        if(v.first*a[v.second].tim>1e9||a[v.second].flag){
+            a[now].flag=1;
+        }
+        else{
+            a[now].tim+=v.first*a[v.second].tim;
+        }
+        if(now==k){
+            if(a[v.second].flag){
+                cnt++;
+            }
+            else{
+                maxt=max(maxt,v.first*a[v.second].tim);
+            }
+        }
+    }
+    if(now==k){
+        if(cnt==0){
+            a[now].tim-=maxt;
+        }
+        if(cnt==1){
+            a[now].flag=0;
+        }
+        if(cnt>1){
+            a[now].flag=1;
+        }
+    }
+    if(a[now].need*a[now].tim>1e9){
+        a[now].flag=1;
+    }
+    // printf("Debug%d:%lld %lld %d\n",now,a[now].tim,a[now].need,a[now].flag);
+}
+void Work(){
+    cin >> n >> k;
+    for(int i=1;i<=n;i++){
+        a[i].req.clear();
+        a[i].flag=0;
+        a[i].tim=0;
+        int p;
+        cin >> p;
+        if(p==0){
+            cin >> a[i].tim;
+        }
+        else{
+            int k;
+            cin >> k;
+            while(k--){
+                int cnt,id;
+                cin >> cnt >> id;
+                a[id].index++;
+                a[i].req.push_back(make_pair(cnt,id));
+            }
+        }
+    }
+    a[k].need=1;
+    DFS(k);
+    if(a[k].flag){
+        cout << "Impossible\n";
+    }
+    else{
+        cout << a[k].tim << "\n";
     }
 }
-signed main() {
-    cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> n;
-    for (int i = 1; i <= n; i++) cin >> a[i];
-    Build(1, 1, n);
-    cin >> m;
-    for (int i = 1; i <= m; i++) {
-        int opt;
-        cin >> opt;
-        if (opt == 1) {
-            int l, r, x;
-            cin >> l >> r >> x;
-            Add(1, 1, n, l, r, x);
-        }
-        if (opt == 2) {
-            int l, r;
-            cin >> l >> r;
-        }
-        if (opt == 1) {
-            int l, r;
-            cin >> l >> r;
-        }
-        if (opt == 1) {
-            int l, r;
-            cin >> l >> r;
-        }
-        if (opt == 1) {
-            int l, r;
-            cin >> l >> r;
-        }
+int main(){
+    // atexit(FastIO::flush);
+    int t=1;
+    cin >> t;
+    while(t--){
+        Work();
     }
     return 0;
 }

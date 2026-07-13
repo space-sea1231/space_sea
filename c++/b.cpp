@@ -1,40 +1,34 @@
-#include<bits/stdc++.h>
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <cstring>
+#include <map>
+#define __Debug
+
 using namespace std;
+typedef long long ll;
 
-int main(){
-    srand(time(0));
-    int T=rand()%3+1;
-    cout<<T<<"\n";
-    while(T--){
-        int n=rand()%10+2;
-        int k=rand()%n+1;
-        cout<<n<<" "<<k<<"\n";
+const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
 
-        vector<vector<pair<int,int>>> ch(n+1);
-        vector<int> ord;
-        ord.push_back(k);
-        for(int i=1;i<=n;i++) if(i!=k) ord.push_back(i);
-        for(int i=1;i<(int)ord.size();i++){
-            int j=i+rand()%((int)ord.size()-i);
-            swap(ord[i],ord[j]);
-        }
-        for(int i=1;i<(int)ord.size();i++){
-            int p=ord[rand()%i];
-            int w=rand()%5+1;
-            ch[p].push_back({ord[i],w});
-        }
+int n;
+map<pair<int, int>, int> q;
 
-        for(int i=1;i<=n;i++){
-            if(ch[i].empty()){
-                cout<<"0 "<<rand()%10000+1<<"\n";
-            }else{
-                cout<<"1 "<<ch[i].size();
-                for(auto [v,w]:ch[i]){
-                    cout<<" "<<w<<" "<<v;
-                }
-                cout<<"\n";
-            }
-        }
+int Dfs(int len, int k) {
+    if (len <= 0 || k < 0) return 0;
+    // cerr<<len<<" " << k << endl;
+    if (q.find(make_pair(len, k)) != q.end()) return q[make_pair(len, k)];
+    int lenl = len / 2, lenr = len / 2;
+    if (len % 2 == 0) lenl--;
+    return q[make_pair(len, k)] = Dfs(lenl, k - 1) + Dfs(lenr, k) + 1;
+} 
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n;
+    for (int i = 1; i <= n; i++) {
+        int l, r, k;
+        cin >> l >> r >> k;
+        if (k >= r - l + 1) printf("%d\n", r - l + 1);
+        else printf("%d\n", Dfs(r - l + 1, k));
     }
     return 0;
 }

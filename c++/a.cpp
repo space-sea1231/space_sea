@@ -1,63 +1,62 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <cstring>
+#include <vector>
+#define __Debug
+
 using namespace std;
-int p[5000010],mu[5000010],cnt,n,T;
-bool isp[5000010];
-long long phi[5000010];
-unordered_map<int,int> summu;
-unordered_map<int,long long> sumphi;
-void euler_sieve(){
-	isp[0]=isp[1]=true;
-	mu[1]=phi[1]=1;
-	for(int i=2;i<=5000000;++i){
-		if(!isp[i]){
-			p[++cnt]=i;
-			mu[i]=-1;
-			phi[i]=i-1;
-		}
-		for(int j=1;j<=cnt&&p[j]*i<=5000000;++j){
-			isp[i*p[j]]=true;
-			if(i%p[j]){
-				mu[i*p[j]]=-mu[i];
-				phi[i*p[j]]=phi[i]*phi[p[j]];
-			}
-			else{
-				mu[i*p[j]]=0;
-				phi[i*p[j]]=phi[i]*p[j];
-                break;
-			}
-		}
-	}
-	for(int i=1;i<=5000000;++i){
-		mu[i]+=mu[i-1];
-		phi[i]+=phi[i-1];
-	}
+typedef long long ll;
+
+const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
+const int N = 1e5 + 10;
+
+int t, n;
+int minn[N];
+int ansa[N], ansb[N];
+int num;
+vector<int> e[N];
+
+int Dfs(int u) {
+    minn[u] = u;
+    for (auto v:e[u]) minn[u] = min(minn[u], Dfs(v));
+    return u;
 }
-long long solve_mu(int x){
-	if(x<=5000000) return mu[x];
-	if(summu[x]) return summu[x];
-	long long ans=1;
-	for(register long long i=2,j;i<=x;i=j+1){
-		j=x/(x/i);
-		ans-=(j-i+1)*solve_mu(x/i);
-	}
-	return summu[x]=ans;
+bool cmp(int a, int b) {
+    return minn[a] > minn[b];
 }
-long long solve_phi(long long x){
-	if(x<=5000000) return phi[x];
-	if(sumphi[x]) return sumphi[x];
-	long long ans=x*(x+1)/2;
-	for(register long long i=2,j;i<=x;i=j+1){
-		j=x/(x/i);
-		ans-=(j-i+1)*solve_phi(x/i);
-	}
-	return sumphi[x]=ans;
+void Dfsa(int u) {
+    ansa[u] = num--;
+    for (auto v:e[u]) Dfsa(v);
 }
-int main(){
-	euler_sieve();
-	scanf("%d",&T);
-	for(int i=1;i<=T;++i){
-		scanf("%d",&n);
-		printf("%lld %lld\n",solve_phi(n),solve_mu(n));
-	}
-	return 0;
+void Dfsb(int u) {
+    ansb[u] = num--;
+    for (auto v:e[u]) Dfsb(v);
+}
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> t;
+    while (t--) {
+        cin >> n;
+        for (int i = 1; i <= n; i++) {
+            e[i].clear();
+            minn[i] = INF;
+        }
+        for (int i = 2; i <= n; i++) {
+            int u;
+            cin >> u;
+            e[u].emplace_back(i);
+        }
+        Dfs(1);
+        for (int i = 1; i <= n; i++) sort(e[i].begin(), e[i].end(), cmp);
+        num = n;
+        Dfsa(1);
+        for (int i = 1; i <= n; i++) reverse(e[i].begin(), e[i].end());
+        num = n;
+        Dfsb(1);
+        for (int i = 1; i <= n; i++) printf("%d %d ", ansa[i], ansb[i]);
+        printf("\n");
+        // cerr<<t;
+    }
+    return 0;
 }

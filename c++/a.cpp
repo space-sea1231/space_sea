@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
+#define int long long
 #define __Debug
 
 using namespace std;

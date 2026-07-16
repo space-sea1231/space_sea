@@ -1,0 +1,2037 @@
+
+/* ==UserStyle==
+@name                 Argon Luogu Dev
+@version              20250722.09.12
+@namespace            https://userstyles.world/style/18510/argon-luogu-dev
+@description          洛谷美化样式。
+@author               d0j1a1701
+@license              MIT
+@preprocessor         stylus
+@var                  checkbox dark-mode "深色模式" 1
+@var                  text font-stack    "全局字体" "'Inter','Noto Sans SC'"
+@var                  text font-stack-codeblock "代码块字体" "'Fira Code', 'JetBrains Mono', 'Noto Sans SC'"
+@var                  text main-background "自定义背景" "url(https://cdn.luogu.com.cn/upload/image_hosting/7ludxt0p.png)"
+@var                  checkbox header-acrylic "顶栏亚克力效果" 1
+@var                  checkbox nav-acrylic "侧栏亚克力效果" 1
+@var                  checkbox card-acrylic "卡片亚克力效果" 1
+@var                  checkbox footer-acrylic "底栏亚克力效果" 1
+@var                  checkbox anymore-acrylic "其余亚克力效果" 1
+@var                  checkbox remove-ad "去除洛谷广告" 0
+@var                  checkbox animations "动画" 1
+@var                  checkbox prose-bar "阅读进度条" 1
+@var                  checkbox lock-account "纯享壁纸版锁定账户 " 0
+==/UserStyle== */
+
+
+@-moz-document regexp("^(https?://www.luogu.com(.cn)?/).*")
+    @import url('https://fonts.googleapis.com/css2?         family=Fira+Code:wght@300..700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Noto+Sans+SC:wght@100..900&display=swap')
+    //! 字体导入 ---------
+
+
+    //! 自定义配置部分 ---------
+
+    // 调色板
+    if dark-mode
+        // 全局颜色
+        body_bg_color = #181c27 // 全局背景色
+        navbar_bg_color = #1f3144 // 菜单栏背景色
+        navbar_text_color = #d0d0d0 // 菜单栏文字色
+        subtitle_color = #d0d0d0 // 副标题颜色（面板外）
+        text_color = #c4c6c9 // 全局字体色
+        sec_text_color = #a7a9ad // 次级字体色（摘要、简介等位置）
+        time_text_color = rgba(126,241,147,0.62) //主页时间字体色
+        board_color = #252d38 // 面板背景色
+        post_text_color = #c4c6c9 // 面板字体色
+        post_heading_color = #c4c6c9 // 面板标题色（h1, h2, h3...）
+        post_link_color = #1589e9 // 超链接字体色
+        link_hover_color = #30a9de // 超链接悬浮字体色
+        link_hover_bg_color = transparent // 超链接悬浮背景色
+        line_color = #435266 // 分割线颜色
+        scrollbar_track_color = #181c27 // 滚动槽颜色
+        scrollbar_thumb_color = #687582 // 滚动条颜色
+        scrollbar_hover_color = #5e72e4 // 滚动条悬浮色
+        button_bg_color = transparent // 按钮背景色
+        button_hover_bg_color = #46647e // 按钮悬浮色
+        selection_bg_color = #9696c84d // 选中背景色
+        acrylic_bg_color = #000000 // 亚克力背景色
+        inlinecode_bg_color = #636e7b66 // 行内代码背景色
+        // 代码高亮配色：
+        codeblock_bg_color = #0d1117
+        hljs_base_color = #c9d1d9
+        hljs_keyword_color = #ff7b72
+        hljs_function_color = #d2a8ff
+        hljs_variable_color = #79c0ff
+        hljs_string_color = #a5d6ff
+        hljs_symbol_color = #ffa657
+        hljs_comment_color = #8b949e
+        hljs_tag_color = #7ee787
+        hljs_subst_color = #c9d1d9
+        hljs_section_color = #1f6feb
+        hljs_bullet_color = #f2cc60
+        hljs_emphasis_color = #c9d1d9
+        hljs_strong_color = #c9d1d9
+        hljs_addition_color = #aff5b4
+        hljs_addition_bg_color = #033a16
+        hljs_deletion_color = #ffdcd7
+        hljs_deletion_bg_color = #67060c
+        text_area_color = #eaecef
+
+    else
+        body_bg_color = #eee
+        navbar_bg_color = #eeeeee
+        navbar_text_color = #3c4858
+        subtitle_color = #fff
+        text_color = #3c4858
+        time_text_color = rgba(5, 67, 16, 0.79)
+        board_color = #fff
+        post_text_color = #2c3e50
+        sec_text_color = #718096
+        post_heading_color = #1a202c
+        post_link_color = #0366d6
+        link_hover_color = #30a9de
+        link_hover_bg_color = transparent
+        line_color = #eaecef
+        scrollbar_track_color = #eeeeee
+        scrollbar_thumb_color = #c4c6c9
+        scrollbar_hover_color = #a6a6a6
+        button_hover_bg_color = #f2f3f5
+        button_bg_color = transparent
+        selection_bg_color = #95bce3
+        acrylic_bg_color = #ffffff
+        text_area_color = #435266
+    // ! 配置部分结束 ---------
+
+    main-background = body_bg_color unless main-background
+
+    // d0j1a_1701 最爱的亚克力材质
+    // 基于伪元素的亚克力实现，不会造成层叠混乱
+    acrylic(arc-opacity=0.5,blur-radius=10px,no_shadow=false)
+        background none !important
+        &:before
+            acr-bgcolor = rgba(acrylic_bg_color, arc-opacity)
+            background acr-bgcolor !important
+            backdrop-filter blur(blur-radius) !important unless blur-radius == 0
+            box-shadow    0 1px    3px    rgba(0, 0, 0, .01),
+                        0 1px    8px        rgba(0, 0, 0, 0.2) unless no_shadow !important
+            content    ""
+            border-radius @border-radius if @border-radius
+            position absolute
+            pointer-events none
+            z-index -1
+            top 0
+            left 0
+            right 0
+            bottom 0
+
+    // https://stackoverflow.com/questions/44522299/css-only-acrylic-material-from-fluent-design-system
+    // 直接修改背景的亚克力实现，不需要修改 z-index，不会对 border-radius 造成影响，但可能造成层叠混乱
+    acrylic-bg(arc-opacity=0.5,blur-radius=10px,no_shadow=false)
+        acr-bgcolor = rgba(acrylic_bg_color, arc-opacity)
+        background acr-bgcolor !important
+        backdrop-filter blur(blur-radius) !important unless blur-radius == 0
+        box-shadow    0 1px    3px    rgba(0, 0, 0, 0.01),
+                    0 1px    8px        rgba(0, 0, 0, 0.2) unless no_shadow !important
+    // 修改 Markdown 渲染内容样式
+    markdown-patch()
+        .marked
+            a
+                color post_link_color
+
+            code // 内联代码
+                background #fff0 !important
+                border none !important
+                            background codeblock_bg_color !important
+                border-radius 5px
+                color hljs_base_color !important
+                box-shadow none !important
+                .hljs-doctag,
+                .hljs-keyword,
+                .hljs-meta .hljs-keyword,
+                .hljs-template-tag,
+                .hljs-template-variable,
+                .hljs-type,
+                .hljs-variable.language_
+                    color hljs_keyword_color if hljs_keyword_color
+                .hljs-title,
+                .hljs-title.class_,
+                .hljs-title.class_.inherited__,
+                .hljs-title.function_
+                    color hljs_function_color if hljs_function_color
+                .hljs-attr,
+                .hljs-attribute,
+                .hljs-literal,
+                .hljs-meta,
+                .hljs-number,
+                .hljs-operator,
+                .hljs-selector-attr,
+                .hljs-selector-class,
+                .hljs-selector-id,
+                .hljs-variable
+                    color hljs_variable_color if hljs_variable_color
+                .hljs-meta .hljs-string,
+                .hljs-regexp,
+                .hljs-string
+                    color hljs_string_color if hljs_string_color
+                .hljs-built_in,
+                .hljs-symbol
+                    color hljs_symbol_color if hljs_symbol_color
+                .hljs-code,
+                .hljs-comment,
+                .hljs-formula
+                    color hljs_comment_color if hljs_comment_color
+                .hljs-name,
+                .hljs-quote,
+                .hljs-selector-pseudo,
+                .hljs-selector-tag
+                    color hljs_tag_color if hljs_tag_color
+                .hljs-subst
+                    color hljs_subst_color if hljs_subst_color
+                .hljs-section
+                    color hljs_section_color if hljs_section_color
+                    font-weight 700
+                .hljs-bullet
+                    color hljs_bullet_color if hljs_bullet_color
+                .hljs-emphasis
+                    color hljs_emphasis_color if hljs_emphasis_color
+                    font-style italic
+                .hljs-strong
+                    color hljs_strong_color if hljs_strong_color
+                    font-weight 700
+                .hljs-addition
+                    color hljs_addition_color if hljs_addition_color
+                    background-color hljs_addition_bg_color if hljs_addition_bg_color
+                .hljs-deletion
+                    color hljs_deletion_color if hljs_deletion_color
+                    background-color hljs_deletion_bg_color if hljs_deletion_bg_color
+            pre
+                &[exlg-copy-code-block]
+                    border-top-left-radius: 0 !important
+                    border-top-right-radius: 0 !important
+                    border-top: none !important
+                background codeblock_bg_color !important
+                border none
+                border-radius 5px
+                margin-bottom 10px
+        // 标签样式更改
+        h1, h2, h3, h4, h5, h6
+            font-weight 600 !important
+            color post_heading_color !important
+
+        hr.horizon
+            background-color line_color !important
+
+        // 代码块
+        pre:not([.mp-editor-container])
+            background codeblock_bg_color !important
+            border none
+            border-radius 5px
+            margin-bottom 10px
+            &[exlg-copy-code-block]
+                    border-top-left-radius: 0 !important
+                    border-top-right-radius: 0 !important
+                    border-top: none !important
+
+            code
+                background codeblock_bg_color !important
+                border-radius 5px
+                color hljs_base_color !important
+                box-shadow none !important
+
+                .hljs-doctag,
+                .hljs-keyword,
+                .hljs-meta .hljs-keyword,
+                .hljs-template-tag,
+                .hljs-template-variable,
+                .hljs-type,
+                .hljs-variable.language_
+                    color hljs_keyword_color if hljs_keyword_color
+                .hljs-title,
+                .hljs-title.class_,
+                .hljs-title.class_.inherited__,
+                .hljs-title.function_
+                    color hljs_function_color if hljs_function_color
+                .hljs-attr,
+                .hljs-attribute,
+                .hljs-literal,
+                .hljs-meta,
+                .hljs-number,
+                .hljs-operator,
+                .hljs-selector-attr,
+                .hljs-selector-class,
+                .hljs-selector-id,
+                .hljs-variable
+                    color hljs_variable_color if hljs_variable_color
+                .hljs-meta .hljs-string,
+                .hljs-regexp,
+                .hljs-string
+                    color hljs_string_color if hljs_string_color
+                .hljs-built_in,
+                .hljs-symbol
+                    color hljs_symbol_color if hljs_symbol_color
+                .hljs-code,
+                .hljs-comment,
+                .hljs-formula
+                    color hljs_comment_color if hljs_comment_color
+                .hljs-name,
+                .hljs-quote,
+                .hljs-selector-pseudo,
+                .hljs-selector-tag
+                    color hljs_tag_color if hljs_tag_color
+                .hljs-subst
+                    color hljs_subst_color if hljs_subst_color
+                .hljs-section
+                    color hljs_section_color if hljs_section_color
+                    font-weight 700
+                .hljs-bullet
+                    color hljs_bullet_color if hljs_bullet_color
+                .hljs-emphasis
+                    color hljs_emphasis_color if hljs_emphasis_color
+                    font-style italic
+                .hljs-strong
+                    color hljs_strong_color if hljs_strong_color
+                    font-weight 700
+                .hljs-addition
+                    color hljs_addition_color if hljs_addition_color
+                    background-color hljs_addition_bg_color if hljs_addition_bg_color
+                .hljs-deletion
+                    color hljs_deletion_color if hljs_deletion_color
+                    background-color hljs_deletion_bg_color if hljs_deletion_bg_color
+
+    // 修改 Sweetalert 弹窗样式
+    swal-patch()
+        .swal2-popup
+            &:not([style*='transparent'])
+                acrylic-bg()
+            h1, h2, h3, h4, h5, h6
+                color post_heading_color !important
+            color text_color !important
+
+        .swal2-content
+            color text_color !important
+
+        // 一些带动画的图标
+        // 选择器只写了一半是因为逆天 Stylus 编译器会把逗号当作选择器
+        .swal2-icon > *[style*='rgba(0'],
+        .swal2-icon > *[style*='rgba(255']
+            background none !important
+        .swal2-success-ring
+            border-color line_color
+
+    cseditor-patch()
+        .cs-main,
+        .cs-header
+            font-family font-stack-codeblock !important
+            background rgba(acrylic_bg_color,1) !important
+        .cs-toolbar
+            & > div > span > span > span > svg
+                border none !important
+                color text_color
+                &:hover
+                    color link_hover_color !important
+                    background link_hover_bg_color !important
+        .cs-content
+            background: #2B2B2B !important
+            .cs-main
+                background: #2B2B2B !important
+                color: #A9B7C6 !important
+            span.ͼ7
+                color: #A9B7C6 !important
+            span.cs-meta
+                color: #BBB529 !important
+            span.cs-number
+                color: #6897BB !important
+            span.cs-keyword
+                color: #CC7832 !important
+                line-height: 1em !important
+                font-weight: bold !important
+            span.cs-def
+                color: #A9B7C6 !important
+                font-style: italic !important
+            span.cs-variable
+                color: #A9B7C6 !important
+            span.cs-variable-2
+                color: #A9B7C6 !important
+            span.cs-variable-3
+                color: #9876AA !important
+            span.cs-type
+                color: #AABBCC !important
+                font-weight: bold !important
+            span.cs-property
+                color: #FFC66D !important
+            span.cs-operator
+                color: #A9B7C6 !important
+            span.cs-string
+                color: #6A8759 !important
+            span.cs-string-2
+                color: #6A8759 !important
+            span.ͼ5,
+            span.ͼc
+                color: #61A151 !important
+                font-style: italic !important
+            span.cs-link
+                color: #CC7832 !important
+            span.cs-atom
+                color: #CC7832 !important
+            span.cs-error
+                color: #BC3F3C !important
+            span.cs-tag
+                color: #629755 !important
+                font-weight: bold !important
+                font-style: italic !important
+                text-decoration: underline !important
+            span.cs-attribute 
+                color: #6897bb !important
+            span.cs-qualifier 
+                color: #6A8759 !important
+            span.cs-bracket 
+                color: #A9B7C6 !important
+            span.cs-builtin 
+                color: #FF9E59 !important
+            span.cs-special 
+                color: #FF9E59 !important
+            span.cs-matchhighlight
+                color: #FFFFFF !important
+                background-color: rgba(50, 89, 48, .7) !important
+                font-weight: normal !important
+            span.cs-searching
+                color: #FFFFFF !important
+                background-color: rgba(61, 115, 59, .7) !important
+                font-weight: normal !important
+            .cm-cursor
+                border-left: 1px solid #A9B7C6 !important
+            .cs-activeline-background 
+                background: #323232 !important
+            .cm-gutters,
+            .cm-activeLineGutter 
+                background: #313335 !important
+                border-right: 1px solid #313335 !important
+            .cm-guttermarker
+                color: #FFEE80 !important
+            .cm-guttermarker-subtle
+                color: #D0D0D0 !important
+            .cs-linenumber
+                color: #606366 !important
+            .cs-matchingbracket
+                background-color: #3B514D !important
+                color: #FFEF28 !important
+                font-weight: bold !important
+            div.cs-selected 
+                background: #214283 !important
+            .cm-hints 
+                color: #9C9E9E!important
+                background-color: #3B3E3F !important
+            .cm-hints .cm-hint-active 
+                background-color: #494D4E !important
+                color: #9C9E9E !important
+        .cs-footer
+            acrylic-bg()
+
+        .ide-toolbar
+            border-color line_color
+            background-color: #2B2B2B !important
+            color text_color
+        .ide-textarea.lfe-code
+            border-color transparent !important
+            background-color #2B2B2B !important
+            color post_text_color !important
+            font-family font-stack-codeblock
+        .panel-divider
+            background-color line_color
+        .cm-gutters *
+        .cm-gutters
+            border-color line_color !important
+            background: #2B2B2B !important
+
+        .cm-content
+        .ͼq .cm-content
+            font-family font-stack-codeblock !important
+        .cm-editor
+            border-color line_color
+            background: #2B2B2B !important
+            span.ͼ5
+            span.ͼb
+                color rgb(184,151,226)
+            span.ͼf
+            span.ͼe
+                color rgb(133,180,132)
+            .cm-line
+                color #ffffff
+            span.ͼi
+                color rgb(235,213,166)
+            span.ͼd
+                color rgb(228,163,124)
+            span.ͼg
+                color rgb(121,159,222)
+        .cm-cursor 
+            border-left: 1px solid #A9B7C6!important
+        .cm-selectionLayer *
+            background: #6c6c6c !important
+
+    mdeditor-patch()
+        #app:has(.cs-full-screen) > *:not(.main-container)
+        .main-container:has(.cs-full-screen) footer
+        div:has(.cs-full-screen) + *
+            display none
+        div:has(.cs-full-screen)
+            position fixed !important
+            top 0
+            bottom 0
+            left 0
+            right 0
+        .mp-editor-container
+            .mp-editor-toolbar
+                acrylic-bg()
+                .mp-editor-menu > li > *
+                    border none !important
+                    &:hover
+                        color link_hover_color !important
+                        background link_hover_bg_color !important
+                .mp-divider
+                    color line_color !important
+        .ͼ1 .cm-scroller
+            font-family font-stack-codeblock
+        if dark-mode
+            cseditor-patch()
+        // 设置编辑器字体（预览字体跟随全局字体）
+        .cs-editor
+            font-family font-stack-codeblock
+        .CodeMirror
+            font-family font-stack-codeblock
+        .mp-preview-area
+            acrylic-bg()
+            .mp-preview-content
+                color text_color !important
+                markdown-patch()
+                & > pre
+                            padding 5pt 5pt 5pt 5pt
+                            border-radius 5px
+                            border-color line_color
+        main.mobile-body.lfe-body
+            z-index 1 !important
+        .radio-group > *
+            color sec_text_color !important
+    // 页面展示动画
+    @keyframes show
+        0%
+            transform translateY(1em)
+        100%
+            transform translateY(0em)
+    // 页面内部小卡片展示动画
+    @keyframes inner-show
+        0%
+            transform translateY(0.2em)
+        100%
+            transform translateY(0em)
+    // 题目标题，讨论标题展示动画
+    @keyframes title-show
+        0%
+            transform translateX(-0.2em)
+        100%
+            transform translateX(0m)
+    // 输入框选中动画
+    @keyframes textarea-checked
+        0%
+            transform scale(1)
+        30%
+            transform scale(1.01)
+        70%
+            transform scale(0.99)
+        100%
+            transform scale(1)
+    // 头像悬浮动画
+    @keyframes avatar-hover
+        0%
+            transform scale(1)
+        33%
+            transform scale(1.01)
+        66%
+            transform scale(0.99)
+        100%
+            transform scale(1)
+    // 所有的文字强制折行
+    
+    @layer word-break
+        body *
+            word-wrap break-word
+            word-break break-all
+    .row
+    .header
+    .dropdown
+    .dropdown .center
+    .cs-main
+    .cs-header
+    .cs-footer
+    .cs-editor
+    .mp-editor-container
+    .mp-editor-ground
+    .mp-editor-zone
+    .card
+    .l-card
+        border-color line_color !important
+    // 设置全局背景
+    body
+        overflow-x hidden
+        background body_bg_color
+    .main-wrapper
+        background-color transparent !important
+    footer.main-rect
+        acrylic-bg()
+        border-radius 4px
+        & > hr
+            display none
+        color sec_text_color
+        font-family font-stack
+    div.main-rect .main-container
+        acrylic-bg()
+        & .lfe-h3
+        & .step-header
+        & .lfe-h2
+        & .user
+            color text_color
+        & .lfe-caption
+            color sec_text_color
+        font-family font-stack
+    // 全局平滑滚动属性
+    html, body
+        scroll-behavior smooth
+    // 滚动条样式
+    ::-webkit-scrollbar
+        background scrollbar_track_color
+        width 7px
+        height 7px
+    ::-webkit-scrollbar-thumb
+        background scrollbar_thumb_color
+    ::-webkit-scrollbar-thumb:hover
+        background scrollbar_hover_color
+
+    ::-webkit-scrollbar-corner
+        background-color transparent
+
+    // 这个字体必须改在这里
+    // body 会被洛谷字体（.lfe-body）覆盖
+    // 星号会把数学字体干掉
+    .lfe-body
+        font-family font-stack, sans-serif !important
+
+    code, .hljs
+        font-family font-stack-codeblock, monospace !important
+
+    // Markdown 渲染
+    mdeditor-patch()
+
+    // 背景修改
+    body
+        background main-background
+        background-repeat no-repeat
+        background-size cover
+        background-position center
+        background-attachment fixed
+
+    // 输入框样式修改
+    input[type=text]:not(.el-input *), input[type=password]:not(.el-input *)
+        color sec_text_color !important
+        background none !important
+        border sec_text_color 1px solid !important
+        border-radius 6px !important
+        &:focus
+            border-color var(--l-simple-select--color,var(--lfe-color--primary,#3498db)) !important
+            box-shadow none !important
+            background none !important
+        &::placeholder
+            color sec_text_color
+    // 专栏查询框样式修改
+    .refined-input
+        background transparent !important
+        border-color transparent !important
+    // 输入框样式修改
+    textarea:not(.ide-textarea.lfe-code)
+        color post_text_color !important
+        font-family font-stack
+        background none !important
+        border sec_text_color 1px solid !important
+        border-radius 6px !important
+        &:focus
+            border-color var(--l-simple-select--color,var(--lfe-color--primary,#3498db)) !important
+            box-shadow none !important
+            background none !important
+            if animations
+                animation .3s linear 0s textarea-checked
+
+    // 输入框默认文字信息
+    *::placeholder, .lfe-placeholder
+        color sec_text_color !important
+
+    // 题目列表的难度选择框等
+    .combo-wrapper
+        & > .text
+            color post_text_color !important
+            background none !important
+            border sec_text_color 1px solid !important
+            font-family font-stack
+        svg
+            color post_text_color !important
+    // 算法/来源/时间/状态 按钮样式
+    button.select-button[style="border-color: rgb(191\, 191\, 191); color: rgb(191\, 191\, 191); background-color: rgba(191\, 191\, 191\, 0);"]
+        color sec_text_color !important
+        background none !important
+        border sec_text_color 1px solid !important
+
+
+    // 选择框掉出来的下拉框
+    .dropdown:not([style^="--dropdown-z-index: 1005;"],:has(.setting-dropdown))
+        acrylic()
+        color sec_text_color !important
+        border none !important
+        font-family font-stack
+        & > ul > li:hover
+            background button_hover_bg_color !important
+    // 不得不称赞这个收缩导航栏简直是 Hyprland 玩家福音，终于可以有更大的看题空间了 qwq
+    .setting-dropdown
+        acrylic-bg()
+        color text_color
+    .user-stat-data > div > div > span
+        color sec_text_color !important
+    // 删除广告
+    if remove-ad
+        .side:not(.card.wrapper.padding-none > .side) > div:has(.svg-inline--fa.fa-rectangle-ad)
+            display none
+    // exlg 代码块
+    .exlg-code-title
+            acrylic-bg()
+    // exlg emoji
+    .exlg-emo
+            acrylic-bg()
+    .exlg-emo-btn
+            background board_color
+            color text_color
+    // 解决 exlg 收起 emoji 时和亚克力冲突
+    .exlg-emo:not(.exlg-show-emo)
+            display none
+    // 代码块
+    pre:not(.CodeMirror-line),
+        code
+            background codeblock_bg_color !important
+            color hljs_base_color !important
+            font-family font-stack-codeblock !important
+
+    .ace_editor
+        font 14pt/normal font-stack-codeblock !important
+    // 提交代码样式
+    if dark-mode
+            .ace_gutter
+                background: #25282c !important
+                color: #C5C8C6 
+            .ace_print-margin
+                width: 1px !important
+                background: #25282c!important
+            .ace_editor
+                background-color: #1D1F21 !important
+                color: #C5C8C6!important
+            .ace_cursor
+                color: #AEAFAD!important
+            .ace_marker-layer .ace_selection
+                background: #373B41!important
+            .ace-clouds.ace_multiselect .ace_selection.ace_start
+                box-shadow: 0 0 3px 0px #1D1F21!important
+            .ace_marker-layer .ace_step
+                background: rgb(102, 82, 0)!important
+            .ace_marker-layer .ace_bracket
+                margin: -1px 0 0 -1px!important
+                border: 1px solid #4B4E55!important
+            .ace_marker-layer .ace_active-line
+                background: #282A2E!important
+            .ace_gutter-active-line
+                background-color: #282A2E!important
+            .ace_marker-layer .ace_selected-word
+                border: 1px solid #373B41!important
+            .ace_invisible
+                color: #4B4E55!important
+            .ace_keyword,
+            .ace_meta,
+            .ace_storage,
+            .ace_storage.ace_type,
+            .ace_support.ace_type
+                color: #B294BB!important
+            .ace_keyword.ace_operator
+                color: #8ABEB7!important
+            .ace_constant.ace_character,
+            .ace_constant.ace_language,
+            .ace_constant.ace_numeric,
+            .ace_keyword.ace_other.ace_unit,
+            .ace_support.ace_constant,
+            .ace_variable.ace_parameter
+                color: #DE935F!important
+            .ace_constant.ace_other
+                color: #CED1CF!important
+            .ace_invalid
+                color: #CED2CF!important
+                background-color: #DF5F5F!important
+            .ace_invalid.ace_deprecated
+                color: #CED2CF!important
+                background-color: #B798BF!important
+            .ace_fold
+                background-color: #81A2BE!important
+                border-color: #C5C8C6!important
+            .ace_entity.ace_name.ace_function,
+            .ace_support.ace_function,
+            .ace_variable
+                color: #81A2BE!important
+            .ace_support.ace_class,
+            .ace_support.ace_type
+                color: #F0C674!important
+            .ace_heading,
+            .ace_markup.ace_heading,
+            .ace_string
+                color: #B5BD68!important
+            .ace_entity.ace_name.ace_tag,
+            .ace_entity.ace_other.ace_attribute-name,
+            .ace_meta.ace_tag,
+            .ace_string.ace_regexp,
+            .ace_variable
+                color: #CC6666!important
+            .ace_comment
+                color: #969896!important
+            .ace_indent-guide
+                background: url("https://cdn.jsdelivr.net/npm/ace-builds@1.36.2/css/tomorrow_night-1.png") right repeat-y!important
+            .CodeMirror
+                background: #2B2B2B !important
+                color: #A9B7C6 !important
+            span.cm-header
+                color: #A9B7C6 !important
+            span.cm-meta
+                color: #BBB529 !important
+            span.cm-number
+                color: #6897BB !important
+            span.cm-keyword
+                color: #CC7832 !important
+                line-height: 1em !important
+                font-weight: bold !important
+            span.cm-def
+                color: #A9B7C6 !important
+                font-style: italic !important
+            span.cm-variable
+                color: #A9B7C6 !important
+            span.cm-variable-2
+                color: #A9B7C6 !important
+            span.cm-variable-3
+                color: #9876AA !important
+            span.cm-type
+                color: #AABBCC !important
+                font-weight: bold !important
+            span.cm-property
+                color: #FFC66D !important
+            span.cm-operator
+                color: #A9B7C6 !important
+            span.cm-string
+                color: #6A8759 !important
+            span.cm-string-2
+                color: #6A8759 !important
+            span.cm-comment
+                color: #61A151 !important
+                font-style: italic !important
+            span.cm-link
+                color: #CC7832 !important
+            span.cm-atom
+                color: #CC7832 !important
+            span.cm-error
+                color: #BC3F3C !important
+            span.cm-tag
+                color: #629755 !important
+                font-weight: bold !important
+                font-style: italic !important
+                text-decoration: underline !important
+            span.cm-attribute
+                color: #6897bb !important
+            span.cm-qualifier
+                color: #6A8759 !important
+            span.cm-bracket
+                color: #A9B7C6 !important
+            span.cm-builtin
+                color: #FF9E59 !important
+            span.cm-special
+                color: #FF9E59 !important
+            span.cm-matchhighlight
+                color: #FFFFFF !important
+                background-color: rgba(50, 89, 48, .7) !important
+                font-weight: normal !important
+            span.cm-searching
+                color: #FFFFFF !important
+                background-color: rgba(61, 115, 59, .7) !important
+                font-weight: normal !important
+            .CodeMirror-cursor
+                border-left: 1px solid #A9B7C6 !important
+            .CodeMirror-activeline-background
+                background: #323232 !important
+            .CodeMirror-gutters
+                background: #313335 !important
+                border-right: 1px solid #313335 !important
+            .CodeMirror-guttermarker
+                color: #FFEE80 !important
+            .CodeMirror-guttermarker-subtle
+                color: #D0D0D0 !important
+            .CodeMirrir-linenumber
+                color: #606366 !important
+            .CodeMirror-matchingbracket
+                background-color: #3B514D !important
+                color: #FFEF28 !important
+                font-weight: bold !important
+            div.CodeMirror-selected
+                background: #214283 !important
+            .CodeMirror-hints
+                color: #9C9E9E!important
+                background-color: #3B3E3F !important
+            .CodeMirror-hints .CodeMirror-hint-active
+                background-color: #494D4E !important
+                color: #9C9E9E !important
+    // 旋转动画
+    div[style="width: 64px; height: 64px; border-width: 4px;"]
+        border-color text_color text_color #fff0 text_color !important
+        border-left none
+    // 分数线
+    .frac-line
+        border-color text_color !important
+    // 即将离开洛谷样式
+    div[style*="margin: 0 auto; width: 100vw; padding: 2em 0; box-sizing: border-box; max-width: 680px; height: 100%; min-height: 100vh; display: flex; flex-flow: column; justify-content: center;"] > .card
+        acrylic-bg()
+        border-radius 6px
+        & > pre
+            color hljs_base_color !important
+            border 1px solid line_color !important
+            border-radius 6px
+        & > h3,
+        & > p
+            color text_color
+    // 解决 AT 超长题号导致换行的bug
+    span[data-v-beeebc6e][title]
+        color text_color !important
+        white-space nowrap !important
+    // 解决洛谷讨论区 footer 没有沉底
+    .footer
+        padding-bottom 1.5em !important
+    // 复选框样式
+    svg[data-icon="square"]
+        color sec_text_color !important
+    svg[data-icon="square"]:hover
+        color link_hover_color !important
+    // 页面展示动画
+    main
+    .inner-card
+        if animations
+            animation 1s ease 0s show
+    .info-card
+        overflow-y visible !important
+    // 解决更多功能按钮背景颜色切换过快
+    #app > nav.lfe-body .popup a
+    .dropdown .center .ops a
+        if animations
+            transition background .3s
+    .dropdown .center .ops a
+        border-radius 6px
+    // 文字颜色变化
+    if animations
+        a
+            if animations
+                transition color .3s
+    // 头像悬浮动画
+    img[src^="https://cdn.luogu.com.cn/upload/usericon/"]:hover
+        if animations
+            animation avatar-hover .5s linear
+    // 给悬浮在名字上面是出现的卡片加上圆角
+    .dropdown.shown div .user-header-top
+        border-radius 6px 6px 0 0
+    .dropdown.shown div .user-info
+        border-radius 0 0 6px 6px
+    // 字体问题
+    .dropdown.shown div .user-info *
+        font-family font-stack !important
+    // 洛谷日爆样式
+    .page:has(.page-bottom)
+        margin-top 1em
+        padding-bottom 2em
+        padding-top 2em
+        border-radius 6px
+        acrylic-bg()
+        max-width 50vw
+        & *
+            max-width 50vw
+            color text_color
+    // 翻页条
+    .page-bar
+        background transparent !important
+        button
+            background board_color !important
+            border-color line_color !important
+            &:not(.selected)
+                background transparent !important
+            &.selected
+                & > span
+                    color navbar_text_color !important
+        span
+            color sec_text_color !important
+        img
+            filter invert(1) !important
+    .dropdown > .card
+        margin-bottom 0
+    .modal p
+        color text_color
+        font-family font-stack !important
+    div#p.O
+        acrylic()
+        position: relative
+        padding: 2em 2em 0.5em 2em
+        color text_color
+    .result-count
+    .result-count > *
+        color text_color !important
+     // 旧 UI
+@-moz-document regexp("^(https?://www.luogu.com(.cn)?/)(?!(article|problem/solution/|ranking|discuss|problem|user/setting|ticket)).*")
+    /* 页面布局 */
+    // 覆盖掉洛谷主题自带的背景
+    // 这几个排除是 mask
+    .background
+        background none !important
+        filter none !important
+    // sweetalert2样式
+    swal-patch()
+    // 顶栏样式
+    body > .header
+        acrylic-bg() if header-acrylic
+    .header-layout
+        if header-acrylic
+            acrylic()
+        else
+            background board_color
+        // background navbar_bg_color unless header-acrylic
+        color subtitle_color !important
+
+        .header > h1 // 导航栏标题大字
+            font-size 50px
+            color #ffffff
+
+        .functional // 题目页面的按钮和时限栏
+            padding-top .7em // 这样不会显得离边太近
+            .stat > .color-inverse > .field
+                // 无亚克力时 sec_text_color 太深看不清
+                border-left-color subtitle_color !important if header-acrylic
+
+                color #fff !important if header-acrylic
+                border-left-color #fff !important if header-acrylic
+
+    // 题目页面的 header-layout
+    .header-layout.normal[data-v-7ddab1d5]
+        height auto !important // 覆盖原有的固定高度，否则标题放不下
+        padding-bottom .7em // 防止时限栏距离边缘太近
+        a:hover
+                color post_link_color
+
+    // 讨论区/题解 的 header-layout
+    .header-layout.narrow[data-v-7ddab1d5]
+        height auto !important
+        a:hover
+                color post_link_color
+
+    // 首页的 headey-layout
+    .header-layout.tiny[data-v-7ddab1d5]
+        acrylic() if header-acrylic
+        background navbar_bg_color !important unless header-acrylic
+        color subtitle_color !important
+        a
+            color post_text_color
+            &:hover
+                color post_link_color
+
+    // 头像悬浮
+    .center
+        color post_text_color
+        acrylic-bg()
+        border none
+        .ops > a.color-none:hover
+            background button_hover_bg_color
+
+    // 页面主体（所有卡片的容器）
+    main.lfe-body
+        background none !important
+    .selected:not(.tag) > span
+        color sec_text_color !important
+    // 首页
+    #app-old
+        color post_text_color
+        .lg-article // 一堆块
+            if card-acrylic
+                acrylic-bg(0.6,20px)
+            else
+                background board_color !important
+            border-radius 5px
+        .am-hide-sm // 为啥要为友情链接单独设置一个字体颜色？而且这个颜色覆盖到了做题计划分数和对勾的颜色了
+            strong //「友情链接」
+                color post_heading_color !important
+
+        .am-panel // 块里的块
+            if anymore-acrylic
+                acrylic-bg(0.5,0)
+                border none
+            else
+                background board_color !important
+
+        .highcharts-root
+            tspan
+                // 我也不知道为什么这个颜色不会变
+                // 随它去吧，反正我改了
+                color sec_text_color !important
+
+        .feed-selector > a // 「我关注的」「我发布的」
+            border-radius 6px
+            &:hover
+                background button_hover_bg_color
+                color sec_text_color
+
+        #feed // 犇犇
+            .am-comment-hd, .am-comment-bd // 上半个
+                background none
+
+            .am-comment-avatar
+                border none !important
+
+            .am-comment-main:before, .am-comment-main:after
+                display none // 隐藏犇犇箭头
+
+            .am-comment-main
+                border none !important
+                border-radius 6px
+                if card-acrylic
+                    acrylic-bg(0.6,10px,true)
+                else
+                    background board_color !important
+
+            .feed-comment
+                markdown-patch() // 为什么犇犇里面能渲染代码块
+
+    // 卡片样式处理
+    body > div > .card
+        border-radius 6px
+        // 卡片背景材质
+        if card-acrylic
+            acrylic-bg(0.6,20px)
+        else
+            background board_color !important
+
+        color post_text_color !important
+        position relative
+        &:hover
+            if card-acrylic
+                acrylic(0.6,20px)
+            else
+                background board_color !important
+
+    .card:not(body > div > .card)
+        border-radius 6px
+        // 卡片背景材质
+        if card-acrylic
+            acrylic(0.6,20px)
+        else
+            background board_color !important
+
+        color post_text_color !important
+        position relative
+
+        markdown-patch()
+
+        // 「提交记录」「查看题解」等超链接按钮
+        a.color-default
+            color post_link_color !important
+            border-radius 2px // 这些背景相关属性在设置 link_hover_bg_color 后才生效
+            box-sizing border-box
+            padding 3px
+        a.color-default:hover
+            color link_hover_color !important
+            background link_hover_bg_color
+
+        // 「查看算法标签」「查看讨论」等展开按钮
+        .expand-tip > span
+            color sec_text_color !important
+
+        // 「展开全文」
+        .collapsed-wrapper > .expand > .expand
+            background none
+            border-radius 8px
+            padding-top 5em // 拉长一点
+
+        // // 把「展开全文」挪到一个更加阳间的地方
+        // .collapsed + .expand[data-v-15e4f65b]
+        //     bottom -2.75em !important
+
+        //「创建时间」等说明性小字（data-v-f9624136 是个人简介）
+        .lfe-caption:not([data-v-f9624136])
+            color sec_text_color
+
+        //「统计数据不实时更新」等小字
+        .caption[data-v-1c7f56df]
+            color sec_text_color
+
+        // 样例
+        .input > pre, .output > pre
+            background inlinecode_bg_color
+            border none !important
+         //提交代码
+        .drop
+                if anymore-acrylic
+                        acrylic()
+                else
+                        background board_color !important
+
+    .card[data-v-6febb0e8]
+        border-bottom #fff0 !important
+    // 提交代码
+    .light-black[data-v-64ec303c]
+        color sec_text_color !important
+
+    // 评测结果
+    // 这一段从旧版贺来的，好看！
+    // 我并不是很想改动这一坨
+    .test-case-wrap > .wrapper
+        width 100px
+        height 100px
+        margin-right 16px
+        margin-bottom 12px
+    .test-case-wrap
+        margin-top 25px
+    .test-case-wrap > .wrapper .test-case
+        width 100px
+        height 100px
+        transition all 0.2s ease
+        box-shadow 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)
+        border-radius 3px
+        padding 3px
+    .test-case-wrap > .wrapper .test-case:hover
+        transform translateY(-5px)
+        box-shadow 0 10px 30px rgba(50, 50, 93, 0.1),
+            0 5px 15px rgba(0, 0, 0, 0.07)
+    .test-case-wrap > .wrapper .test-case .info
+        width calc(100% - 10px)
+        line-height 15px
+        font-size 10px
+        white-space nowrap
+        overflow hidden
+        text-overflow ellipsis
+    .test-case-wrap > .wrapper .test-case:hover .info
+        white-space normal
+    .test-case-wrap > .wrapper .test-case .id
+        margin-left 3px
+    .test-case-wrap > .wrapper .test-case .status
+        font-weight bold
+        font-size 22px
+        margin-bottom 5px
+
+    .test-case-wrap > .wrapper .message
+        transition all 0.25s ease !important
+        display block !important
+        border-radius 3px
+        box-shadow 0 4px 6px rgba(50, 50, 93, 0.11), 0 1px 3px rgba(0, 0, 0, 0.08)
+        min-width 105px
+        min-height 105px
+        width 105px
+        padding 0
+        margin-top 40px
+        opacity 0
+        color transparent
+        background #00000070 !important
+        backdrop-filter blur(10px) !important
+        box-shadow    0 10px    30px    rgba(0, 0, 0, 0.1),
+                0 1px    8px        rgba(0, 0, 0, 0.2)
+        pointer-events none
+        //洛谷真的纯唐，先向右偏移50%再向左便宜50%这不脱裤子放屁吗
+        transform translateX(-50%) translateZ(0) !important
+    // 唐氏一样的 Stylus 解析器似乎会把 rgb 里的逗号当作选择器
+    // 因此只能用这种奇怪的方法匹配
+    // 氩洛谷 AC 的绿色很丑，所以去掉了
+    .test-case-wrap > .wrapper
+        .test-case[style*='rgb(231']
+            background-color #fb6340 !important
+        .test-case[style*='rgb(157']
+            background-color #8e44ad !important
+        .test-case[style*='rgb(5']
+            background-color #001277 !important
+        .test-case[style*='rgb(14']
+            background-color #34495e !important
+        .test-case[style*='rgb(20']
+            background-color #3498db !important
+        &:hover .message
+            border-radius 6px
+            margin-top -30px
+            min-width 12em
+            min-height 1em
+            width unset
+            height unset
+            padding 5px 18px
+            opacity 0.8
+            color #c4c6c9
+
+
+    // 「全部版块」页面
+    .forum-name[data-v-d6def288]
+        color sec_text_color !important
+
+    .time,time
+        color sec_text_color !important
+
+    // 私信
+    .frame[data-v-66fcc50b] // 唐氏搜索框
+        background none !important
+        color sec_text_color !important
+
+    // 私信列表
+    .item[data-v-4d6dca7a]:hover
+        background button_hover_bg_color !important
+
+    .side > .panel-content[data-v-7821ddd5]
+        max-width 60em
+
+    // 聊天页面
+    .message-block > .message[data-v-5c0627c6]
+        acrylic-bg()
+        &:after
+            display none // 藏掉三角形
+
+    // 陶片放逐
+    .lfe-caption[data-v-71731098][data-v-19de5e77]
+        background none !important
+
+    // 提交记录
+    .result-count[data-v-0aa18cf0]
+        color sec_text_color
+        & > .number
+            color sec_text_color
+
+    // 题解
+    .solution-article > .operations.float
+        acrylic-bg()
+    div[currenttemplate="ProblemShow"] .side div:nth-child(1)
+        z-index 5
+    // 题目列表翻页条容器
+    .bottom.float-bottom
+        acrylic-bg()
+
+    // 通知中心
+    .title[data-v-71e80b39]
+        color post_heading_color
+
+    .time[data-v-71e80b39]
+        color sec_text_color
+
+    .content[data-v-71e80b39]
+        color post_text_color
+
+    // 个人主页
+    .stats > .field > div
+        display inline
+        border-radius 2px
+        box-sizing border-box
+        padding 3px
+        color post_link_color // 假装这是个链接...
+
+    // ⚡系统维护，该内容暂不可见⚡
+    div[style="background-color: rgb(255\, 235\, 236); border-radius: 5px; border: 1px solid rgb(225\, 50\, 56); padding: 1em; font-style: italic;"] // 妈的这 Styl 编译器什么垃圾
+    // 不要再生气了拉改好了
+        display none !important
+    .introduction[data-v-e5ad98f0][style="display: none;"]
+        display block !important
+
+    // 个人主页「我的团队」等页面的栏
+    .inner-card
+        acrylic()
+        position relative
+        border none !important
+        border-radius 6px
+        [data-v-c0f00ef2] > .lfe-caption[data-v-71731098]
+            background none !important
+        if animations
+            animation 1s ease-in-out 0s inner-show
+    .member:hover
+        z-index 999
+        transition-delay .12s
+    .member
+        z-index 5
+        transition-delay .3s
+    .user-header-top > img.avatar
+        z-index 999
+    .user-info[data-v-17eca14e]
+        acrylic-bg()
+    .member-list .member[data-v-6937a023]
+        white-space wrap
+    // 个人主页练习悬浮窗
+    .tooltip[data-v-05afcf76]
+        position: fixed !important
+        @keyframes Canvas-fix-ani
+            from
+                transform: translateY(0)
+            to
+                transform: translateY(-10000px)
+        animation: Canvas-fix-ani 3s linear !important
+        animation-timeline: scroll(root) !important
+        animation-range: 0vh 10000px !important
+
+    // 一些小字
+    .info-content[data-v-8b7f80ba], .caption[data-v-325cf452]
+        color sec_text_color
+
+    // 图床和提交答案的上传按钮
+    .upload-wrapper > .drop
+        acrylic-bg()
+        border none
+
+    // 图床小字
+    .radio-group > *[data-v-18fb1b28]
+        color sec_text_color
+
+    // 图床画廊
+    .image-list > .image-block
+        // 这里有很多复杂的样式 用亚克力容易出事 先用纯色糊弄一下吧
+        background rgba(board_color,0.5) !important
+        border none
+        .meta
+            color sec_text_color
+
+    // 图床筛选按钮
+    .filters[data-v-102fe30d]
+        acrylic()
+
+    // footer
+    div.lfe-body:not(.header-layout)
+        acrylic-bg() if footer-acrylic
+        .footer > .qr-img
+            display none
+        z-index 0 !important
+
+    // 侧栏
+    #app > nav.lfe-body
+        background navbar_bg_color !important unless nav-acrylic
+        acrylic() if nav-acrylic
+        box-shadow none
+
+        & > a
+            color post_text_color !important
+            height 3.7em
+            margin-top 3px
+            padding 0 !important
+
+            &:first-of-type // Logo
+                margin-top 10px !important
+
+            .icon
+                line-height 2.4em
+                font-size 18px
+                width 100%
+                margin 0 !important
+                transition all 0.3s ease
+
+            .text
+                opacity 0
+                margin-top -1em
+                display block
+                transition all 0.3s ease
+
+            &:hover > .icon
+                line-height 1.5em
+                font-size 17px
+
+            &:hover > .text
+                opacity 1
+                margin-top 0.2em
+
+        & > div:first-child
+            background none !important if dark-mode
+            background navbar_text_color !important unless dark-mode
+
+        .popup-button
+            margin-top 8px
+            color navbar_text_color !important
+
+        .popup
+            acrylic()
+            border none
+            border-radius 6px
+            a
+                color navbar_text_color !important
+                border-radius 8px
+                &:hover
+                    background button_hover_bg_color
+    // 小bug
+    .header h1.lfe-h1
+        width 100%
+        display flex
+        flex-direction row
+        align-items center
+        padding-bottom .2em
+    .header h1.lfe-h1 span[title]
+    .header h1.lfe-h1
+        white-space wrap
+    .header h1.lfe-h1
+        if animations
+            animation 1s ease-in-out 0s title-show
+
+    // 主页bug
+    .highcharts-axis-labels > *
+        color sec_text_color !important
+        fill sec_text_color !important
+    .highcharts-axis-title > *
+        color sec_text_color !important
+        fill sec_text_color !important
+    .lg-fg-greendark
+        color time_text_color !important
+    // 适配exlg随机题目
+    .lg-index-content > .am-g:nth-child(2)
+        z-index 4
+        position relative
+    // exlg弹窗
+    .exlg-window
+        background board_color !important
+        color text_color
+        box-shadow    0 10px    30px    rgba(0, 0, 0, 0.1),
+                0 1px    8px        rgba(0, 0, 0, 0.2) !important
+    div[data-v-a92a583a] > button
+        position relative
+        bottom 2px
+    .user-header-container
+        z-index 5
+    .author
+        background none !important
+
+        // 匹配各种时间小字（讨论区回帖，陶片放逐）
+        & > .left > .time, & > .time > time
+            color sec_text_color
+    // 团队讨论区
+    .discuss
+        acrylic-bg()
+        border none !important
+        border-radius 5px
+    .light-black
+        color sec_text_color !important
+    [currenttemplate="UserShow"] .select-header-tiny ul li:not(.selected) span
+        color sec_text_color !important
+    [currenttemplate="UserShow"] .select-header-tiny ul li.selected span
+        color text_color !important
+    .delete svg
+        color #fff
+    .comment
+        color sec_text_color !important
+//讨论区
+@-moz-document regexp("^(https?://www.luogu.com(.cn)?/(discuss|article)).*")
+    .top-bar h1.lfe-h1
+        if animations
+            animation 1s ease-in-out 0s title-show
+    // 回复样式（解决回复盖住了主页卡片）
+    .card:not(.reply-editor):hover
+        z-index 6
+        transition-property z-index,transform !important
+        transition-delay .12s,0s !important
+    .card:not(.reply-editor)
+        z-index 5
+        transition-property z-index,transform !important
+        transition-delay .3s,0s !important
+    // 编辑区样式
+    .edit-reply-container
+        z-index 7 !important
+    // 解决页码条显示不清楚
+    .page-bar
+        if card-acrylic
+            acrylic-bg()
+        else
+            background board_color !important
+        padding 5pt 5pt 5pt 5pt
+        border-radius 6px
+        color text_color
+    svg + .name
+        color text_color !important
+    a[title="全部板块"] > svg
+        color sec_text_color !important
+    a.row.content-left.title.link
+        color text_color
+    .action > *
+        color text_color !important
+    time,.time
+        color sec_text_color !important
+    // 讨论区 bug
+    .row.reply-info
+            padding 5pt 5pt 5pt 5pt
+            margin-top 1.5em
+            if card-acrylic
+                acrylic-bg(0.6,10px)
+            else
+                background board_color
+            border-radius 6px
+            & > *
+                padding 0pt 5pt 0pt 5pt
+                color text_color
+            & > .row,
+            & > .row > *
+                border-color text_color !important
+        .btn-edit-reply // 「编辑回复」（这按钮的位置很唐）
+        acrylic()
+        color post_text_color
+
+    .author
+        background none !important
+
+        // 匹配各种时间小字（讨论区回帖，陶片放逐）
+        & > .left > .time, & > .time > time
+            color sec_text_color
+
+    // 讨论区楼主
+    .grey
+        color sec_text_color
+
+    .lfe-caption > span
+        color text_color
+    // 讨论区
+    .row-space-between
+        color subtitle_color // sec_text_color 太浅看不清
+    .lfe-h3.name
+        color text_color
+    .expand .expand
+            z-index 100
+            position relative
+            top 0
+            bottom 0
+            left 0
+            right 0
+            background none !important // 展开按钮如果有背景会显示出一条突兀的色带，不如没有背景
+            padding: 4pt 4pt 4pt 4pt
+            border-radius 5pt
+            display: flex
+            align-items center
+            justify-content center
+            transition-duration 1s
+    .expand .expand:hover
+            z-index 100
+            position relative
+            top 0
+            bottom 0
+            left 0
+            right 0
+            background none !important
+            padding: 4pt 4pt 4pt 4pt
+            border-radius 5pt
+            display: flex
+            align-items: center
+            justify-content: center
+// 洛谷专栏
+@-moz-document regexp("^https?://www.luogu.com(.cn)?/article/[A-Za-z0-9]{8}$")
+    // 文章区阅读进度条
+    @keyframes bar
+        0%
+            transform-origin 0 50%
+            transform scaleX(0)
+        100%
+            transform-origin 0 50%
+            transform scaleX(1)
+    // sweetalert2样式
+    swal-patch()
+    // 侧栏样式
+    .lside
+        background navbar_bg_color !important unless nav-acrylic
+        acrylic-bg() if nav-acrylic
+        li
+            color navbar_text_color !important
+            border-radius 8px
+            &:hover
+                color navbar_text_color !important
+                background button_hover_bg_color
+                a
+                    filter none !important
+        .title
+            color navbar_text_color !important
+    // 顶栏样式
+    .top-bar
+        acrylic-bg() if header-acrylic
+        background navbar_bg_color !important unless header-acrylic
+        color subtitle_color !important
+        .user-nav > a
+            color post_text_color
+            &:hover
+                color post_link_color
+
+
+    .main-container > main
+        // 卡片背景材质
+        if card-acrylic
+            acrylic()
+        else
+            background board_color !important
+
+        // 这个栏本来和 .top-bar 是堆在一块的
+        // 所以不加这个 position 会导致毛玻璃重叠
+        position relative !important
+        top 1em
+
+        // 将标题栏变成卡片式布局
+        border-radius 6px
+        box-sizing border-box
+        width 100%
+        min-width 448px
+        max-width 768px
+        margin-left auto
+        margin-right auto
+
+        .banner-content // 作者栏
+            color subtitle_color !important
+            .meta .label
+                color sec_text_color !important
+            padding-left 1em // 作者栏和正文对齐，更整齐
+            padding-right 1em
+
+        div[style="background-color: rgb(255\, 255\, 255);"]
+            background none !important
+
+            .article-content
+                color post_text_color
+                markdown-patch()
+                .update-info[data-v-318b4974] // 正文底部信息栏
+                    color sec_text_color !important
+
+                .button-2line>*[data-v-d85ccd1e] // 正文底部点赞等按钮
+                    top 1em
+                    position relative
+                    color sec_text_color !important
+                    &:hover
+                        color button_hover_bg_color !important
+
+                // 右侧目录
+                .toc-wrapper
+                    right -200px !important
+
+                    .toc[data-v-9c6e88ba]
+                        border-radius 6px
+                        padding 1em
+                        if card-acrylic
+                                        acrylic()
+                                else
+                                        background board_color
+
+                    .toc>ul>li[data-v-318b4974]:hover::before,
+                    .article-content .toc>ul>li.active[data-v-318b4974]::before
+                        background-color button_hover_bg_color !important
+
+    // 点赞按钮
+    .actions
+        .button-2line[data-v-1ddadd0a] > *
+            color post_text_color
+        .button-2line[data-v-1ddadd0a]:hover > *
+            color link_hover_color
+
+    // 评论区
+    .article-comment
+        position relative
+        .lfe-h3
+            color post_text_color
+        .l-card
+            acrylic-bg()
+            .lfe-h4
+                color post_text_color
+
+    // 评论
+    .reply-item[data-v-e01570a1]
+        .meta
+            background none !important
+            .time
+                color sec_text_color
+
+    // 评论区用卡片，为什么正文不用卡片？不知道前端在想什么
+    .l-card:not(.float-card)
+        acrylic-bg()
+        color post_text_color
+
+    .label, .lfe-caption
+        color sec_text_color !important
+    footer
+        hr
+            display none !important
+        acrylic-bg()
+        margin-top 5em
+        color sec_text_color !important
+    .toc:hover
+        if animations
+            transform translateY(-0.3em) !important
+    .toc
+        if animations
+            transition transform .5s
+
+    if prose-bar
+        .article-content::before
+            content ""
+            position fixed
+            top 0
+            left 0
+            right 0
+            height 5px
+            background sec_text_color
+            opacity 0.5
+            z-index: -114514
+        .article-content::after
+            content ""
+            position fixed
+            top 0
+            left 0
+            right 0
+            height 5px
+            background text_color
+            animation bar 5s linear
+            animation-timeline scroll()
+            z-index: 101
+// 洛谷新 UI
+@-moz-document regexp("^https?://www.luogu.com(.cn)?/(article|problem/solution|ranking|problem|user/setting|discuss|ticket).*$")
+    // sweetalert2样式
+    swal-patch()
+    // 侧栏样式和个人卡片样式
+    .lside,
+    .rside
+        background navbar_bg_color !important unless nav-acrylic
+        acrylic-bg() if nav-acrylic
+        li
+            color navbar_text_color !important
+            border-radius 8px
+            &:hover
+                color navbar_text_color !important
+                background button_hover_bg_color
+                a
+                    filter none !important
+        .title
+            color navbar_text_color !important
+    // 顶栏展示动画
+    .top-bar
+        acrylic-bg() if header-acrylic
+        background navbar_bg_color !important unless header-acrylic
+        color subtitle_color !important
+        .user-nav > a
+            color post_text_color
+            &:hover
+                color post_link_color
+
+    .theme-bg
+        background none !important
+
+    .theme-fg:not(footer *)
+        acrylic-bg() if header-acrylic
+        background navbar_bg_color !important unless header-acrylic
+
+    main
+        background none !important
+        .l-card
+            // 卡片背景材质
+            if card-acrylic
+                acrylic-bg(0.6,20px)
+            else
+                background board_color !important
+
+            color post_text_color
+    .comment-filter-line // 评论计数
+        color sec_text_color !important
+        font-family font-stack
+    // 展开全文按钮样式
+    .expand > .expand
+            z-index 100
+            position relative
+            top 0
+            bottom 0
+            left 0
+            right 0
+            background none !important
+            padding: 4pt 4pt 4pt 4pt
+            border-radius 5pt
+            display: flex
+            align-items center
+            justify-content center
+            transition-duration 1s
+    .expand > .expand:hover
+            z-index 100
+            position relative
+            top 0
+            bottom 0
+            left 0
+            right 0
+            background none !important
+            padding: 4pt 4pt 4pt 4pt
+            border-radius 5pt
+            display: flex
+            align-items center
+            justify-content center
+    // 解决查看文章看不清
+    a[data-v-9f81deee]
+            color text_color !important
+    .expand[data-v-ea62153a]
+            background none
+            height 2em
+            padding 0pt 0pt 0pt 0pt !important
+    // 把每一篇题解卡片化
+    .row:has(.solution-article)
+            if anymore-acrylic
+                    acrylic-bg(0.6,2px)
+            else
+                    background board_color !important
+            padding 8pt 8pt 8pt 8pt
+            margin-top 8pt !important
+            border-radius 5pt
+            markdown-patch()
+            font-family font-stack
+    .float
+            color text_color
+            if anymore-acrylic
+                    acrylic-bg(0.6,2px)
+            else
+                    background board_color !important
+    // 题解旁边的卡片样式
+    .lfe-h2:not(.lcolor--red-3)
+            color text_color
+     // 正文样式
+    div[data-v-83fd4045-s] > div > *
+            color text_color !important
+    .row.info > span[data-v-c83b85a7]
+            background board_color
+    // 卡片样式
+    .l-card
+            if card-acrylic
+                acrylic-bg()
+            else
+                background board_color !important
+    .l-card
+            & > div > h3,
+            & > div > div > h4
+                color text_color !important
+                font-family font-stack
+            & > div > div > svg
+                color text_color
+    // 更多功能样式
+    .group-title
+            color text_color
+    // 锁定按钮样式
+    a.action[data-v-4596a371] > *
+            color text_color
+    // 专栏查询按钮样式
+    .refined-input[data-v-33028704]
+        background transparent !important
+        border-color transparent !important
+        & > .east > svg
+            padding-left 5pt
+    h3.lfe-h3
+        color text_color
+    div.problem
+        acrylic-bg()
+        color text_color
+        & > h1
+            color #ffffff
+    .panel-layout.layout-horizontal.ide-container
+        background-color: transparent
+    .panel.panel-b
+        acrylic-bg()
+        mdeditor-patch()
+    .panel-divider
+        background-color line_color !important
+    .ide-container
+        height calc(100vh - 3.5rem) !important
+    .main-container
+        position relative
+        overflow hidden
+    .svg-inline--fa.fa-grid-2.indicator
+        color text_color
+    .row.title > a
+        color #ffffff !important if dark-mode
+    .row  .content
+        color text_color
+    .lfe-h4
+        color text_color
+    .reply-item .meta
+        background-color transparent !important
+    .solution-article a[href*="/article/"]
+        color sec_text_color !important
+    .btn-float-open
+        background-color board_color !important
+        color text_color
+    .light-black
+        color text_color !important
+    @layer footer
+        footer
+            hr
+                display none !important
+            acrylic-bg()
+            position relative
+            color sec_text_color !important
+    a[style="--link-indicator-color: #272727;"] *
+        color text_color !important
+    .section-list-container
+        acrylic-bg()
+        span.name
+            color text_color !important
+    .east
+        margin-left 0.3em
+    .step-block
+        acrylic-bg()
+        border-radius: 3pt
+        .title
+            color text_color
+    .ticket-banner
+        acrylic-bg()
+        border-radius: 3pt
+        color text_color
+        padding .5em
+    
+        
+@-moz-document regexp("^https?://www.luogu.com(.cn)?/ranking\?.*$")
+    body *
+        word-wrap unset
+        word-break unset
+@-moz-document regexp("^https?://www.luogu.com(.cn)?/ranking/elo.*$")
+    body *
+        word-wrap unset
+        word-break unset
+// 纯享壁纸版锁定账户
+@-moz-document regexp("^https?://www.luogu.com(.cn)?/auth/unlock$")
+    if lock-account
+        .main-container > .wrapper
+            display none !important
+        #app > nav
+            display none !important
+        .container
+            opacity 0 !important
+            transition opacity 0.5s ease-in-out
+        .container:hover
+            opacity 1 !important
+@-moz-document regexp("^https?://www.luogu.com(.cn)?/theme/list.*$")
+    #app
+        overflow hidden
+    [currenttemplate="ThemeList"] .card
+        overflow visible !important
+
+// 题目列表
+@-moz-document regexp("^https?://www.luogu.com(.cn)?/problem/list.*$")
+    body *
+        word-wrap unset
+        word-break unset
+    .title
+    .count
+        color post_text_color !important
+    span[title]
+        color text_color !important
+        white-space nowrap !important
+
+    // 搜索框的放大镜图标
+    .frame
+        border none !important
+
+    .search-icon
+        color sec_text_color !important
+        position relative
+        left -2.625em !important
+        top .07em
+
+    // 放大镜图标旁边那个勾选框
+    .search-option
+        margin-left -0.5em !important
+        color post_text_color
+
+    // 分类窗口
+    .modal > .center
+        .container>.tag-select-area .section>.title
+            color post_text_color !important
+        .tags > .tag:not(.selected)
+            background none !important
+    span:not(.tag *,.difficulty *,.toggle-tag,.user-nav *,nav *)
+        color sec_text_color !important

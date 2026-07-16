@@ -182,6 +182,7 @@ int main()
             } else
             {
                 int u=SEG1.query_maxdfn(x,y).se,v=SEG1.query_mindfnr(x,y).se;
+                cerr<<u<<" " << v << endl;
                 if (u==v) v=SEG1.query_maxdfnr(x,y).se;
                 cout<<(getdis(u,v)==y-x&&query_path(u,v,x,y)?"Yes\n":"No\n");
             }

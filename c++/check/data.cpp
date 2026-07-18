@@ -7,7 +7,7 @@
 using namespace std;
 typedef long long ll;
 
-int t = 5;
+int t = 1;
 int n;
 
 int Random(int l, int r) {
@@ -18,10 +18,13 @@ int main() {
     srand((unsigned)time(0));
     printf("%d\n", t);
     while (t--) {
-       int a = Random(1, 100);
-       int b = Random(1, 100);
-       int c = Random(1, 100);
-        printf("%d %d %d\n", a, b, c);
+        int n = 3;
+        printf("%d\n", n);
+        for (int i = 1; i <= n; i++) {
+            int a = Random(1, 9);
+            int b = Random(1, 9);
+            printf("%d %d\n", a, b);
+        }
     }
     return 0;
 }

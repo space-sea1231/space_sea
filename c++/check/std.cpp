@@ -1,74 +1,58 @@
-#include <iostream>
-#include <stdio.h>
-#include <algorithm>
-#include <cstring>
-#include <unordered_map>
-#define __Debug
-
+#include<bits/stdc++.h>
+#define int __int128
 using namespace std;
-typedef long long ll;
+int fa[200010],f[200010],a[200010],b[200010];
+bool vis[200010];
+int find(int x){
+    if(fa[x]==x)return x;
+    return fa[x]=find(fa[x]);
+}
+struct node{
+    int x;
+    bool friend operator<(node i,node j){
+        return b[i.x]*a[j.x]>b[j.x]*a[i.x];
+    }
+};
+priority_queue<node>q;
+inline int read(){
+    int x=0;
+    char ch=getchar();
+    while(!isdigit(ch))ch=getchar();
+    while(isdigit(ch))x=x*10+ch-'0',ch=getchar();
+    return x;
+}
+inline void print(int x){
+    if(x>9)print(x/10);
+    putchar(x%10+'0');
+}
 
-const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
-const int N = 5e6 + 10;
-
-int t, n;
-int cnt;
-int phi[N], mu[N], prime[N];
-bool vis[N];
-unordered_map<int, int> vis_mu;
-unordered_map<int, ll> vis_phi;
-void Init() {
-    mu[1] = phi[1] = 1;
-    for (int i = 2; i < N; i++) {
-        if (!vis[i]) {
-            prime[++cnt] = i;
-            mu[i] = -1;
-            phi[i] = i - 1;
+signed main(){
+    int T=read();
+    while(T--){
+        int n=read();
+        for(int i=1;i<=n;i++)a[i]=read();
+        for(int i=1;i<=n;i++)b[i]=read();
+        for(int i=1;i<=n;i++)f[i]=read();
+        for(int i=1;i<=n;i++)fa[i]=i;
+        for(int i=1;i<=n;i++){
+            q.push({i});
         }
-        for (int j = 1; j <= cnt && i * prime[j] < N; j++) {
-            vis[i * prime[j]] = true;
-            if (i % prime[j]) {
-                mu[i * prime[j]] = -mu[i];
-                phi[i * prime[j]] = phi[i] * phi[i * primi[j]];
-            } else {
-                mu[i * prime[j]] = 0;
-                phi[i * prime[j]] = phi[i] * prime[j];
-                break;
-            }
+        int sum=0;
+        while(q.size()){
+            node u=q.top();
+            q.pop();
+            if(u.x==1)continue;
+            if(vis[u.x])continue;
+            vis[u.x]=1;
+            int Fa=find(f[u.x]);
+            sum+=a[u.x]*b[Fa];
+            fa[u.x]=Fa;
+            a[Fa]+=a[u.x],b[Fa]+=b[u.x];
+            if(Fa!=1)q.push({Fa});
         }
-    }
-    for (int i = 1; i < N; i++) {
-        mu[i] += mu[i - 1];
-        phi[i] += phi[i - 1];
-    }
-}
-ll Mu(int x) {
-    if (n < N) return mu[n];
-    if (vis_mu[x]) return vis_mu[x];
-    ll ans = 1;
-    for (ll l = 2, r; l <= x; l = r + 1) {
-        r = x / (x / l);
-        ans -= (r - l + 1) * Mu(x / l);
-    }
-    return vis_[x] = ans;
-}
-ll Phi(ll x) {
-    if (n < N) return phi[n];
-    if (vis_phi[x]) return vis_phi[x];
-    ll ans = x * (x + 1) / 2;
-    for (ll l = 2, r; l <= x; l = r + 1) {
-        r = x / (x / l);
-        ans -= (r - l + 1) * Phi(x / l);
-    }
-    return vis_phi[x] = ans;
-}
-
-signed main() {
-    cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin << t;
-    while (t--) {
-        cin >> n;
-        printf("%lld %lld\n", Phi(n), Mu(n));
+        print(sum),puts("");
+        while(q.size())q.pop();
+        for(int i=1;i<=n;i++)vis[i]=0;
     }
     return 0;
 }

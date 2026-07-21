@@ -12,12 +12,12 @@ void Check() {
         printf("删除临时文件\n");
         exit(0);
     }
-    if (system("g++ -o ans ans.cpp -std=c++14 -O2 -fsanitize=address,undefined")) {
-        printf("###CE on ans.cpp\n");
-        system("rm check std ans data");//删除临时文件
-        printf("删除临时文件\n");
-        exit(0);
-    }
+    // if (system("g++ -o ans ans.cpp -std=c++14 -O2 -fsanitize=address,undefined")) {
+    //     printf("###CE on ans.cpp\n");
+    //     system("rm check std ans data");//删除临时文件
+    //     printf("删除临时文件\n");
+    //     exit(0);
+    // }
     if (system("g++ -o data data.cpp -std=c++14 -O2 -fsanitize=address,undefined")) {
         printf("###CE on data.cpp\n");
         system("rm check std ans data");//删除临时文件
@@ -29,19 +29,19 @@ void Check() {
 void Run() {
     if (system("./data>data.in")) {
         printf("###RE on data.cpp\n");
-        system("rm check std ans data");//删除临时文件
+        system("rm check std data");//删除临时文件
         printf("删除临时文件\n");
         exit(0);
     }
     if (system("./std<data.in>std.out")) {
         printf("###RE on std.cpp\n");
-        system("rm check std ans data");//删除临时文件
+        system("rm check std data");//删除临时文件
         printf("删除临时文件\n");
         exit(0);
     }
-    if (system("./ans<data.in>ans.out")) {
+    if (system("./asz<data.in>ans.out")) {
         printf("###RE on ans.cpp\n");
-        system("rm check std ans data");//删除临时文件
+        system("rm check std data");//删除临时文件
         printf("删除临时文件\n");
         exit(0);
     }
@@ -55,14 +55,14 @@ signed main() {
         double ed = clock();
         if (system("diff -Bb std.out ans.out")) {//WA检测
             printf("WA on #%d\n", i);
-            system("rm check std ans data");//删除临时文件
+            system("rm check std data");//删除临时文件
             printf("删除临时文件\n");
             return 0;
         }
         printf("AC on #%d\n", i);
         printf("time:%lf\n", ed - st);
     }
-    system("rm check std ans data");//删除临时文件
+    system("rm check std data");//删除临时文件
     printf("删除临时文件\n");
     
     return 0;

@@ -29,7 +29,7 @@ array<int,2> draw(int p,int y){
 		}
 		j+=sz[q]+1;
 	}
-	printf("p=%d y=%d c[0]=%d c[1]=%d\n", p, y, c[0], c[1]);
+	// printf("p=%d y=%d c[0]=%d c[1]=%d\n", p, y, c[0], c[1]);
 	return c;
 }
 void solve(){
@@ -40,7 +40,7 @@ void solve(){
 		sz[i]=sz[ch[i][0]]+sz[ch[i][1]]+1,
 		son[i]=tag[i]=ans[i][0]=ans[i][1]=0;
 	dfs(1,0,0,n),draw(1,0),add(1);
-	for (int i = 1; i <= n; i++) printf("son[%d]=%d\n", i, son[i]);
+	// for (int i = 1; i <= n; i++) printf("son[%d]=%d\n", i, son[i]);
 	for(int i=1;i<=n;i++)
 		cout<<ans[i][0]<<' '<<ans[i][1]<<'\n';
 }

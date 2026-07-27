@@ -1,0 +1,59 @@
+{
+   "action": {
+      "default_icon": {
+         "128": "icons/icon128.png",
+         "16": "icons/icon16.png",
+         "32": "icons/icon32.png",
+         "48": "icons/icon48.png"
+      },
+      "default_popup": "popup.html",
+      "default_title": "网页智能连点器"
+   },
+   "author": "智界Aigc-执",
+   "background": {
+      "service_worker": "background.js"
+   },
+   "commands": {
+      "emergency-stop": {
+         "description": "紧急停止",
+         "suggested_key": {
+            "default": "Ctrl+Shift+2",
+            "mac": "Command+Shift+2"
+         }
+      },
+      "select-area": {
+         "description": "选择点击区域",
+         "suggested_key": {
+            "default": "Ctrl+Shift+3",
+            "mac": "Command+Shift+3"
+         }
+      },
+      "toggle-clicking": {
+         "description": "开始/停止点击",
+         "suggested_key": {
+            "default": "Ctrl+Shift+1",
+            "mac": "Command+Shift+1"
+         }
+      }
+   },
+   "content_scripts": [ {
+      "js": [ "content.js" ],
+      "matches": [ "\u003Call_urls>" ],
+      "run_at": "document_end"
+   } ],
+   "description": "真正的网页后台点击解决方案 - 不影响真实鼠标，支持1ms超高速点击，全局快捷键控制",
+   "homepage_url": "https://github.com/WebFE0415/clicker.git",
+   "host_permissions": [ "http://*/*", "https://*/*" ],
+   "icons": {
+      "128": "icons/icon128.png",
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+   },
+   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoXGo7kDK4AO4G7G70Z6wgsN8fEAZR5DL8BoXL/a/FoNtvyHBZQVCXgZc8js8QFsf0hICId0G/fZgUcd9Bq9lVbL/eroGNsuJw0210Gfm+e5kY547ZNT3zOb40E98rls516Jjadaip2cbO/05EC+2wk+U4AMETlJneNLN3Ncy22VT2rxNq0/ggEq/LE+b4bwtMdfcpCTfBK5ILXHmJ0isWEXg8a7DMXeneKztnaKr2Zz0ZeRdW5i3fpa9FFiBb6AVxRnaZ4s3tolLOUVI+026dBxW1kYe5DMf+i83U87DNf+Ozl3tirYV4nw3yCx5s48BSLpd8Auyf/7ZC7RRexplyQIDAQAB",
+   "manifest_version": 3,
+   "name": "网页智能连点器",
+   "permissions": [ "activeTab", "scripting", "storage" ],
+   "update_url": "https://clients2.google.com/service/update2/crx",
+   "version": "1.0.1"
+}

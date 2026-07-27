@@ -55,7 +55,7 @@ namespace LCT {
 		while (z) Down(stk[z--]);
 		while (Nroot(x)) {
 			y = node[x].fa, z = node[y].fa;
-			if (Nroot(y)) Rotate((node[y].ch[0] == x) ^ (node[z].ch[0] == y) ? x : y);
+			if (Nroot(y)) Rotate((node[y].ch[1] == x) ^ (node[z].ch[1] == y) ? x : y);
 			Rotate(x);
 		}
 		Up(x);

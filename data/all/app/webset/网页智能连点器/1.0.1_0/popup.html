@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            width: 380px;
+            padding: 0;
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .header h3 {
+            margin: 0;
+            font-size: 18px;
+            color: #4a5568;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .section h4 {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            color: #2d3748;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .section h4::before {
+            content: '';
+            width: 4px;
+            height: 16px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 2px;
+            margin-right: 8px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 3px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.stop {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+        }
+
+        button.stop:hover {
+            background: linear-gradient(135deg, #ff5252 0%, #d63031 100%);
+        }
+
+        button:disabled {
+            background: #e2e8f0;
+            color: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        input {
+            width: 70px;
+            padding: 8px 12px;
+            margin: 3px;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        label {
+            display: inline-block;
+            margin: 5px 0;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a5568;
+        }
+
+        .preset-buttons {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f7fafc;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .preset-buttons strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #2d3748;
+            font-size: 12px;
+        }
+
+        .preset-buttons button {
+            font-size: 11px;
+            padding: 6px 12px;
+            margin: 2px;
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+        }
+
+        .speed-info {
+            margin-top: 8px;
+            padding: 8px 12px;
+            background: #edf2f7;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #4a5568;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .status {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 8px 0;
+            font-weight: 500;
+            text-align: center;
+            font-size: 13px;
+        }
+
+        .status.active {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            box-shadow: 0 2px 4px rgba(72, 187, 120, 0.3);
+        }
+
+        .status.inactive {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+
+        .info-text {
+            font-size: 11px;
+            color: #718096;
+            line-height: 1.4;
+            margin: 8px 0;
+        }
+
+        .warning-text {
+            font-size: 12px;
+            line-height: 1.4;
+            margin: 8px 0;
+            animation: warningPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(229, 62, 62, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
+            }
+        }
+
+        .hotkey-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .hotkey-item:last-child {
+            border-bottom: none;
+        }
+
+        .hotkey-key {
+            background: #edf2f7;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            font-weight: bold;
+            color: #4a5568;
+        }
+
+        .area-info {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #22543d;
+            margin-top: 8px;
+        }
+
+        /* 间歇模式状态样式 - 优化版 */
+        .interval-mode-status {
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 45px;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .interval-mode-status.clicking {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border: 1px solid #38a169;
+        }
+
+        .interval-mode-status.pausing {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+            border: 1px solid #dd6b20;
+        }
+
+        .interval-mode-status.idle {
+            background: linear-gradient(135deg, #edf2f7 0%, #e2e8f0 100%);
+            color: #4a5568;
+            border: 1px solid #cbd5e0;
+        }
+
+        /* 状态显示框内的文本样式 */
+        .interval-mode-status .status-main {
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .interval-mode-status .status-detail {
+            font-size: 11px;
+            opacity: 0.9;
+            font-weight: 400;
+        }
+
+        /* 间歇模式设置区域动画和响应式设计 */
+        #intervalModeSettings {
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        /* 间歇模式配置区域整体样式 */
+        .interval-mode-container {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .interval-mode-container:hover {
+            border-color: #cbd5e0;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+
+        /* 间歇模式标题样式 */
+        .interval-mode-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .interval-mode-title {
+            color: #2d3748;
+            font-size: 13px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* 间歇模式开关样式 */
+        .interval-mode-toggle {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            margin: 0;
+            gap: 6px;
+        }
+
+        .interval-mode-toggle input[type="checkbox"] {
+            margin: 0;
+            transform: scale(1.2);
+            accent-color: #667eea;
+        }
+
+        .interval-mode-toggle span {
+            font-size: 12px;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        /* 复选框样式优化 */
+        input[type="checkbox"] {
+            accent-color: #667eea;
+        }
+
+        /* 间歇模式预设按钮样式 - 响应式设计 */
+        .interval-preset-buttons {
+            margin-bottom: 8px;
+        }
+
+        .interval-preset-buttons .preset-label {
+            font-size: 11px;
+            color: #4a5568;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .interval-preset-buttons .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+        }
+
+        .interval-preset-buttons button {
+            padding: 6px 4px;
+            font-size: 10px;
+            font-weight: 500;
+            border: 1px solid #cbd5e0;
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            color: #4a5568;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .interval-preset-buttons button:hover {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e0 100%);
+            border-color: #a0aec0;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            color: #2d3748;
+        }
+
+        .interval-preset-buttons button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+            background: linear-gradient(135deg, #cbd5e0 0%, #a0aec0 100%);
+        }
+
+        .interval-preset-buttons .preset-hint {
+            font-size: 9px;
+            color: #718096;
+            margin-top: 3px;
+            line-height: 1.2;
+            text-align: center;
+        }
+
+        /* 响应式设计 - 小屏幕优化 */
+        @media (max-width: 320px) {
+            .interval-preset-buttons .preset-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 3px;
+            }
+
+            .interval-preset-buttons button {
+                font-size: 9px;
+                padding: 4px 2px;
+                min-height: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h3>🎯 网页智能点击器</h3>
+    </div>
+
+    <div class="container">
+        <div class="section">
+            <h4>选择点击区域</h4>
+            <button id="selectArea">📐 选择区域</button>
+            <div id="areaInfo" class="area-info">区域: 未设置</div>
+        </div>
+
+        <div class="section">
+            <h4>点击设置</h4>
+            <div>
+                <label>
+                    点击间隔(ms):
+                    <input type="number" id="interval" value="10" min="1" max="10000">
+                </label>
+                <label>
+                    随机延迟(ms):
+                    <input type="number" id="randomRange" value="5" min="0" max="100">
+                </label>
+            </div>
+
+            <div class="info-text" style="margin: 10px 0; padding: 8px; background: #f7fafc; border-radius: 6px; border-left: 4px solid #667eea;">
+                <strong>📖 参数说明:</strong><br>
+                • <strong>点击间隔:</strong> 每次点击之间的基础时间间隔<br>
+                • <strong>随机延迟:</strong> 在基础间隔上随机增加0到此值的延迟，让点击更像人工操作<br>
+                • <strong>实际间隔 = 基础间隔 + 随机(0到随机延迟)</strong>
+            </div>
+
+            <div class="warning-text" style="margin: 10px 0; padding: 8px; background: #fed7d7; border-radius: 6px; border-left: 4px solid #e53e3e;">
+                <strong style="color: #c53030;">⚠️ 重要提醒:</strong><br>
+                <span style="color: #c53030;">极速1ms的速度过快有些网页可能点击无效，需根据实际场景调试</span>
+            </div>
+
+            <div class="preset-buttons">
+                <strong>⚡ 快速预设:</strong>
+                <button id="preset-extreme" data-interval="1" data-random="0">极速(1ms)</button>
+                <button id="preset-super" data-interval="5" data-random="2">超快(5ms)</button>
+                <button id="preset-fast" data-interval="10" data-random="5">快速(10ms)</button>
+                <button id="preset-normal" data-interval="50" data-random="20">正常(50ms)</button>
+            </div>
+
+            <!-- 间歇模式配置区域 - 移动到快速预设下方 -->
+            <div class="interval-mode-container" style="margin-top: 15px; padding: 12px;">
+                <div class="interval-mode-header">
+                    <div class="interval-mode-title">
+                        <span>🔄</span>
+                        <span>间歇模式</span>
+                    </div>
+                    <label class="interval-mode-toggle">
+                        <input type="checkbox" id="intervalModeToggle">
+                        <span>启用</span>
+                    </label>
+                </div>
+
+                <div id="intervalModeSettings" style="display: none;">
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; margin-bottom: 4px;">
+                            <span style="font-size: 12px; color: #4a5568;">连点时长(秒):</span>
+                            <input type="number" id="clickDuration" value="15" min="1" max="300" style="width: 60px; margin-left: 5px;">
+                        </label>
+                        <label style="display: block; margin-bottom: 8px;">
+                            <span style="font-size: 12px; color: #4a5568;">暂停时长(秒):</span>
+                            <input type="number" id="pauseDuration" value="3" min="1" max="60" style="width: 60px; margin-left: 5px;">
+                        </label>
+                    </div>
+
+                    <!-- 间歇模式预设按钮组 -->
+                    <div class="interval-preset-buttons">
+                        <div class="preset-label">⏱️ 间歇预设:</div>
+                        <div class="preset-grid">
+                            <button id="interval-preset-fast" data-click="5" data-pause="1" title="快速间歇: 连点5秒，暂停1秒">快速</button>
+                            <button id="interval-preset-standard" data-click="15" data-pause="3" title="标准间歇: 连点15秒，暂停3秒">标准</button>
+                            <button id="interval-preset-long" data-click="30" data-pause="5" title="长时间歇: 连点30秒，暂停5秒">长时</button>
+                            <button id="interval-preset-conservative" data-click="10" data-pause="5" title="保守间歇: 连点10秒，暂停5秒">保守</button>
+                        </div>
+                        <div class="preset-hint">
+                            快速(5s/1s) | 标准(15s/3s) | 长时(30s/5s) | 保守(10s/5s)
+                        </div>
+                    </div>
+
+                    <div style="font-size: 11px; color: #718096; line-height: 1.4; padding: 6px 8px; background: #edf2f7; border-radius: 4px;">
+                        <strong>💡 间歇模式说明:</strong><br>
+                        开启后将按照"连点→暂停→连点→暂停"的循环模式执行，有效避免长时间连续点击被检测
+                    </div>
+
+                    <div id="intervalModeStatus" style="margin-top: 8px; padding: 12px 10px; border-radius: 6px; font-size: 12px; font-weight: 500; text-align: center; display: none; min-height: 45px; line-height: 1.4;">
+                        <!-- 间歇模式状态显示 - 优化高度和布局 -->
+                    </div>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="section">
+            <h4>控制面板</h4>
+            <div style="text-align: center;">
+                <button id="startClick">▶️ 开始点击</button>
+                <button id="stopClick" class="stop">⏹️ 停止点击</button>
+            </div>
+            <div id="status" class="status inactive">状态: 未开始</div>
+            <div style="text-align: center; font-size: 14px; font-weight: 500; color: #4a5568;">
+                点击次数: <span id="clickCount" style="color: #667eea;">0</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h4>快捷键</h4>
+            <div class="hotkey-item">
+                <span>开始/停止点击</span>
+                <span class="hotkey-key">Ctrl+Shift+1</span>
+            </div>
+            <div class="hotkey-item">
+                <span>紧急停止</span>
+                <span class="hotkey-key">Ctrl+Shift+2</span>
+            </div>
+            <div class="hotkey-item">
+                <span>选择区域</span>
+                <span class="hotkey-key">Ctrl+Shift+3</span>
+            </div>
+        </div>
+
+        <div class="section">
+            <h4>功能特点</h4>
+            <div class="info-text">
+                ✅ 真正的网页后台点击<br>
+                ✅ 不影响您的真实鼠标<br>
+                ✅ 绕过网页安全限制<br>
+                ✅ 支持1ms极速点击<br>
+                ✅ 智能间歇模式防检测<br>
+                ✅ 快速预设一键应用<br>
+                ✅ 全局快捷键控制<br>
+                ✅ 实时状态监控显示<br>
+                ⚠️ 仅在当前标签页有效
+            </div>
+        </div>
+
+        <div class="section" style="text-align: center; padding: 10px;">
+            <div style="font-size: 11px; color: #718096; border-top: 1px solid #e2e8f0; padding-top: 10px;">
+                <strong>开发者:</strong> 智界Aigc-执<br>
+                <span style="font-size: 10px;">v1.0.0 | 专业的网页自动化工具</span>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

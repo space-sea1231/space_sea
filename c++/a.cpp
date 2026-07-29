@@ -1,170 +1,152 @@
-#include<bits/stdc++.h>
-#define ll long long
-#define ljc 998244353
+#include <iostream>
+#include <vector>
+#include <numeric>
+#include <algorithm>
+
 using namespace std;
-#define gc getchar
-inline ll read(){
-    register ll x=0,f=1;char ch=gc();
-    while (!isdigit(ch)){if(ch=='-')f=-1;ch=gc();}
-    while (isdigit(ch)){x=(x<<3)+(x<<1)+ch-'0';ch=gc();}
-    return (f==1)?x:-x;
-}
-struct edge{
-    int to,nxt;
-}g[2000001];
-int tot,head[2000001],len,n,A,B,m,col[2000001];
-int pre[1000001],id,a1[1000001],b1[1000001];
-int vis[2000001],pos[11],all,d,dfn[2000001],low[2000001];
-char s[1000001],a2[1000001],b2[1000001];
-stack<int> S;
-inline void made(int from,int to){
-    g[++tot].to=to;g[tot].nxt=head[from];head[from]=tot;
-}
-void tarjan(int u){
-    low[u]=dfn[u]=++id;S.push(u);vis[u]=1;
-    for (int i=head[u];i;i=g[i].nxt){
-        int v=g[i].to;
-        if (!dfn[v]){
-            tarjan(v);
-            low[u]=min(low[u],low[v]);
-        }else if (vis[v]){
-            low[u]=min(low[u],dfn[v]);
-        }
+
+struct BIT {
+    int n;
+    vector<int> tree;
+    BIT(int n) : n(n), tree(n + 1, 0) {}
+
+    void add(int i, int delta) {
+        for (; i <= n; i += i & -i) tree[i] += delta;
     }
-    if (low[u]==dfn[u]){
-        len++;
-        while (S.top()!=u){
-            int x=S.top();S.pop();
-            col[x]=len;vis[x]=0;
-        }
-        col[u]=len;S.pop();vis[u]=0;
+
+    int query(int i) {
+        int sum = 0;
+        for (; i > 0; i -= i & -i) sum += tree[i];
+        return sum;
     }
-}
-inline int trans(int a,char B){
-	char A=s[a];
-	if (A=='c'){
-		if (B=='A') return 0;
-		else return 1;
-	}else if (A=='b'){
-		if (B=='A') return 0;
-		else return 1;
-	}else if (A=='a'){
-		if (B=='B') return 0;
-		else return 1;
-	}else{
-		if (B=='C') return 1;
-		return 0;
-	}
-}
-inline char upr(char y){
-	return (char)(y-32);
-}
-signed main(){
-	n=read(),d=read();
-	for (int i=1;i<=n;i++){
-		char ch=gc();
-		while (!isalpha(ch)) ch=getchar();
-		s[i]=ch;
-		if (s[i]=='x') pre[i]=++all;
-	}
-	m=read();
-	for (int i=1;i<=m;i++){
-		a1[i]=read();char ch=gc();
-		while (!isalpha(ch)) ch=getchar();
-		a2[i]=ch;b1[i]=read();ch=gc();
-		while (!isalpha(ch)) ch=getchar();
-		b2[i]=ch;
-	}
-	int MX=(1<<d)-1;
-	for (int zt=0;zt<=MX;zt++){
-		//0 AC    1 BC
-		tot=id=len=0;
-		while (!S.empty()) S.pop();
-		for (int i=1;i<=2*n;i++){
-			head[i]=low[i]=col[i]=dfn[i]=vis[i]=0;
-		}
-		for (int i=1;i<=m;i++){
-			if (s[a1[i]]=='x'&&s[b1[i]]=='x'){
-				int zta=(zt&(1<<(pre[a1[i]]-1)));
-				int ztb=(zt&(1<<(pre[b1[i]]-1)));
-				if (!zta&&a2[i]=='B') continue;
-				if (zta&&a2[i]=='A') continue;
-				int I=trans(a1[i],a2[i]),J=trans(b1[i],b2[i]);
-				if (!ztb&&b2[i]=='B'){
-					made(a1[i]+n*I,a1[i]+n*(I^1));continue;
-				}
-				if (ztb&&b2[i]=='A'){
-					made(a1[i]+n*I,a1[i]+n*(I^1));continue;
-				}
-				made(a1[i]+n*I,b1[i]+n*J);made(b1[i]+n*(J^1),a1[i]+n*(I^1));
-			}else if (s[a1[i]]!='x'&&s[b1[i]]=='x'){
-				int ztb=(zt&(1<<(pre[b1[i]]-1)));
-				int I=trans(a1[i],a2[i]),J=trans(b1[i],b2[i]);
-				if (upr(s[a1[i]])==a2[i]) continue;
-				if (!ztb&&b2[i]=='B'){
-					made(a1[i]+n*I,a1[i]+n*(I^1));continue;
-				}
-				if (ztb&&b2[i]=='A'){
-					made(a1[i]+n*I,a1[i]+n*(I^1));continue;
-				}
-				made(a1[i]+n*I,b1[i]+n*J);made(b1[i]+n*(J^1),a1[i]+n*(I^1));
-			}else if (s[a1[i]]=='x'&&s[b1[i]]!='x'){
-				int zta=(zt&(1<<(pre[a1[i]]-1)));
-				int I=trans(a1[i],a2[i]),J=trans(b1[i],b2[i]);
-				if (!zta&&a2[i]=='B') continue;
-				if (zta&&a2[i]=='A') continue;
-				if (upr(s[b1[i]])==b2[i]){
-					made(a1[i]+n*I,a1[i]+n*(I^1));continue;
-				}
-				made(a1[i]+n*I,b1[i]+n*J);made(b1[i]+n*(J^1),a1[i]+n*(I^1));
-			}else{
-				int I=trans(a1[i],a2[i]),J=trans(b1[i],b2[i]);
-				if (upr(s[a1[i]])==a2[i]) continue;
-				if (upr(s[b1[i]])==b2[i]){
-					made(a1[i]+n*I,a1[i]+n*(I^1));continue;
-				}
-				made(a1[i]+n*I,b1[i]+n*J);made(b1[i]+n*(J^1),a1[i]+n*(I^1));
-			}
-		}
-		for (int i=1;i<=2*n;i++){
-			if (!dfn[i]) tarjan(i);
-		}
-		bool flag=1;
-		for (int i=1;i<=n;i++){
-			if (col[i]==col[i+n]){
-				flag=0;break;
-			}
-		}
-		if (!flag) continue;
-		for (int i=1;i<=n;i++){
-			int op=(col[i]>col[i+n]);
-			if (s[i]=='x'){
-				int ZT=(zt&(1<<(pre[i]-1)));
-				if (!ZT){
-					if (op)	printf("C");
-					else printf("A");
-				}else{
-					if (op)	printf("C");
-					else printf("B");
-				}
-			}else{
-				if (s[i]=='a'){
-					if (op)	printf("C");
-					else printf("B");
-				}else if (s[i]=='b'){
-					if (op)	printf("C");
-					else printf("A");
-				}else{
-					if (op)	printf("B");
-					else printf("A");
-				}
-			}
-		}
-		return 0;
-	}
-	printf("-1");
-    return 0;
+
+    int query_greater(int v) {
+        return query(n) - query(v);
+    }
+};
+
+vector<long long> count_2d(int n, const vector<int>& X, const vector<int>& Y) {
+    struct Pt { int x, y, id; };
+    vector<Pt> pts(n);
+    for (int i = 0; i < n; ++i) {
+        pts[i] = {X[i], Y[i], i};
+    }
+    sort(pts.begin(), pts.end(), [](const Pt& a, const Pt& b) {
+        return a.x > b.x;
+    });
+
+    BIT bit(n + 2);
+    vector<long long> res(n, 0);
+    for (int i = 0; i < n; ++i) {
+        res[pts[i].id] = bit.query_greater(pts[i].y + 1); 
+        bit.add(pts[i].y + 1, 1);
+    }
+    return res;
 }
 
-/*
-*/
+struct Pt3D {
+    int a, b, c, id;
+};
+
+void cdq(int l, int r, vector<Pt3D>& pts, vector<long long>& d, BIT& bit) {
+    if (l >= r) return;
+    int mid = l + (r - l) / 2;
+    cdq(l, mid, pts, d, bit);
+    cdq(mid + 1, r, pts, d, bit);
+
+    vector<Pt3D> left(pts.begin() + l, pts.begin() + mid + 1);
+    vector<Pt3D> right(pts.begin() + mid + 1, pts.begin() + r + 1);
+
+    sort(left.begin(), left.end(), [](const Pt3D& p1, const Pt3D& p2) {
+        return p1.b > p2.b;
+    });
+    sort(right.begin(), right.end(), [](const Pt3D& p1, const Pt3D& p2) {
+        return p1.b > p2.b;
+    });
+
+    int j = 0;
+    for (const auto& r_pt : right) {
+        while (j < (int)left.size() && left[j].b > r_pt.b) {
+            bit.add(left[j].c + 1, 1);
+            j++;
+        }
+        d[r_pt.id] += bit.query_greater(r_pt.c + 1);
+    }
+
+    for (int k = 0; k < j; ++k) {
+        bit.add(left[k].c + 1, -1);
+    }
+}
+
+vector<long long> count_3d(int n, const vector<int>& A, const vector<int>& B, const vector<int>& C) {
+    vector<Pt3D> pts(n);
+    for (int i = 0; i < n; ++i) {
+        pts[i] = {A[i], B[i], C[i], i};
+    }
+    sort(pts.begin(), pts.end(), [](const Pt3D& p1, const Pt3D& p2) {
+        return p1.a > p2.a;
+    });
+
+    vector<long long> d(n, 0);
+    BIT bit(n + 2);
+    cdq(0, n - 1, pts, d, bit);
+    return d;
+}
+
+long long C2(long long x) {
+    return x < 2 ? 0 : x * (x - 1) / 2;
+}
+
+long long C3(long long n) {
+    return n < 3 ? 0 : n * (n - 1) * (n - 2) / 6;
+}
+
+void solve() {
+    int n;
+    if (!(cin >> n)) return;
+
+    vector<int> A(n), B(n), C(n);
+    for (int i = 0; i < n; ++i) cin >> A[i];
+    for (int i = 0; i < n; ++i) cin >> B[i];
+    for (int i = 0; i < n; ++i) cin >> C[i];
+
+    vector<long long> mAB = count_2d(n, A, B);
+    vector<long long> mAC = count_2d(n, A, C);
+    vector<long long> mBC = count_2d(n, B, C);
+
+    vector<long long> d = count_3d(n, A, B, C);
+
+    long long sum_2d = 0;
+    long long sum_2d_c2 = 0;
+    for (int i = 0; i < n; ++i) {
+        sum_2d += mAB[i] + mAC[i] + mBC[i];
+        sum_2d_c2 += C2(mAB[i]) + C2(mAC[i]) + C2(mBC[i]);
+    }
+
+    long long sum_3d = 0;
+    long long sum_3d_c2 = 0;
+    for (int i = 0; i < n; ++i) {
+        sum_3d += d[i];
+        sum_3d_c2 += C2(d[i]);
+		cerr<<sum_3d_c2 << endl; 
+    }
+
+    long long ans = 1;                          
+    ans += n;                               
+    ans += (sum_2d - 3 * sum_3d);                 
+    ans += C3(n) - sum_2d_c2 + 2 * sum_3d_c2;    
+    cout << ans << "\n";
+}
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int T;
+    if (cin >> T) {
+        while (T--) {
+            solve();
+        }
+    }
+    return 0;
+}

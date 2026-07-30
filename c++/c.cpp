@@ -1,121 +1,98 @@
 #include <bits/stdc++.h>
-#define Pair pair<int, double>
 using namespace std;
-const int N=1e5+10;
-const int Mod1=39989;
-const int Mod2=1e9+1;
-const double eps=1e-9;
-int n, last;
-struct Li_Chao_Segment_Tree{
-    int cnt;
-    int vis[N<<1];
-    struct Node{
-        double k, b;
-    }e[N<<1];
-    void Add(int sx, int sy, int fx, int fy){
-        cnt++;
-        if (sx==fx){
-            e[cnt].k=0;
-            e[cnt].b=max(sy, fy);
-        }else{
-            e[cnt].k=1.0*(fy-sy)/(fx-sx);
-            e[cnt].b=sy-e[cnt].k*sx;
-        }
-    }
-    double Calc(int x, int val){
-        return e[x].k*val+e[x].b;
-    }
-    int Check(double x, double y){
-        if (x-y>eps){
-            return 1;
-        }
-        if (y-x>eps){
-            return -1;
-        }
-        return 0;
-    }
-    void Down(int root, int l, int r, int u){
-        int &v=vis[root], mid=(l+r)>>1;
-        int check_mid=Check(Calc(u, mid), Calc(v, mid));
-        if (check_mid==1||(check_mid==0&&u<v)){
-            swap(u, v);
-        }
-        int check_l=Check(Calc(u, l), Calc(v, l));
-        int check_r=Check(Calc(u, r), Calc(v, r));
-        if (check_l==1||(check_l==0&&u<v)){
-            Down(root<<1, l, mid, u);
-        }
-        if (check_r==1||(check_r==0&&u<v)){
-            Down(root<<1|1, mid+1, r, u);
-        }
-    }
-    void Update(int root, int l, int r, int L, int R, int u){
-        if (L<=l&&r<=R){
-            Down(root, l, r, u);
-            return ;
-        }
-        int mid=(l+r)>>1;
-        if (L<=mid){
-            Update(root<<1, l, mid, L, R, u);
-        }
-        if (mid+1<=R){
-            Update(root<<1|1, mid+1, r, L, R, u);
-        }
-    }
-    Pair Max(Pair x, Pair y){
-        if (x.second-y.second>eps){
-            return x;
-        }
-        if (y.second-x.second>eps){
-            return y;
-        }
-        if (x.first<y.first){
-            return x;
-        }else{
-            return y;
-        }
-    }
-    Pair Query(int root, int l, int r, int x){
-        if (x<l||r<x){
-            return {0, 0};
-        }
-        int mid=(l+r)>>1;
-        double ans=Calc(vis[root], x);
-        if (l==r){
-            return {vis[root], ans};
-        }
-        return Max({vis[root], ans}, Max(Query(root<<1, l, mid, x), Query(root<<1|1, mid+1, r, x)));
-    }
-}tree;
-int main(){
-    ios::sync_with_stdio(0);
-    cin.tie();
-    cin >> n;
-    for (int i=1; i<=n; i++){
-        int opt;
-        cin >> opt;
-        if (opt==0){
+const int N = 3e5 + 10;
+int T;
+int n, top;
+int cnt[N], b[N << 2];
+bool Cmp(int x, int y) {
+    int dx = min(x, n - x + 1);
+    int dy = min(y, n - y + 1);
+    if (dx != dy) return dx < dy;
+    return x < y;
+}
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cin >> T;
+    while (T--) {
+        cin >> n;
+        int m = (n + 1) / 2;
+        int total = n + m;
+        vector<int> a;
+        set<int> st;
+		top = 0;
+        for (int i = 1; i <= n; i++) cnt[i] = -1;
+        for (int i = 1; i <= total; i++) {
             int x;
             cin >> x;
-            x=(x+last-1+Mod1)%Mod1+1;
-            last=tree.Query(1, 1, Mod1, x).first;
-            printf("%d\n", last);
+            cnt[x]++; b[i] = 0;
         }
-        if (opt==1){
-            int sx, sy, fx, fy;
-            cin >> sx >> sy >> fx >> fy;
-            sx=(sx+last-1+Mod1)%Mod1+1;
-            fx=(fx+last-1+Mod1)%Mod1+1;
-            sy=(sy+last-1+Mod2)%Mod2+1;
-            fy=(fy+last-1+Mod2)%Mod2+1;
-            if (sx>fx){
-                swap(sx, fx);
-                swap(sy, fy);
+        for (int i = 1; i <= n; i++) {
+            for (int k = 1; k <= cnt[i]; k++) {
+				b[top++] = i;
+			}
+        }
+        sort(b, b + top, Cmp);
+        for (int i = 1; i <= n; i++) st.insert(i);
+        // a.reserve(n);
+        a.push_back(b[0]);
+        st.erase(b[0]);
+		// cerr<<b[0] <<endl;
+        for (int i = 1; i < m; i++) {
+            int y = b[i];
+            int siz = i - ((y - 1) - distance(st.begin(), st.lower_bound(y)));
+            cerr<<*st.lower_bound(y) << " " << distance(st.begin(), st.lower_bound(y)) << endl;
+			vector<int> par;
+            if (st.count(y)) {
+                par.push_back(y);
+                st.erase(y);
             }
-            tree.Add(sx, sy, fx, fy);
-            tree.Update(1, 1, Mod1, sx, fx, tree.cnt);
+            for (int j = 1; j <= siz; j++) {
+                auto it = st.begin();
+                par.push_back(*it);
+                st.erase(it);
+            }
+            while (par.size() < 2) {
+                auto it = st.upper_bound(y);
+                par.push_back(*it);
+                st.erase(it);
+            }
+            a.push_back(par[0]); a.push_back(par[1]);
         }
+        for (int i = 0; i < n; i++) printf("%d ", a[i]);
+        printf("\n");
     }
 
     return 0;
 }
+/*
+int cnt1[N];
+vector<int> a;
+
+bool Check() {
+	priority_queue<int> maxHeap;  
+	priority_queue<int, vector<int>, greater<int>> minHeap;
+	for (int i = 1; i <= n; i++) cnt1[i] = 0;
+	for (int i = 0; i < n; i++) {
+		if (maxHeap.empty() || a[i] <= maxHeap.top()) {
+			maxHeap.push(a[i]);
+		} else {
+			minHeap.push(a[i]);
+		}
+		
+		if (maxHeap.size() > minHeap.size() + 1) {
+			minHeap.push(maxHeap.top());
+			maxHeap.pop();
+		} else if (minHeap.size() > maxHeap.size()) {
+			maxHeap.push(minHeap.top());
+			minHeap.pop();
+		}
+		if (i % 2 == 0) cnt1[maxHeap.top()]++;
+	}
+	for (int i = 1; i <= n; i++) {
+		// printf("%d %d %d\n", i, cnt1[i], cnt[i]);
+		if (cnt1[i] != cnt[i]) return false;
+	}
+	return true;
+}
+*/

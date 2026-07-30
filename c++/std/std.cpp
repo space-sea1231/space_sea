@@ -1,9 +1,9 @@
-
 #include <iostream>
 #include <stdio.h>
 #include <algorithm>
 #include <cstring>
 #include <vector>
+#include <queue>
 #define __Debug
 #define Debug(x) cerr << #x << "=" << x << endl;
 
@@ -11,121 +11,68 @@ using namespace std;
 typedef long long ll;
 
 const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
-const int N = 2e5 + 10;
+const int N = 1e5 + 10;
 
-int t, n;
-vector<int> a(N), b(N), c(N);
+int m;
+int pos[N];
+string s;
+vector<int> d[N];
 
-struct BinaryTree {
-	ll val[N];
-	BinaryTree() {
-		memset(val, 0, sizeof(val));
+struct Trie {
+	int num, idx;
+	struct Node {
+		int fa, ed;
+		int fail;
+		int ch[26];
+	}; Node node[N];
+	
+	int Back(int p) {return node[p].fa;}
+	void End(int p) {node[p].ed = ++idx; pos[idx] = p;}
+	void Build(string &s) {
+		int p = 0, len = s.size();
+		for (int i = 0; i < len; i++) {
+			if (s[i] == 'B') p = Back(p);
+			else if (s[i] == 'P') End(p);
+			else {
+				int &son = node[p].ch[s[i] - 'a'];
+				if (!son) {
+					son = ++num;
+					node[son].fa = p;
+				}
+				p = son;
+			} 
+		}
 	}
-	int Lowbit(int x) {
-		return x & -x;
+	void Build_AC() {
+		queue<int> q;
+		for (int i = 0; i < 26; i++) if (node[0].ch[i]) q.push(node[0].ch[i]);
+		while (!q.empty()) {
+			int u = q.front(); q.pop();
+			for (int i = 0; i < 26; i++) {
+				if (node[u].ch[i]) node[node[u].ch[i]].fail = node[node[u].fail].ch[i];
+				else node[u].ch[i] = node[node[u].fail].ch[i];
+			}
+		}
 	}
-	void Add(int x, ll y) {
-		for (int i = x; i <= n; i += Lowbit(i)) val[i] += y;
+	void Link() {
+		for (int i = 1; i <= num; i++) {
+			d[i].emplace_back(node[i].fail);
+			d[node[i].fail].emplace_back(i);
+		}
 	}
-	ll Query(int x) {
-		ll sum = 0;
-		for (int i = x; i; i -= Lowbit(i)) sum += val[i];
-		return sum;
-	}
-};
-struct Node2 {
-	int a, b;
-	int id;
+}; Trie trie;
 
-	bool operator<(const Node2 &s) const {
-		return a > s.a;
-	}
-};
-struct Node3 {
-	int a, b, c;
-	int id;
+vector<pair<int, int> > e[N];
 
-	bool operator<(const Node3 &s) const {
-		return a > s.a;
-	}
-};
-
-bool Cmpb(Node3 &a, Node3 &b) {
-	return a.b > b.b;
-}
-void Cdq(int l, int r, vector<Node3> &q, BinaryTree &tree, vector<ll> &res) {
-	if (l == r) return;
-	int mid = (l + r) >> 1;
-	Cdq(l, mid, q, tree, res);
-	Cdq(mid + 1, r, q, tree, res);
-	sort(q.begin() + l, q.begin() + mid + 1, Cmpb);
-	sort(q.begin() + mid + 1, q.begin() + r + 1, Cmpb);
-	int p = l;
-	for (int i = mid + 1; i <= r; i++) {
-		while (p <= mid && q[p].b > q[i].b) {tree.Add(q[p].c + 1, 1); p++;}
-		res[q[i].id] += tree.Query(n) - tree.Query(q[i].c + 1);
-	}
-	for (int i = l; i < p; i++) tree.Add(q[i].c + 1, -1);
-}
-vector<ll> Sort3(vector<int> &a, vector<int> &b, vector<int> &c) {
-	vector<Node3> q(n);
-	for (int i = 0; i < n; i++) q[i] = (Node3){a[i], b[i], c[i], i};
-	sort(q.begin(), q.end());
-	BinaryTree tree;
-	vector<ll> res(n, 0);
-	Cdq(0, n - 1, q, tree, res);
-	return res;
-}
-vector<ll> Sort2(vector<int> &a, vector<int> &b) {
-	vector<Node2> q(n);
-	for (int i = 0; i < n; i++) q[i] = (Node2){a[i], b[i], i};
-	sort(q.begin(), q.end());
-	BinaryTree tree;
-	vector<ll> res(n, 0);
-	for (int i = 0; i < n; i++) {
-		res[q[i].id] = tree.Query(n) - tree.Query(q[i].b + 1);
-		tree.Add(q[i].b + 1, 1);
-	}
-	return res;
-}
-ll C2(ll x) {
-	return x < 2 ? 0 : x * (x - 1) / 2;
-}
-ll C3(ll x) {
-	return x < 3 ? 0 : x * (x - 1) * (x - 2) / 6;
-}
 signed main() {
 	cin.tie(nullptr) -> ios::sync_with_stdio(false);
-	cin >> t;
-	while (t--) {
-		cin >> n;
-		// a.clear(), b.clear(), c.clear();
-		for (int i = 0; i < n; i++) cin >> a[i];
-		for (int i = 0; i < n; i++) cin >> b[i];
-		for (int i = 0; i < n; i++) cin >> c[i];
-		vector<ll> AB = Sort2(a, b);
-		vector<ll> AC = Sort2(a, c);
-		vector<ll> BC = Sort2(b, c);
-		vector<ll> ABC = Sort3(a, b, c);
-		ll sum2 = 0, sumC2 = 0;
-		for (int i = 0; i < n; i++) {
-			sum2 += AB[i] + AC[i] + BC[i];
-			// printf("Debug: %d %d %d\n", AB[i], AC[i], BC[i]);
-			sumC2 += C2(AB[i]) + C2(AC[i]) + C2(BC[i]);
-			// cerr<<sumC2 << endl; 
-		}
-		ll sum3 = 0, sumC3 = 0;
-		for (int i = 0; i < n; i++) {
-			sum3 += ABC[i];
-			// printf("Debug: %d\n", ABC[i]);
-			sumC3 += C2(ABC[i]); 
-			// cerr<<sumC3 << endl; 
-		}
-		ll ans = 1;
-		ans += n;
-		ans += (sum2 - 3 * sum3);              
-		ans += C3(n) - sumC2 + 2 * sumC3;    
-		printf("%lld\n", ans);
+	cin >> s >> m;
+	Trie.Build(s);
+	for (int i = 1; i <= m; i++) {
+		int v, u;
+		cin >> v >> u;
+		e[u].emplace_back(make_pair(v, i));
 	}
+	trie.Build_AC(); trie.Link();
 	return 0;
 }

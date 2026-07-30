@@ -12,12 +12,12 @@ void Check() {
         printf("删除临时文件\n");
         exit(0);
     }
-    // if (system("g++ -o ans ans.cpp -std=c++14 -O2 -fsanitize=address,undefined")) {
-    //     printf("###CE on ans.cpp\n");
-    //     system("rm check std ans data");//删除临时文件
-    //     printf("删除临时文件\n");
-    //     exit(0);
-    // }
+    if (system("g++ -o ans ans.cpp -std=c++14 -O2 -fsanitize=address,undefined")) {
+        printf("###CE on ans.cpp\n");
+        system("rm check std ans data");//删除临时文件
+        printf("删除临时文件\n");
+        exit(0);
+    }
     if (system("g++ -o data data.cpp -std=c++14 -O2 -fsanitize=address,undefined")) {
         printf("###CE on data.cpp\n");
         system("rm check std ans data");//删除临时文件
@@ -39,7 +39,7 @@ void Run() {
         printf("删除临时文件\n");
         exit(0);
     }
-    if (system("./asz<data.in>ans.out")) {
+    if (system("./ans<data.in>ans.out")) {
         printf("###RE on ans.cpp\n");
         system("rm check std data");//删除临时文件
         printf("删除临时文件\n");

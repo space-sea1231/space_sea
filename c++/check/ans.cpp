@@ -15,30 +15,6 @@ struct node{
 priority_queue<node>q;
 
 signed main(){
-    int T;
-    cin>>T;
-    while(T--){
-        int n;
-        cin>>n;
-        for(int i=1;i<=n;i++)cin>>a[i];
-        for(int i=1;i<=n;i++)cin>>b[i];
-        for(int i=1;i<=n;i++)cin>>f[i];
-        for(int i=1;i<=n;i++)fa[i]=i;
-        for(int i=2;i<=n;i++){
-            q.push({i});
-        }
-        int sum=0;
-        while(q.size()){
-            node u=q.top();
-            q.pop();
-            if(u.x==1)continue;
-            int Fa=find(f[u.x]);
-            sum+=a[u.x]*b[Fa];
-            fa[u.x]=Fa;
-            a[Fa]+=a[u.x],b[Fa]+=b[u.x];
-        }
-        cout<<sum<<"\n";
-        while(q.size())q.pop();
-    }
+    printf("1\n");
     return 0;
 }

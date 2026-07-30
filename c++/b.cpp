@@ -1,99 +1,277 @@
-#include<bits/stdc++.h>
-#define R register int
-#define I inline void
-#define G if(++ip==ie)if(fread(ip=buf,1,SZ,stdin))
-#define lc c[x][0]
-#define rc c[x][1]
+#include <bits/stdc++.h>
 using namespace std;
-const int SZ=1<<19,N=3e5+9;
-char buf[SZ],*ie=buf+SZ,*ip=ie-1;
-inline int in(){
-	G;while(*ip<'-')G;
-	R x=*ip&15;G;
-	while(*ip>'-'){x*=10;x+=*ip&15;G;}
-	return x;
+#define lson son[0]
+#define rson son[1]
+const int N = 3e5 + 10;
+int T;
+int n, top;
+int cnt[N], b[N << 2];
+bool vis[N];
+bool Cmp(int x, int y) {
+    int dx = min(x, n - x + 1);
+    int dy = min(y, n - y + 1);
+    if (dx != dy) return dx < dy;
+    return x < y;
 }
-int f[N],c[N][2],v[N],s[N],st[N];
-bool r[N];
-inline bool nroot(R x){//判断节点是否为一个Splay的根（与普通Splay的区别1）
-	return c[f[x]][0]==x||c[f[x]][1]==x;
-}//原理很简单，如果连的是轻边，他的父亲的儿子里没有它
-I pushup(R x){//上传信息
-	s[x]=s[lc]^s[rc]^v[x];
-}
-I pushr(R x){R t=lc;lc=rc;rc=t;r[x]^=1;}//翻转操作
-I pushdown(R x){//判断并释放懒标记
-	if(r[x]){
-		if(lc)pushr(lc);
-		if(rc)pushr(rc);
-		r[x]=0;
-	}
-}
-I rotate(R x){//一次旋转
-	R y=f[x],z=f[y],k=c[y][1]==x,w=c[x][!k];
-	if(nroot(y))c[z][c[z][1]==y]=x;c[x][!k]=y;c[y][k]=w;//额外注意if(nroot(y))语句，此处不判断会引起致命错误（与普通Splay的区别2）
-	if(w)f[w]=y;f[y]=x;f[x]=z;
-	pushup(y);
-}
-I splay(R x){//只传了一个参数，因为所有操作的目标都是该Splay的根（与普通Splay的区别3）
-	R y=x,z=0;
-	st[++z]=y;//st为栈，暂存当前点到根的整条路径，pushdown时一定要从上往下放标记（与普通Splay的区别4）
-	while(nroot(y))st[++z]=y=f[y];
-	while(z)pushdown(st[z--]);
-	while(nroot(x)){
-		y=f[x];z=f[y];
-		if(nroot(y))
-			rotate((c[y][0]==x)^(c[z][0]==y)?x:y);
-		rotate(x);
-	}
-	pushup(x);
-}
-/*当然了，其实利用函数堆栈也很方便，代替上面的手工栈，就像这样
-I pushall(R x){
-	if(nroot(x))pushall(f[x]);
-	pushdown(x);
-}*/
-I access(R x){//访问
-	for(R y=0;x;x=f[y=x])
-		splay(x),rc=y,pushup(x);
-}
-I makeroot(R x){//换根
-	access(x);splay(x);
-	pushr(x);
-}
-int findroot(R x){//找根（在真实的树中的）
-	access(x);splay(x);
-	while(lc)pushdown(x),x=lc;
-	splay(x);
-	return x;
-}
-I split(R x,R y){//提取路径
-	makeroot(x);
-	access(y);splay(y);
-}
-I link(R x,R y){//连边
-	makeroot(x);
-	if(findroot(y)!=x)f[x]=y;
-}
-I cut(R x,R y){//断边
-	makeroot(x);
-	if(findroot(y)==x&&f[y]==x&&!c[y][0]){
-		f[y]=c[x][1]=0;
-		pushup(x);
-	}
-}
-int main()
-{
-	R n=in(),m=in();
-	for(R i=1;i<=n;++i)v[i]=in();
-	while(m--){
-		R type=in(),x=in(),y=in();
-		switch(type){
-		case 0:split(x,y);printf("%d\n",s[y]);break;
-		case 1:link(x,y);break;
-		case 2:cut(x,y);break;
-		case 3:splay(x);v[x]=y;//先把x转上去再改，不然会影响Splay信息的正确性
-		}
-	}
-	return 0;
+struct Splay{
+    int root, num;
+    struct Node{
+        int fa, val;
+        int size, cnt;
+        int son[2];
+    }e[N];
+    void Update(int x){
+        e[x].size=e[e[x].lson].size+e[e[x].rson].size+e[x].cnt;
+    }
+    bool Check(int x){
+        return x==e[e[x].fa].rson;
+    }
+    void Clear(int x){
+        e[x].fa=0, e[x].val=0;
+        e[x].size=0, e[x].cnt=0;
+        e[x].rson=0, e[x].lson=0;
+    }
+    void Init(){
+        for (int i=1; i<=num; i++){
+            Clear(i);
+        }
+        root=0, num=0;
+    }
+    void New(int x){
+        e[++num].val=x;
+        e[num].cnt++;
+    }
+    void Rotate(int x){
+        int y=e[x].fa, z=e[y].fa, to=Check(x);
+        e[y].son[to]=e[x].son[to^1];
+        if (e[x].son[to^1]){
+            e[e[x].son[to^1]].fa=y;
+        }
+        e[x].son[to^1]=y;
+        e[y].fa=x, e[x].fa=z;
+        if (z){
+            e[z].son[e[z].rson==y]=x;
+        }
+        Update(y);
+        Update(x);
+    }
+    void splay(int x){
+        for (int i=e[x].fa; i=e[x].fa, i; Rotate(x)){
+            if (e[i].fa){
+                Rotate(Check(x)==Check(i)?i:x);
+            }
+        }
+        root=x;
+    }
+    void Insert(int x){
+        if (!root){
+            New(x);
+            Update(num);
+            root=num;
+            return ;
+        }
+        int cur=root, last=0;
+        while (1){
+            if (e[cur].val==x){
+                e[cur].cnt++;
+                Update(cur);
+                Update(last);
+                splay(cur);
+                return ;
+            }
+            last=cur, cur=e[cur].son[x>e[cur].val];
+            if (!cur){
+                New(x);
+                e[num].fa=last;
+                e[last].son[x>e[last].val]=num;
+                Update(num);
+                Update(last);
+                splay(num);
+                return ;
+            }
+        }
+    }
+    int Pre(){
+        int cur=e[root].lson;
+        if (!cur){
+            return cur;
+        }
+        while (e[cur].rson){
+            cur=e[cur].rson;
+        }
+        splay(cur);
+        return cur;
+    }
+    int Nxt(){
+        int cur=e[root].rson;
+        if (!cur){
+            return cur;
+        }
+        while (e[cur].lson){
+            cur=e[cur].lson;
+        }
+        splay(cur);
+        return cur;
+    }
+    int Val_Rank(int x){
+        int ans=0, cur=root, last=0;
+        while (1){
+            if (x<e[cur].val){
+                last=cur;
+                cur=e[cur].lson;
+                continue;
+            }
+            ans+=e[e[cur].lson].size;
+            if (!cur){
+                if (last){
+                    splay(last);
+                }
+                return ans+1;
+            }
+            if (e[cur].val==x){
+                splay(cur);
+                return ans+1;
+            }
+            ans+=e[cur].cnt;
+            last=cur;
+            cur=e[cur].rson;
+        }
+    }
+    int Rank_Val(int x){
+        int cur=root;
+        while (1){
+            if (e[cur].lson&&x<=e[e[cur].lson].size){
+                cur=e[cur].lson;
+                continue;
+            }
+            x-=e[e[cur].lson].size+e[cur].cnt;
+            if (x<=0){
+                splay(cur);
+                return e[cur].val;
+            }
+            cur=e[cur].rson;
+        }
+    }
+    void Delete(int x){
+        Val_Rank(x);
+        if (e[root].cnt>1){
+            e[root].cnt--;
+            Update(root);
+            return ;
+        }
+        if (!e[root].lson&&!e[root].rson){
+            Clear(root);
+            root=0;
+            return ;
+        }
+        if (!e[root].lson){
+            int cur=root;
+            root=e[root].rson;
+            e[root].fa=0;
+            Clear(cur);
+            return ;
+        }
+        if (!e[root].rson){
+            int cur=root;
+            root=e[root].lson;
+            e[root].fa=0;
+            Clear(cur);
+            return ;
+        }
+        int cur=root;
+        int tmp=Pre();
+        e[e[cur].rson].fa=tmp;
+        e[tmp].rson=e[cur].rson;
+        Clear(cur);
+        Update(root);
+    }
+    int Size(){
+        return e[root].size;
+    }
+    int Less(int x){
+        return Val_Rank(x)-1;
+    }
+    int Min(){
+        return Rank_Val(1);
+    }
+    int Max(){
+        return Rank_Val(e[root].size);
+    }
+}tree;
+vector<int> a;
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cin >> T;
+    while (T--) {
+        cin >> n;
+        int m = (n + 1) / 2;
+        int total = n + m;
+        a.clear();
+        tree.Init();
+        top = 0;
+        bool ok = true;
+        for (int i = 1; i <= n; i++) {
+            cnt[i] = -1;
+            vis[i] = false;
+        }
+        for (int i = 1; i <= total; i++) {
+            int x;
+            cin >> x;
+            if (x >= 1 && x <= n) cnt[x]++;
+            else ok = false;
+        }
+        for (int i = 1; i <= n; i++) {
+            if (cnt[i] < 0) ok = false;
+        }
+        if (!ok) {
+            printf("-1\n");
+            continue;
+        }
+        for (int i = 1; i <= n; i++) {
+            for (int k = 1; k <= cnt[i]; k++) {
+                b[top++] = i;
+            }
+        }
+        sort(b, b + top, Cmp);
+        for (int i = 0; i < top; i++) {
+            if (min(b[i], n - b[i] + 1) < i + 1) ok = false;
+        }
+        if (!ok) {
+            printf("-1\n");
+            continue;
+        }
+        for (int i = 1; i <= n; i++) tree.Insert(i);
+        a.push_back(b[0]);
+        tree.Delete(b[0]);
+        vis[b[0]] = true;
+        for (int i = 1; i < m; i++) {
+            int y = b[i];
+            int low = (y - 1) - tree.Less(y);
+            int need = i - low;
+            vector<int> par;
+            if (!vis[y]) {
+                par.push_back(y);
+                tree.Delete(y);
+                vis[y] = true;
+            }
+            for (int j = 1; j <= need; j++) {
+                int v = tree.Min();
+                par.push_back(v);
+                tree.Delete(v);
+                vis[v] = true;
+            }
+            while ((int)par.size() < 2) {
+                int v = tree.Max();
+                par.push_back(v);
+                tree.Delete(v);
+                vis[v] = true;
+            }
+            a.push_back(par[0]);
+            a.push_back(par[1]);
+        }
+        for (int i = 0; i < n; i++) printf("%d ", a[i]);
+        printf("\n");
+    }
+    return 0;
 }

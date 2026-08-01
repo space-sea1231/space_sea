@@ -125,4 +125,3 @@
         {printf("%d\n",ans[i]);}
         return 0;//拜拜程序~
     }
-

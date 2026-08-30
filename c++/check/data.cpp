@@ -21,18 +21,8 @@ int main() {
     freopen("aaa.in", "r", stdin);
     freopen("aaa.out", "w", stdout);
     srand((unsigned)time(0));
-    printf("%d\n", t);
-    while (t--) {
-        int n = Random(1, 3);
-        int m = Random(1, 3);
-        printf("%d %d\n", n, m);
-        for (int i = 1; i <= n; i++) {
-            for (int j = 1; j <= m; j++) {
-                int a = Random(1, 4);
-                printf("%d ", a);
-            }
-            printf("\n");
-        }
-    }
+    int n = 5;
+    printf("%d\n", n);
+    for (int i = 1; i <= n; i++) printf("%d ", Random(0, 5));
     return 0;
 }

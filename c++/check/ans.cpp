@@ -1,108 +1,72 @@
-// iro wa niohedo itsuka chiri nuruwo
-// samayou koto sae yuruse nakatta
 #include <bits/stdc++.h>
-#define int long long
-#define all(v) v.begin(),v.end()
-#define fro(i,a,b) for (int i = a; i <= b; i++)
-using PII = std::pair<int,int>; using std :: cerr ;
-inline void chkmin (int &x , int y) { x > y && (x = y); }
-inline void chkmax (int &x , int y) { x < y && (x = y); }
-bool _bg_;
-constexpr int inf = (sizeof (int) == 4 ? 0x3f3f3f3f : 0x3f3f3f3f3f3f3f3f);
-namespace FastRead
-{
-	char buf[1 << 23] , *p1 = buf ,*p2 = buf;
-	#define Fastest_GetChar (p1 == p2 && (p2 = (p1 = buf) + \
-		fread (buf , 1 , 1 << 21 , stdin) , p1 == p2) ? EOF : *p1++)
-	inline int read () 
-	{
-		int x = 0 , f = 1; char ch = Fastest_GetChar;
-		while (!isdigit (ch)) {if (ch == '-') f = -1; ch = Fastest_GetChar;}
-		while (isdigit (ch)) x = x * 10 + (ch ^ 48) , ch = Fastest_GetChar;
-		return x * f;
-	}
-}
-using FastRead :: read ;
-const int N = 1e3 + 5 ;
+using namespace std;
+typedef long long ll;
+const int N = 2e5 + 5;
 
-int T ;
-int n , m ;
-int a[N][N] ;
+int n, a[N];
+vector<int> pos[N];
 
-inline void FakeMain ()
-{
-	int res = 0;
-	n = read () , m = read ();
-	fro (i , 0 , n + 1) fro (j , 0 , m + 1) a[i][j] = 0;
-	fro (i , 1 , n) fro (j , 1 , m) a[i][j] = read ();
-	fro (i , 1 , n) fro (j , 1 , m)
-	{
-		if (!a[i][j]) continue;
-		// int lstt = res;
-		if (a[i][j] == 1)
-		{
-			int w = 21 , now = 1;
-			if (a[i - 1][j] >= 1 && a[i + 1][j] >= 1) w -= 7;
-			else if (a[i - 1][j] >= 1 || a[i + 1][j] >= 1) w -= now , now++;
-			if (a[i][j - 1] >= 1 && a[i][j + 1] >= 1) w -= 7;
-			else if (a[i][j - 1] >= 1 || a[i][j + 1] >= 1) w -= now , now++;
-			res += w;
-			// cerr << res - lstt << " \n"[j == m];
-			continue;
-		}
-		int c[] = {0 , a[i - 1][j] , a[i][j - 1] , a[i + 1][j] , a[i][j + 1] , a[i][j]};
-		std :: sort (c + 1 , c + 6);
-		int len = std :: unique (c + 1 , c + 6) - c;
-		// cerr << len << " " << a[i][j] << "\n";
-		int lst = 0 , fir = -1;
-		for (int k = 1; k < len; k++)
-		{
-			int w = 14 , now = 1;
-			if (a[i - 1][j] >= c[k] && a[i + 1][j] >= c[k]) w -= 7;
-			else if (a[i - 1][j] >= c[k] || a[i + 1][j] >= c[k]) w -= now , now++;
-			if (a[i][j - 1] >= c[k] && a[i][j + 1] >= c[k]) w -= 7;
-			else if (a[i][j - 1] >= c[k] || a[i][j + 1] >= c[k]) w -= now , now++;
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cin >> n;
+    int mx = 0;
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        pos[a[i]].push_back(i);
+        mx = max(mx, a[i]);
+    }
 
-			res += w * (c[k] - c[k - 1]);
-			// if (i == 2 && j == 2) cerr << c[k] << " " << w << " | " << w * (c[k] - c[k - 1]) << "\n";
-			lst = w;
-			if (fir == -1 && c[k] - c[k - 1] > 0) fir = w;
-			if (c[k] == a[i][j]) break;
-		}
-		res -= lst;
-		if (fir != -1) res -= fir;
-		// if (i == 2 && j == 2) cerr << res - lstt << "\n";
-		
+    ll ans = 0;
 
-		int w = 21 , now = 1;
-		res-- , now++;
-		if (a[i - 1][j] >= a[i][j] && a[i + 1][j] >= a[i][j]) w -= 7;
-		else if (a[i - 1][j] >= a[i][j] || a[i + 1][j] >= a[i][j]) w -= now , now++;
-		if (a[i][j - 1] >= a[i][j] && a[i][j + 1] >= a[i][j]) w -= 7;
-		else if (a[i][j - 1] >= a[i][j] || a[i][j + 1] >= a[i][j]) w -= now , now++;
-		res += w;
+    // mex = 0
+    if (pos[0].empty()) {
+        cout << 0 << '\n';
+        return 0;
+    }
+    int pre = 0;
+    for (int p : pos[0]) {
+        int len = p - pre - 1;
+        ans += 1LL * len * (len + 1) / 2;
+        pre = p;
+    }
+    int len = n - pre;
+    ans += 1LL * len * (len + 1) / 2;
 
-		w = 21 , now = 1;
-		res-- , now++;
-		if (a[i - 1][j] >= 1 && a[i + 1][j] >= 1) w -= 7;
-		else if (a[i - 1][j] >= 1 || a[i + 1][j] >= 1) w -= now , now++;
-		if (a[i][j - 1] >= 1 && a[i][j + 1] >= 1) w -= 7;
-		else if (a[i][j - 1] >= 1 || a[i][j + 1] >= 1) w -= now , now++;
-		res += w;
-		// cerr << res - lstt << " \n"[j == m];
-	}
+    // mex >= 1
+    int L = pos[0].front(), R = pos[0].back();
+    for (int m = 1; m <= mx + 1; m++) {
+        if (pos[m].empty()) break;
 
-	// cerr << "----------------------------\n";
+        auto it = lower_bound(pos[m].begin(), pos[m].end(), L);
+        if (it != pos[m].end() && *it <= R) {
+            // 有 m 在 [L,R] 内，贡献为 0，但仍需更新 L,R
+            L = min(L, pos[m].front());
+            R = max(R, pos[m].back());
+            continue;
+        }
 
-	std :: cout << res << "\n";
-}
+        // 所有 m 都在 [L,R] 之外
+        int left = 0;
+        auto itL = lower_bound(pos[m].begin(), pos[m].end(), L);
+        if (itL != pos[m].begin()) {
+            --itL;
+            left = *itL;
+        }
 
-bool _ed_;
-signed main ()
-{
-	for (T = read (); T -- ; FakeMain ());
-	
-	cerr << "\nTime: " << clock () * 1.0 / CLOCKS_PER_SEC << "s\n";
-	cerr << "Memory: " << fabs (&_bg_ - &_ed_) / 1024. / 1024. << "Mib\n";
-	return 0;
+        int right = n + 1;
+        auto itR = upper_bound(pos[m].begin(), pos[m].end(), R);
+        if (itR != pos[m].end()) {
+            right = *itR;
+        }
+
+        ans += 1LL * (L - left) * (right - R);
+
+        // 更新覆盖区间
+        L = min(L, pos[m].front());
+        R = max(R, pos[m].back());
+    }
+
+    cout << ans << '\n';
+    return 0;
 }

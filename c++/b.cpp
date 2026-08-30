@@ -1,118 +1,85 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <cstdio>
 using namespace std;
+typedef long long ll;
 
-using int64 = long long;
-using i128 = __int128_t;
+const int N = 1e6 + 10;
+const int Mod = 1e9;
 
-static const int64 MOD = 1000000007LL;
+int t, n, m;
+int f[N], w[N];
+ll c[N];
+ll val[N];
+bool vis[N];
 
-int64 mod_pow(int64 a, long long e) {
-    int64 r = 1;
-    while (e > 0) {
-        if (e & 1) r = r * a % MOD;
-        a = a * a % MOD;
-        e >>= 1;
-    }
-    return r;
+int Find(int x) {
+    if (f[x] == x) return x;
+    int fa = Find(f[x]);
+    c[x] = (ll)w[x] * c[f[x]] + c[x];
+    w[x] *= w[f[x]];
+    return f[x] = fa;
 }
 
-pair<int64, int64> pow_sum(int64 a, long long n) {
-    if (n == 0) return {1, 0};
-
-    auto [p, s] = pow_sum(a, n >> 1);
-    int64 p2 = p * p % MOD;
-    int64 s2 = s * ((p + 1) % MOD) % MOD;
-
-    if ((n & 1) == 0) {
-        return {p2, s2};
+bool Caged(int a, int b, ll d) {
+    int fa = Find(a), fb = Find(b);
+    if (fa != fb) {
+        int new_w = -w[a] * w[b];
+        ll new_c = (d - c[a] - c[b]) * w[b];
+        
+        if (vis[fa] && vis[fb]) {
+            if (val[fb] != (ll)new_w * val[fa] + new_c) return false;
+        }
+        
+        f[fb] = fa;
+        w[fb] = new_w;
+        c[fb] = new_c;
+        
+        if (vis[fb] && !vis[fa]) {
+            vis[fa] = true;
+            val[fa] = (val[fb] - new_c) * new_w;
+        }
+        return true;
     } else {
-        return {p2 * a % MOD, (s2 + p2) % MOD};
+        ll sumW = w[a] + w[b];
+        ll sumC = c[a] + c[b];
+        if (sumW == 0) return sumC == d;
+        if ((d - sumC) % sumW != 0) return false;
+        ll V = (d - sumC) / sumW;
+        if (vis[fa]) {
+            if (val[fa] != V) return false;
+        } else {
+            vis[fa] = true;
+            val[fa] = V;
+        }
+        return true;
     }
 }
 
 int main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-
-    int T;
-    cin >> T;
-
-    while (T--) {
-        long long n, c;
-        int m;
-        cin >> n >> m >> c;
-
-        vector<long long> w(m + 1);
-
-        // sufW[i] = sum_{v=i}^m w_v
-        // sufV[i] = sum_{v=i}^m v*w_v
-        vector<i128> sufW(m + 2, 0), sufV(m + 2, 0);
-
-        for (int i = 1; i <= m; ++i) {
-            cin >> w[i];
+    cin >> t;
+    while (t--) {
+        cin >> n >> m;
+        for (int i = 1; i <= n; i++) {
+            f[i] = i; w[i] = 1;
+            c[i] = val[i] = 0;
+            vis[i] = false;
         }
-
-        for (int i = m; i >= 1; --i) {
-            sufW[i] = sufW[i + 1] + w[i];
-            sufV[i] = sufV[i + 1] + (i128)i * w[i];
-        }
-
-        i128 totalW = sufW[1];
-        i128 target = (i128)c * totalW;
-
-        /*
-          A(x) = E[(Y-x)^+]
-               = [sum_{v>x} (v-x) w_v] / W
-        */
-        int K = -1;
-        for (int x = 0; x < m; ++x) {
-            i128 improve = sufV[x + 1] - (i128)x * sufW[x + 1];
-            if (improve > target) K = x;
-        }
-
-        if (K == -1) {
-            cout << 0 << '\n';
-            continue;
-        }
-
-        int64 Wmod = (int64)(totalW % MOD);
-        int64 invW = mod_pow(Wmod, MOD - 2);
-
-        /*
-          q = P(Y <= K)
-          h = E[Y * [Y>K]]
-        */
-        int64 prefix = 0;
-        int64 lowPowSum = 0;
-
-        for (int x = 1; x <= K; ++x) {
-            prefix = (prefix + w[x]) % MOD;
-
-            if (x < K) {
-                int64 fx = prefix * invW % MOD;
-                lowPowSum += mod_pow(fx, n);
-                if (lowPowSum >= MOD) lowPowSum -= MOD;
+        int k = 0;
+        for (int i = 1; i <= m; i++) {
+            ll a, b, d;
+            cin >> a >> b >> d;
+            a = (a + k - 1) % n + 1;
+            b = (b + k - 1) % n + 1;
+            d = (d + k) % Mod + 1;
+            if (Caged((int)a, (int)b, d * 2)) {
+                cout << "Yes\n";
+                k++;
+            } else {
+                cout << "No\n";
             }
         }
-
-        int64 q = prefix * invW % MOD;
-        int64 h = (int64)(sufV[K + 1] % MOD) * invW % MOD;
-
-        auto [qn, geometricSum] = pow_sum(q, n);
-        // geometricSum = 1 + q + ... + q^(n-1)
-
-        /*
-
-          E[max ; all <=K]
-            = K * F(K)^n - sum_{x=0}^{K-1} F(x)^n
-        */
-        int64 terminalLow = ((int64)K * qn % MOD - lowPowSum + MOD) % MOD;
-
-        int64 perAttempt = (h - c % MOD + MOD) % MOD;
-        int64 ans = (perAttempt * geometricSum + terminalLow) % MOD;
-
-        cout << ans << '\n';
     }
-
     return 0;
 }

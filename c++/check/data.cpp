@@ -4,25 +4,23 @@
 #include <algorithm>
 #include <chrono>
 #include <random>
-#include <set>
-#include <queue>
 
 using namespace std;
 typedef long long ll;
 
 int t = 1;
-int a[300000 + 10];
-set<int> st;
+int n = 5;
+
 mt19937 Rand(chrono::steady_clock().now().time_since_epoch().count());
-int Random(int l, int r) {
-	return Rand() % (r - l + 1) + l;
-}
+inline int Random(int l, int r) {return Rand() % (r - l + 1) + l;}
+
 int main() {
-    freopen("aaa.in", "r", stdin);
-    freopen("aaa.out", "w", stdout);
     srand((unsigned)time(0));
-    int n = 5;
-    printf("%d\n", n);
-    for (int i = 1; i <= n; i++) printf("%d ", Random(0, 5));
+    printf("%d\n", t);
+    while (t--) {
+        printf("%d\n", n);
+        for (int i = 1; i <= n; i++) printf("%d ", Random(1, 200000));
+        printf("\n");
+    }
     return 0;
 }

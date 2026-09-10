@@ -2,9 +2,7 @@
 #include <stdio.h>
 #include <algorithm>
 #include <cstring>
-#include <vector>
-#include <stack>
-#include <set>
+#include <queue>
 #define __Debug
 #define Debug(x) cerr << #x << "=" << x << endl;
 
@@ -12,223 +10,163 @@ using namespace std;
 typedef long long ll;
 
 const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
-const int N = 1e5 + 10;
+const int N = 2e5 + 10;
+const int M = 4e5 + 10;
 
-int T, n, k, m;
-int fa[N];
-int pos[N];
-ll ans[N];
-vector<int> e[N];
+int T;
+int n, m;
+int Q, K, S;
+int dist[N], altt[N];
+bool vis[N];
 
-struct Person {
-	int x, v;
-	Person() {v = INF; x = 0;}
-	bool operator<(const Person &s) const {return v < s.v;}
-}; Person a[N];
+struct Edge {
+    int u, v, w, a;
+    
+    bool operator<(const Edge &s) const {return w > s.w;}
+}; Edge e[M];
 
-namespace SGT_A {
-	struct Node {
-		int id;
-		bool operator<(const Node &s) const {
-			if (a[id].v != a[s.id].v) return a[id] < a[s.id];
-			return id < s.id;
-		}
-	};
-	set<Node> s[N];
-	int node[N << 2];
+vector<pair<int, int> > e1[N];
 
-	inline void Down(int p) {
-		if (a[node[p << 1]] < a[node[p << 1 | 1]]) node[p] = node[p << 1];
-		else node[p] = node[p << 1 | 1];
-	}
-	void Update(int p, int l, int r, int pos, int k) {
-		if (l == r) {node[p] = k; return;}
-		int mid = l + r >> 1;
-		if (pos <= mid) Update(p << 1, l, mid, pos, k);
-		if (mid > pos) Update(p << 1 | 1, mid + 1, r, pos, k);
-		Down(p);
-	}
-	void Insert(int id, int dfn[]) {
-		int x = a[id].x;
-		s[x].insert((Node){id});
-		Update(1, 1, n, dfn[x], (*s[x].begin()).id);
-	}
-	void Del(int id, int dfn[]) {
-		int x = a[id].x;
-		s[x].erase((Node){id});
-		Update(1, 1, n, dfn[x], s[x].empty() ? 0 : (*s[x].begin()).id);
-	}
+namespace PUF {
+    struct Node {
+        int fa;
+        int dep, dis;
+        Node *l, *r;
+        
+        void Init() {
+            fa = dep = 0;
+            l = r = nullptr;
+        }
+        void *operator new(size_t);
+    };
+    Node *root[M];
+
+    void Build(Node *&p, int l, int r) {
+        p = new Node();
+        if (l == r) { p->fa = l; p->dis = dist[l]; return; }
+        int mid = l + r >> 1;
+        Build(p->l, l, mid);
+        Build(p->r, mid + 1, r);
+    }
+    Node *Query(Node *p, int l, int r, int pos) {
+        if (l == r) return p;
+        int mid = l + r >> 1;
+        if (pos <= mid) return Query(p->l, l, mid, pos);
+        else return Query(p->r, mid + 1, r, pos);
+    }
+    Node *Find(Node *p, int pos) {
+        Node *fa = Query(p, 1, n, pos);
+        if (fa->fa == pos) return fa;
+        return Find(p, fa->fa);
+    }
+    void Merge(Node *q, Node *&p, int l, int r, int pos, int fa) {
+        if (p->fa == 0) p = new Node(*q);
+        if (l == r) {
+            p->fa = fa;
+            p->dep = q->dep;
+            return ;
+        }
+        int mid = l + r >> 1;
+        if (pos <= mid) Merge(q->l, p->l, l, mid, pos, fa);
+        else Merge(q->r, p->r, mid + 1, r, pos, fa);
+    }
+    void Update(Node *q, Node *&p, int l, int r, int pos) {
+        if (p->fa == 0) p = new Node (*q);
+        if (l == r) {p->dep++; return;}
+        int mid = l + r >> 1;
+        if (pos <= mid) Update(q->l, p->l, l, mid, pos);
+        else Update(q->r, p->r, mid + 1, r, pos);
+    }
+    void CMerge(int x, int y, int v) {
+        Node *fx = Find(root[v], x);
+        Node *fy = Find(root[v], y);
+        if (fx->fa != fy->fa) {
+            if (fx->dep > fy->dep) swap(fx, fy);
+            Merge(root[v - 1], root[v], 1, n, fx->fa, fy->fa);
+            fy->dis = min(fy->dis, fx->dis);
+            if (fx->dep == fy->dep) {Node *t = root[v]; Update(t, root[v], 1, n, fy->fa);}
+        }
+    }
+    Node *p = (Node*)calloc(8000000, sizeof(Node));
+    int cnt;
+    void *Node::operator new(size_t s) { return p+(cnt++); }
+} using namespace PUF;
+
+void Dijstra() {
+    priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int, int> >> q;
+    q.push(make_pair(0, 1));
+    while(!q.empty()) {
+        int u = q.top().second; q.pop();
+        // cerr<<u << " " << vis[u] << "\n";
+        if(vis[u]) continue;
+        vis[u] = true;
+        for(pair<int, int> cur:e1[u]) {
+            int v = cur.first, w = cur.second;
+            // cerr<<v << " " << w << "\n";
+            if(dist[v] > dist[u] + w) {
+                dist[v] = dist[u] + w;
+                q.push(make_pair(dist[v], v));
+            }
+        }
+    }
 }
-namespace SGT_M{
-	int Query(int p, int l, int r, int L, int R);
-	int Get(int p, int l, int r, int L, int R);
+void Init() {
+    cnt = 0;
+    for (int i = 0; i < cnt; i++) (p + i)->Init();
+    for (int i = 1; i <= n; i++) {
+        e1[i].clear();
+        root[i] = nullptr;
+        dist[i] = INF;
+        vis[i] = false;
+    }
+    dist[1] = 0;
 }
-namespace HLD {
-	int num;
-	int siz[N], son[N];
-	int top[N], dfn[N];
-	int seg[N];
-	
-	void Dfs1(int u) {
-		siz[u] = 1;
-		int maxn = 0;
-		for (auto v:e[u]) {
-			Dfs1(v);
-			siz[u] += siz[v];
-			if (maxn < siz[v]) {
-				maxn = siz[v];
-				son[u] = v;
-			}
-		}
-	}
-	void Dfs2(int u, int tp) {
-		top[u] = tp;
-		dfn[u] = ++num; seg[num] = u;
-		if (son[u]) Dfs2(son[u], tp);
-		for (auto v:e[u]) if (v != son[u]) Dfs2(v, v);
-	}
-	int Query(int p) {
-		while (p) {
-			int f = top[p];
-			if (SGT_M::Query(1, 1, n, dfn[f], dfn[p]) > 0) p = fa[f];
-			else return SGT_M::Get(1, 1, n, dfn[f], dfn[p]);
-		}
-		return 0;
-	}
-	void Update(int p, int k) {
-		while (p) {
-			int f = top[p];
-			SGT_M::
-		}
-	}
-} using namespace HLD;
+void Solve() {
+    cin >> n >> m;
+    Init();
+    for (int i = 1; i <= m; i++) {
+        int u, v, w, a;
+        cin >> u >> v >> w >> a;
+        e[i] = (Edge){u, v, w, a};
+        e1[u].emplace_back(make_pair(v, w));
+        e1[v].emplace_back(make_pair(u, w));
+    }
+    cin >> Q >> K >> S;
 
-namespace SGT_M {
-	struct Node {
-		int vis, minn;
-		Node() {minn = INF; vis = 0;}
-		void Up(int x) {vis += x, minn += x;}
-	}; Node node[N << 2];
-	
-	inline void Up(int p) {node[p].minn = min(node[p << 1].minn, node[p << 1 | 1].minn);}
-	inline void Down(int p) {
-		node[p << 1].Up(node[p].vis);
-		node[p << 1 | 1].Up(node[p].vis);
-	}
-	void Build(int p, int l, int r) {
-		if (l == r) {
-			node[p].minn = HLD::siz[HLD::seg[l]];
-			return ;
-		}
-		int mid = l + r >> 1;
-		Build(p << 1, l, mid);
-		Build(p << 1 | 1, mid + 1, r);
-		Up(p);
-	}
-	void Update(int p, int l, int r, int L, int R) {
-		if (L <= l && r <= R) {
-			
-		}
-	}
-	int Query(int p, int l, int r, int L, int R) {
-		if (L <= l && r <= R) return node[p].minn;
-		Down(p);
-		int mid = l + r >> 1;
-		if (R <= mid) return Query(p << 1, l, mid, L, R);
-		if (L > mid) return Query(p << 1 | 1, mid + 1, r, L, R);
-		return min(Query(p << 1, l, mid, L, R), Query(p << 1 | 1, mid + 1, r, L, R));
-	}
-	int Get(int p, int l, int r, int L, int R) {
-		if (L <= l && r <= R) {
-			if (node[p].minn) return 0;
-			while (l < r) {
-				Down(p);
-				int mid = l + r >> 1;
-				if (node[p << 1 | 1].minn == 0) p = p << 1 | 1, l = mid + 1;
-				else p = p << 1, r = mid;
-			}
-			return HLD::seg[l];
-		}
-		Down(p);
-		int mid = l + r >> 1;
-		if (R <= mid) return Get(p << 1, l, mid, L, R);
-		if (L > mid) return Get(p << 1 | 1, mid + 1, r, L, R);
-		int t = Get(p << 1 | 1, mid + 1, r, L, R);
-		return t ? t : Get(p << 1, l, mid, L, R);
-	}
+    Dijstra();
+    for (int i = 1; i <= n; i++) printf("dist[%d]=%d\n", i, dist[i]);
+    Build(root[0], 1, n);
+    int ddd = 2;
+    // printf("Debug:fa[%d]=%d\n", 2, Find(root[0], 2)->dis);
+    sort(e + 1, e + m + 1);
+    int pre_tot = 0;
+    for (int i = 1; i <= m; i++) {
+        if (e[i].w != e[i - 1].w) {
+            pre_tot++;
+            root[pre_tot] = root[pre_tot - 1];
+            altt[pre_tot] = e[i].w;
+        }
+        CMerge(e[i].u, e[i].v, pre_tot);
+    }
+    sort(allt + 1, allt + pre_tot + 1);
+    int lastans = 0;
+    for (int i = 1; i <= Q; i++) {
+        int u, p;
+        cin >> u >> p;
+        // cerr << u << " " << p << "\n";
+        u = (u + K * lastans) % n + 1;
+        p = (p + K * lastans) % (S + 1);
+        int line = lower_bound(altt, altt + pre_tot + 1, p) - altt; 
+        cerr<<line << " " << altt[line] << endl;
+        printf("%d\n", lastans = Find(root[line], u)->dis);
+    }
 }
-
-
-namespace Company {
-	ll ans;
-	struct Roll {
-		int id, pos;
-	};
-	stack<Roll> s;
-
-	void Add(int id) {
-		ans += a[id].v;
-		SGT_A::Insert(id, HLD::dfn);
-
-	}
-	bool Update(int id) {
-		int p = HLD::Query(a[id].x);
-		if (!p) {
-			s.push((Roll){id, 0});
-			Add(id);
-			return true;
-		}
-	}
-}
-
-namespace SGT_T {
-	vector<int> node[N << 2];
-	
-	void Update(int p, int l, int r, int L, int R, int id) {
-		if (L <= l && r <= R) {
-			node[p].emplace_back(id);
-			return ;
-		}
-		int mid = l + r >> 1;
-		if (L <= mid) Update(p << 1, l, mid, L, R, id);
-		if (mid < R) Update(p << 1 | 1, mid + 1, r, L, R, id);
-	}
-	void Dfs(int p, int l, int r) {
-		int cnt = 0;
-		for (auto x:node[p]) cnt += Company::Update(x);
-		int mid = l + r >> 1;
-		if (l == r) ans[l] = Company::ans;
-		else Dfs(p << 1, l, mid), Dfs(p << 1 | 1, mid + 1, r);
-		while (cnt--) Company::Roll();
-	}
-} 
-
 signed main() {
-	cin.tie(nullptr) -> ios::sync_with_stdio(false);
-	cin >> n >> k >> m;
-	for (int i = 2; i <= n; i++) {
-		cin >> fa[i];
-		e[fa[i]].emplace_back(i);
-	}
-
-	Dfs1(1);
-	Dfs2(1, 1);
-	SGT_M::Build(1, 1, n);
-	for (int i = 1; i <= k; i++) cin >> a[i].x >> a[i].v;
-	for (int i = 1; i <= m; i++) {
-		int opt, x;
-		cin >> opt >> x;
-		if (opt == 1) {
-			a[++k].x = x;
-			cin >> a[k].v;
-			pos[k] = i;
-		}
-		if (opt == 2) {
-			SGT_T::Update(1, 0, m, pos[x], i - 1, x);
-			pos[x] = -1;
-		}
-	}
-	for (int i = 1; i <= k; i++) if (pos[i] > -1) SGT_T::Update(1, 0, m, pos[i], m, i);
-	SGT_T::Dfs(1, 0, m);
-	return 0;
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> T;
+    while (T--) Solve();
+    return 0;
 }
+/*
+Altitude 海拔  
+*/

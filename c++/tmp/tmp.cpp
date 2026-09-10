@@ -1,69 +1,150 @@
-#include<cstdio>
+//niiick
+#include<iostream>
 #include<cmath>
+#include<algorithm>
+#include<queue>
 #include<cstring>
+#include<cstdio>
 using namespace std;
-const int maxn=50000;
-int f[21],ans[21],a[10000];
-int ansd[1000000];
-int len,n,k;
-bool vis[maxn];
-double ansx=1000000000,lg[1000];  //g为第g个质因数。
-void dfs(int tol,double d,int g){ //d为当前的答案（用log缩小）
-    if(ansx<d||g==16) return; //剪枝1
-    if(tol==1){
-        if(ansx>d){
-            memcpy(ans,f,sizeof(f));
-            ansx=d;
+typedef long long lt;
+
+lt read()
+{
+    lt f=1,x=0;
+    char ss=getchar();
+    while(ss<'0'||ss>'9'){if(ss=='-')f=-1;ss=getchar();}
+    while(ss>='0'&&ss<='9'){x=x*10+ss-'0';ss=getchar();}
+    return f*x;
+}
+
+
+const int maxn=800010;
+int n,m,cnt;
+lt Q,K,S;
+
+struct node{int u, v;lt hi;}edge[maxn<<1];
+bool cmp(node a,node b){return a.hi>b.hi;}
+
+struct node2{int v,nxt;lt dis;}E[maxn<<1];
+int head[maxn],tot;
+
+lt d[maxn],vis[maxn],ff[maxn];
+priority_queue< pair<lt,int> > q;
+
+lt mi[maxn],val[maxn];
+int gra[maxn][23];
+
+void add(int u,int v,lt dis)
+{
+    E[++tot].nxt=head[u];
+    E[tot].v=v; E[tot].dis=dis;
+    head[u]=tot;
+}
+
+void dij()
+{
+    memset(vis,0,sizeof(vis));
+    memset(d,111,sizeof(d)); d[1]=0;
+    q.push(make_pair(0,1));
+
+    while(!q.empty())
+    {
+        int u=q.top().second; q.pop();
+        if(vis[u]) continue;
+
+        vis[u]=1;
+        for(int i=head[u];i;i=E[i].nxt)
+        {
+            int v=E[i].v;
+            if(d[u]+E[i].dis<d[v])
+            {
+                d[v]=d[u]+E[i].dis;
+                q.push(make_pair(-d[v],v));
+            }
         }
-        return;
-    }
-    for(int i=0;(i+1)*(i+1)<=tol;i++)
-    if(tol%(i+1)==0){  //剪枝2
-        f[g]=i;
-        dfs(tol/(i+1),d+f[g]*lg[a[g]],g+1);
-        f[g]=tol/(i+1)-1;
-        dfs(i+1,d+f[g]*lg[a[g]],g+1);
-        f[g]=0;
     }
 }
 
-void mem(){  //线性筛求素数，没有必要。
-    vis[1]=1;
-    int m=sqrt(maxn+0.05);
-    for(int i=2;i<=m;i++)
-    if(!vis[i]){
-        for(int j=i*i;j<maxn;j+=i)
-        vis[j]=1;
-    }
-    for(int i=2;i<=maxn;i++)
-    if(!vis[i]){
-        a[k]=i;
-        if(k<=20) lg[a[k]]=log(a[k]);
-        k++;
-    }
+int find(int x)
+{
+    if(x==ff[x])return x;
+    else return ff[x]=find(ff[x]);
 }
 
-int main(){
-    mem();
-    scanf("%d",&n);
-    dfs(n,0,0);
-    int top=0,x=0;
-    ansd[0]=1;
-    for(int i=0;i<=20;i++)
-    while(ans[i]){  //高精乘低精
-        ans[i]--;
-        x=0;
-        for(int j=0;j<=top;j++){
-            ansd[j]=a[i]*ansd[j]+x;
-            if(ansd[j]>=10){
-                x=ansd[j]/10;
-                ansd[j]=ansd[j]%10;
-                if(j==top) top++;
-            }else x=0;
+void dfs(int u) 
+{
+    mi[u]=d[u];
+    for(int i=head[u];i;i=E[i].nxt)
+    {
+        int v=E[i].v;
+        gra[v][0]=u;
+        dfs(v);
+        mi[u]=min(mi[u],mi[v]);
+    }
+    //if(u<=n) 
+}
+
+void kruskal()
+{
+    memset(head,0,sizeof(head)); tot=1;
+    sort(edge+1,edge+1+m,cmp);
+    for(int i=1;i<=n;++i)ff[i]=i; 
+    for(int i=1;i<=m;i++) 
+    {
+        int fu=find(edge[i].u), fv=find(edge[i].v);
+        if(fu!=fv)
+        {
+            val[++cnt]=edge[i].hi;
+            ff[fu]=ff[fv]=ff[cnt]=cnt;
+            add(cnt,fu,0); add(cnt,fv,0);
         }
     }
-    for(int i=top;i>=0;i--)
-    printf("%d",ansd[i]);
-    printf("\n");
+    dfs(cnt);
+}
+
+void init()
+{
+    memset(head,0,sizeof(head)); tot=1;
+    memset(gra,0,sizeof(gra)); 
+    memset(mi,111,sizeof(mi));
+}
+
+int main() 
+{
+    int T=read();
+    while(T--) 
+    {
+        init();
+        n=read();m=read();cnt=n;
+        
+        for(int i=1;i<=m;i++)
+        {
+            int u=read(),v=read(),dis=read(),hi=read();
+            add(u,v,dis); add(v,u,dis);
+            edge[i].u=u; edge[i].v=v; edge[i].hi=hi;
+        }
+        dij();//预处理1到所有节点最短路
+        kruskal();//重构树
+        
+        for(int i=1;(1<<i)<=cnt;i++)
+        for(int u=1;u<=cnt;u++)
+        gra[u][i]=gra[gra[u][i-1]][i-1];
+                
+        Q=read();K=read();S=read();
+        lt last=0;
+        while(Q--) 
+        {
+            int vi=read(),pi=read();
+            vi=(vi+K*last-1)%n+1;
+            pi=(pi+K*last)%(S+1);
+            
+            for(int j=22;j>=0;--j)//找到深度最小且海拔大于水位的节点
+            if(gra[vi][j]&&val[gra[vi][j]]>pi) 
+            vi=gra[vi][j];
+            
+            printf("%lld\n",last=mi[vi]);
+        }
+    }
     return 0;
 }
+

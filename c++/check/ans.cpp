@@ -1,72 +1,111 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <cstring>
+#define __Debug
+#define Debug(x) cerr << #x << "=" << x << endl;
+
 using namespace std;
 typedef long long ll;
-const int N = 2e5 + 5;
 
-int n, a[N];
-vector<int> pos[N];
+const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
+const int N = 3e5 + 10;
 
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cin >> n;
-    int mx = 0;
+int T;
+ll n, k;
+int ans[N];
+bool vis[N];
+bool flag;
+
+void Dfs(int cur, int minn, int maxn, int sum) {
+    if (cur == n + 1) {
+        if (sum == k) {
+            // int maxn = 0, minn = INF;
+            // for (int i = 1; i <= n; i++) {
+            //     maxn = max(maxn, ans[i]);
+            //     minn = min(minn, ans[i]);
+            //     printf("%d ", maxn - minn);
+            // }
+            // printf("-> ");
+            for (int i = 1; i <= n; i++) printf("%d ", ans[i]);
+            printf("\n");
+            flag = true;
+        }
+        return ;
+    }
     for (int i = 1; i <= n; i++) {
-        cin >> a[i];
-        pos[a[i]].push_back(i);
-        mx = max(mx, a[i]);
-    }
-
-    ll ans = 0;
-
-    // mex = 0
-    if (pos[0].empty()) {
-        cout << 0 << '\n';
-        return 0;
-    }
-    int pre = 0;
-    for (int p : pos[0]) {
-        int len = p - pre - 1;
-        ans += 1LL * len * (len + 1) / 2;
-        pre = p;
-    }
-    int len = n - pre;
-    ans += 1LL * len * (len + 1) / 2;
-
-    // mex >= 1
-    int L = pos[0].front(), R = pos[0].back();
-    for (int m = 1; m <= mx + 1; m++) {
-        if (pos[m].empty()) break;
-
-        auto it = lower_bound(pos[m].begin(), pos[m].end(), L);
-        if (it != pos[m].end() && *it <= R) {
-            // 有 m 在 [L,R] 内，贡献为 0，但仍需更新 L,R
-            L = min(L, pos[m].front());
-            R = max(R, pos[m].back());
-            continue;
+        if (!vis[i]) {
+            vis[i] = true;
+            ans[cur] = i;
+            Dfs(cur + 1, min(minn, i), max(maxn, i), sum + max(maxn, i) - min(minn, i));
+            vis[i] = false;
+            if (flag) return ;
         }
-
-        // 所有 m 都在 [L,R] 之外
-        int left = 0;
-        auto itL = lower_bound(pos[m].begin(), pos[m].end(), L);
-        if (itL != pos[m].begin()) {
-            --itL;
-            left = *itL;
-        }
-
-        int right = n + 1;
-        auto itR = upper_bound(pos[m].begin(), pos[m].end(), R);
-        if (itR != pos[m].end()) {
-            right = *itR;
-        }
-
-        ans += 1LL * (L - left) * (right - R);
-
-        // 更新覆盖区间
-        L = min(L, pos[m].front());
-        R = max(R, pos[m].back());
     }
-
-    cout << ans << '\n';
+}
+void Dfs1(int cur, int minn, int maxn, int sum) {
+    if (cur == n + 1) {
+        if (sum == k) {
+            // int maxn = 0, minn = INF;
+            // for (int i = 1; i <= n; i++) {
+            //     maxn = max(maxn, ans[i]);
+            //     minn = min(minn, ans[i]);
+            //     printf("%d ", maxn - minn);
+            // }
+            // printf("-> ");
+            for (int i = 1; i <= n; i++) printf("%d ", ans[i]);
+            printf("\n");
+            flag = true;
+        }
+        return ;
+    }
+    for (int i = n; i; i--) {
+        if (!vis[i]) {
+            vis[i] = true;
+            ans[cur] = i;
+            Dfs1(cur + 1, min(minn, i), max(maxn, i), sum + max(maxn, i) - min(minn, i));
+            vis[i] = false;
+            if (flag) return ;
+        }
+    }
+}
+int a[N], b[N];
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> T;
+    int ttt, gg = T;
+    bool flag = true;
+    while (T--) {
+        cin >> n >> k;
+        int tmp;
+        cin >> tmp;
+        if (tmp == -1) continue;
+        int maxn = tmp, minn = tmp;
+        ll sum1 = 0, sum2 = 0;
+        for (int i = 2; i <= n; i++) {
+            cin >> tmp;
+            maxn = max(maxn, tmp);
+            minn = min(minn, tmp);
+            sum1 += maxn - minn;
+        }
+        cin >> tmp;
+        maxn = tmp, minn = tmp;
+        for (int i = 2; i <= n; i++) {
+            cin >> tmp;
+            maxn = max(maxn, tmp);
+            minn = min(minn, tmp);
+            sum2 += maxn - minn;
+        }
+        if (sum1 != k || sum2 != k) flag = false, ttt = gg - T;
+    }
+    if (flag) printf("ok\n");
+    else printf("%d\n", ttt);
     return 0;
 }
+/*
+4 4 = 0
+2 4 = 2
+1 4 = 3
+1 4 = 3
+1 5 = 4
+*/

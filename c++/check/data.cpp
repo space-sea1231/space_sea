@@ -8,8 +8,8 @@
 using namespace std;
 typedef long long ll;
 
-int t = 1;
-int n = 5;
+int t = 5;
+// int n = 10;
 
 mt19937 Rand(chrono::steady_clock().now().time_since_epoch().count());
 inline int Random(int l, int r) {return Rand() % (r - l + 1) + l;}
@@ -18,9 +18,7 @@ int main() {
     srand((unsigned)time(0));
     printf("%d\n", t);
     while (t--) {
-        printf("%d\n", n);
-        for (int i = 1; i <= n; i++) printf("%d ", Random(1, 200000));
-        printf("\n");
+        printf("%d %lld\n", Random(1, 10), Random(1, 100));
     }
     return 0;
 }

@@ -39,7 +39,13 @@ void Run() {
         printf("删除临时文件\n");
         exit(0);
     }
-    if (system("./ans<data.in>ans.out")) {
+    // if (system("./ans<data.in>ans.out")) {
+    //     printf("###RE on ans.cpp\n");
+    //     system("rm check std data");//删除临时文件
+    //     printf("删除临时文件\n");
+    //     exit(0);
+    // }
+    if (system("./ans<std.out>ans.out")) {
         printf("###RE on ans.cpp\n");
         system("rm check std data");//删除临时文件
         printf("删除临时文件\n");
@@ -53,7 +59,13 @@ signed main() {
         double st = clock();
         Run();
         double ed = clock();
-        if (system("diff -Bb std.out ans.out")) {//WA检测
+        // if (system("diff -Bb std.out ans.out")) {//WA检测
+        //     printf("WA on #%d\n", i);
+        //     system("rm check std data");//删除临时文件
+        //     printf("删除临时文件\n");
+        //     return 0;
+        // }
+        if (system("diff -Bb check.out ans.out")) {//WA检测
             printf("WA on #%d\n", i);
             system("rm check std data");//删除临时文件
             printf("删除临时文件\n");

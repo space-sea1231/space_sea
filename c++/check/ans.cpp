@@ -1,111 +1,41 @@
-#include <iostream>
-#include <stdio.h>
-#include <algorithm>
-#include <cstring>
-#define __Debug
-#define Debug(x) cerr << #x << "=" << x << endl;
-
+#include <bits/stdc++.h>
 using namespace std;
-typedef long long ll;
 
-const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
-const int N = 3e5 + 10;
+static constexpr long long MOD = 1'000'000'007;
 
-int T;
-ll n, k;
-int ans[N];
-bool vis[N];
-bool flag;
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
 
-void Dfs(int cur, int minn, int maxn, int sum) {
-    if (cur == n + 1) {
-        if (sum == k) {
-            // int maxn = 0, minn = INF;
-            // for (int i = 1; i <= n; i++) {
-            //     maxn = max(maxn, ans[i]);
-            //     minn = min(minn, ans[i]);
-            //     printf("%d ", maxn - minn);
-            // }
-            // printf("-> ");
-            for (int i = 1; i <= n; i++) printf("%d ", ans[i]);
-            printf("\n");
-            flag = true;
-        }
-        return ;
-    }
-    for (int i = 1; i <= n; i++) {
-        if (!vis[i]) {
-            vis[i] = true;
-            ans[cur] = i;
-            Dfs(cur + 1, min(minn, i), max(maxn, i), sum + max(maxn, i) - min(minn, i));
-            vis[i] = false;
-            if (flag) return ;
-        }
-    }
-}
-void Dfs1(int cur, int minn, int maxn, int sum) {
-    if (cur == n + 1) {
-        if (sum == k) {
-            // int maxn = 0, minn = INF;
-            // for (int i = 1; i <= n; i++) {
-            //     maxn = max(maxn, ans[i]);
-            //     minn = min(minn, ans[i]);
-            //     printf("%d ", maxn - minn);
-            // }
-            // printf("-> ");
-            for (int i = 1; i <= n; i++) printf("%d ", ans[i]);
-            printf("\n");
-            flag = true;
-        }
-        return ;
-    }
-    for (int i = n; i; i--) {
-        if (!vis[i]) {
-            vis[i] = true;
-            ans[cur] = i;
-            Dfs1(cur + 1, min(minn, i), max(maxn, i), sum + max(maxn, i) - min(minn, i));
-            vis[i] = false;
-            if (flag) return ;
-        }
-    }
-}
-int a[N], b[N];
-signed main() {
-    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    int T;
     cin >> T;
-    int ttt, gg = T;
-    bool flag = true;
+
+    // 按需预处理 2 的幂，避免每组数据重复快速幂。
+    vector<long long> pow2 = {1};
+
     while (T--) {
-        cin >> n >> k;
-        int tmp;
-        cin >> tmp;
-        if (tmp == -1) continue;
-        int maxn = tmp, minn = tmp;
-        ll sum1 = 0, sum2 = 0;
-        for (int i = 2; i <= n; i++) {
-            cin >> tmp;
-            maxn = max(maxn, tmp);
-            minn = min(minn, tmp);
-            sum1 += maxn - minn;
+        int n, k;
+        string s;
+        cin >> n >> k >> s;
+
+        int r = 0;
+        for (int i = static_cast<int>(s.size()) - 1;
+             i >= 0 && s[i] == '0'; --i) {
+            ++r;
         }
-        cin >> tmp;
-        maxn = tmp, minn = tmp;
-        for (int i = 2; i <= n; i++) {
-            cin >> tmp;
-            maxn = max(maxn, tmp);
-            minn = min(minn, tmp);
-            sum2 += maxn - minn;
+
+        if (r < k) {
+            cout << 0 << '\n';
+            continue;
         }
-        if (sum1 != k || sum2 != k) flag = false, ttt = gg - T;
+
+        while (static_cast<int>(pow2.size()) <= r + 1) {
+            pow2.push_back(pow2.back() * 2 % MOD);
+        }
+
+        long long answer = (pow2[r + 1] - pow2[k] + MOD) % MOD;
+        cout << answer << '\n';
     }
-    if (flag) printf("ok\n");
-    else printf("%d\n", ttt);
+
     return 0;
 }
-/*
-4 4 = 0
-2 4 = 2
-1 4 = 3
-1 4 = 3
-1 5 = 4
-*/

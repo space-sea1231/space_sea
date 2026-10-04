@@ -1,36 +1,32 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <stdio.h>
+#include <algorithm>
+#include <cstring>
+#include <vector>
+#define __Debug
+#define Debug(x) cerr << #x << "=" << x << endl;
+
 using namespace std;
+typedef long long ll;
 
-const int N = 100005;
-long long a[N];
+const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
 
-int main() {
-    cin.tie(0)->sync_with_stdio(0);
+int N = 10;
+int k, n;
+vector<pair<int, int> > ans;
 
-    int n;
-    cin >> n;
-    for (int i = 1; i <= n; i++) 
-        cin >> a[i];
-
-    long long sum_d = 0;
-    long long g = 0;
-
-
-    for (int i = 1; i < n; i++) 
-    {
-        long long d = abs(a[i + 1] - a[i]);
-        sum_d += d;
-        g = __gcd(g, d); 
+void Search() {
+}
+signed main() {
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    for (int i = 1; i <= N; i++) {
+        ans.clear();
+        for (int j = 1; j <= n; j++) {
+            k = j, n = i;
+            Search();
+        }
     }
-    g *= 2;
-
-    long long v1;
-    if (g == 0) 
-        v1 = a[1];
-    else 
-        v1 = ((a[1] - 1) % g + g) % g + 1;
-
-    cout << v1 + sum_d << "\n";
-
     return 0;
 }
+/*
+*/

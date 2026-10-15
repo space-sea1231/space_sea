@@ -1,0 +1,55 @@
+{
+  "name": "deadline-countdown",
+  "displayName": "DEADLINE · 编辑器背景倒计时",
+  "description": "Live countdown rendered inside the editor background, with watermark & cover modes",
+  "version": "0.3.0",
+  "publisher": "you",
+  "license": "MIT",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Visualization", "Other"],
+  "keywords": ["countdown", "timer", "pomodoro", "background", "deadline", "cover", "background-cover"],
+  "main": "./out/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "commands": [
+      { "command": "deadline.settings", "title": "DEADLINE: 打开设置面板（时长 / 模式 / 外观）" },
+      { "command": "deadline.start",    "title": "DEADLINE: 启动倒计时（分钟）" },
+      { "command": "deadline.at",       "title": "DEADLINE: 倒数到指定时刻" },
+      { "command": "deadline.toggle",   "title": "DEADLINE: 暂停 / 继续" },
+      { "command": "deadline.stop",     "title": "DEADLINE: 停止并清除背景" }
+    ],
+    "configuration": {
+      "title": "DEADLINE",
+      "properties": {
+        "deadline.mode": {
+          "type": "string",
+          "enum": ["watermark", "cover"],
+          "default": "watermark",
+          "description": "watermark = 透明水印（可与 background-cover 插件同时使用）；cover = 内置整块背景封面"
+        },
+        "deadline.opacity":       { "type": "number", "default": 0.12, "minimum": 0.02, "maximum": 1, "description": "水印模式下的整体透明度" },
+        "deadline.fontSizeVw":    { "type": "number", "default": 12,   "minimum": 3,    "maximum": 40, "description": "倒计时字号，单位 vw（相对编辑器视口宽度）" },
+        "deadline.color":         { "type": "string", "default": "", "description": "倒计时颜色，如 #67e8f9；留空跟随当前主题" },
+        "deadline.urgentColor":   { "type": "string", "default": "#f87171", "description": "最后 N 秒的警报色" },
+        "deadline.urgentSeconds": { "type": "number", "default": 60, "minimum": 0, "description": "剩余时间低于该秒数时进入警报状态" },
+        "deadline.image":         { "type": "string", "default": "", "description": "cover 模式封面图：https/data/file 链接或本地绝对路径" },
+        "deadline.coverDim":      { "type": "number", "default": 0.55, "minimum": 0, "maximum": 1, "description": "cover 模式遮罩浓度（越高越暗，代码越清晰）" },
+        "deadline.offsetX":       { "type": "number", "default": 0, "description": "水平微调（px）。常开侧栏时设 -137 左右即可回正" },
+        "deadline.offsetY":       { "type": "number", "default": 0, "description": "垂直微调（px）" },
+        "deadline.showStatusBar": { "type": "boolean", "default": true, "description": "状态栏是否常驻显示剩余时间" }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^2.24.0",
+    "typescript": "^5.4.0"
+  }
+}

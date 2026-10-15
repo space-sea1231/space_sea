@@ -9,18 +9,12 @@ using namespace std;
 typedef long long ll;
 
 const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
-const int N = 160;
 
-int T, n;
+ll n, p;
 
 signed main() {
     cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> T;
-    while (T--) {
-        cin >> n;
-        // for (int i = 1; i <= n; i++) cin >> l[i];
-        // for (int i = 1; i <= n; i++) cin >> r[i];
-
-    }
+    cin >> n >> p;
+    for (int i = 1; i <= n; i++) cin >> x[i] >>
     return 0;
 }

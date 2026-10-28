@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cstring>
 #include <vector>
+#include <stack>
 #define __Debug
 #define Debug(x) cerr << #x << "=" << x << endl;
 
@@ -12,74 +13,103 @@ typedef long long ll;
 const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
 const int N = 1e3 + 10;
 
-int n, k0;
-int a[N][N];
+int n;
+int a[N];
+int minn[N];
+bool color[N];
 bool vis[N];
-pair<int, int> pos[N * N];
+bool flag;
 
-struct Node {
-	int sx, sy, fx, fy;
-};
+vector<int> e[N];
 
-vector<Node> ans;
-
-int Change(int x, int y) { return (x - 1) * n + y; }
-
+void Dfs(int u, int fa) {
+    vis[u] = true;
+    color[u] = color[fa] ^ 1;
+    for (int v : e[u]) {
+        if (v == fa) continue;
+        if (vis[v]) {
+            if (color[u] == color[v]) flag = true;
+            continue;
+        }
+        Dfs(v, u);
+    }
+}
 signed main() {
-	cin.tie(nullptr) -> ios::sync_with_stdio(false);
-	cin >> n >> k0;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= n; j++) {
-			cin >> a[i][j];
-			pos[a[i][j]] = make_pair(i, j);
-		}
-	}
-	for (int i = 1; i <= n; i++) {
-		int cur = 1;
-		for (int j = 1; j <= n; j++) vis[j] = false;
-		for (; !vis[cur]; cur = pos[Change(i, cur)].second) vis[cur] = true;
-		for (int j = 1; j <= n; j++) vis[j] = false;
-		for (; !vis[cur]; cur = pos[Change(i, cur)].second) {
-			int v = Change(i, cur);
-			int x = pos[v].first, y = pos[v].second;
-			if (x != i) {
-				ans.emplace_back((Node){x, y, i, y});
-				swap(pos[v], pos[a[i][y]]);
-				swap(a[x][y], a[i][y]);
-			}
-			vis[cur] = 1;
-		}
-		for (int j = 1; j <= n; j++) vis[j] = false;
-		for (int v = Change(i, cur); !vis[cur]; cur = pos[v].second) {
-			if (pos[v] != make_pair(i, cur)) {
-				int x = pos[v].first, y = pos[v].second;
-				ans.emplace_back((Node){x, y, x, cur});
-				swap(pos[v], pos[a[x][cur]]);
-				swap(a[x][y], a[i][cur]);
-			}
-			vis[cur] = 1;
-		}
-		for (int j = 1; j <= n; j++) {
-			if (vis[j]) continue;
-			int v = Change(i, j);
-			int x = pos[v].first, y = pos[v].second;
-			if (pos[v] == make_pair(i, j)) continue;
-			if (x == i || y == j) {
-				ans.emplace_back((Node){x, y, i, j});
-				swap(pos[v], pos[a[i][j]]);
-				swap(a[x][y], a[i][j]);
-			} else {
-				ans.emplace_back((Node){x, y, x, j});
-				swap(pos[v], pos[a[x][j]]);
-				swap(a[x][y], a[x][j]);
-				ans.emplace_back((Node){x, j, i, j});
-				swap(pos[v], pos[a[i][j]]);
-				swap(a[x][j], a[i][j]);
-			}
-		}
-	}
-	printf("%d\n", (int)ans.size());
-	for (Node cur : ans) printf("%d %d %d %d\n", cur.sx, cur.sy, cur.fx, cur.fy);
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    cin >> n;
+    minn[n + 1] = INF; color[0] = true;
 
-	return 0;
+    for (int i = 1; i <= n; i++) cin >> a[i];
+    for (int i = n; i; i--) minn[i] = min(minn[i + 1], a[i]);
+    for (int i = 1; i <= n; i++) {
+        for (int j = i + 1; j <= n; j++) {
+            if (minn[j + 1] < a[i] && a[i] < a[j]) {
+                e[i].emplace_back(j);
+                e[j].emplace_back(i);
+            }
+        }
+    }
+    for (int i = 1; i <= n; i++) {
+        if (!vis[i]) {
+            Dfs(i, 0);
+        }
+    }
+    if (flag) { printf("0\n"); return 0; }
+    stack<int> A, B;
+    int lst = 0;
+    for (int i = 1; i <= n; i++) {
+        if (!color[i]) {
+            while (!A.empty() && A.top() < a[i]) {
+                while (!B.empty() && B.top() < A.top()) {
+                    B.pop();
+                    printf("d ");
+                    lst++;
+                }
+                A.pop();
+                printf("b ");
+                lst++;
+            }
+            A.push(a[i]);
+            printf("a ");
+        } else {
+            while (!A.empty() && A.top() == lst + 1) {
+                A.pop();
+                lst++;
+                printf("b ");
+            }
+            while (!B.empty() && B.top() < a[i]) {
+                while (!A.empty() && A.top() < B.top()) {
+                    A.pop();
+                    printf("b ");
+                    lst++;
+                }
+                B.pop();
+                printf("d ");
+                lst++;
+            }
+            while (!A.empty() && A.top() == lst + 1) {
+                A.pop();
+                lst++;
+                printf("b ");
+            }
+            B.push(a[i]);
+            printf("c ");
+        }
+    }
+    while (!A.empty() || !B.empty()) {
+        if (A.empty()) {
+            B.pop();
+            printf("d ");
+        } else if (B.empty()) {
+            A.pop();
+            printf("b ");
+        } else if (A.top() < B.top()) {
+            A.pop();
+            printf("b ");
+        } else {
+            B.pop();
+            printf("d ");
+        }
+    }
+    return 0;
 }

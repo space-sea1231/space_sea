@@ -14,13 +14,14 @@ void Check() {
         printf("删除临时文件\n");
         exit(0);
     }
-    if (system("g++ -o ans ans.cpp -std=c++14 -O2 -fsanitize=address,undefined")) {
-        printf("###CE on ans.cpp\n");
-        system("rm check std ans data");//删除临时文件
-        system("rm ans.out std.out data.in");//删除临时文件
-        printf("删除临时文件\n");
-        exit(0);
-    }
+    // if (system("g++ -o ans ans.cpp -std=c++14 -O2 -fsanitize=address,undefined")) {
+    //     printf("###CE on ans.cpp\n");
+    //     system("rm check std ans data");//删除临时文件
+    //     system("rm ans.out std.out data.in");//删除临时文件
+    //     printf("删除临时文件\n");
+    //     exit(0);
+    // }
+    system("g++ -o chk chk.cpp");
     if (system("g++ -o data data.cpp -std=c++14 -O2 -fsanitize=address,undefined")) {
         printf("###CE on data.cpp\n");
         system("rm check std ans data");//删除临时文件
@@ -45,13 +46,14 @@ void Run() {
         printf("删除临时文件\n");
         exit(0);
     }
-    if (system("./ans<data.in>ans.out")) {
-        printf("###RE on ans.cpp\n");
-        system("rm check std data");//删除临时文件
-        system("rm ans.out std.out data.in");//删除临时文件
-        printf("删除临时文件\n");
-        exit(0);
-    }
+    // if (system("./ans<data.in>ans.out")) {
+    //     printf("###RE on ans.cpp\n");
+    //     system("rm check std data");//删除临时文件
+    //     system("rm ans.out std.out data.in");//删除临时文件
+    //     printf("删除临时文件\n");
+    //     exit(0);
+    // }
+    system("./chk<std.out>chk.out");
     return;
 }
 signed main() {
@@ -60,7 +62,8 @@ signed main() {
         double st = clock();
         Run();
         double ed = clock();
-        if (system("diff -Bb std.out ans.out")) {//WA检测
+        // if (system("diff -Bb std.out ans.out")) {//WA检测
+        if (system("diff -Bb chk.out ans.out")) {//WA检测
             printf("WA on #%d\n", i);
             system("rm check std data");//删除临时文件
             system("rm ans.out std.out data.out");//删除临时文件

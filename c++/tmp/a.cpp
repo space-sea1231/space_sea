@@ -1,95 +1,66 @@
-#include <iostream>
-#include <stdio.h>
-#include <algorithm>
-#include <cstring>
-#include <vector>
-#define __Debug
-#define Debug(x) cerr << #x << "=" << x << endl;
-
-using namespace std;
-typedef long long ll;
-
-const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
-const int N = 1e6 + 10;
-const int Mod = 998244353;
-
-int C, T;
-int n, m;
-
-namespace Pts1 {
-    int ans;
-    int a[20];
-    bool vis[20][20];
-    void Check() {
-        for (int i = 1; i <= n; i++) {
-            bool flag = true;
-            for (int j = 1; j <= n; j++) {
-                if (vis[i][j]) {
-                    if (a[i] > a[j]) flag = false;
-                    if (abs(a[i] - a[j]) != 1) return ;
-                }
-            }
-            if (flag && a[i]) return ;
-        }
-        for (int i = 1; i <= n; i++) printf("%d ", a[i]); printf("\n");
-        ans++;
-    }
-    void Dfs(int dep) {
-        if (dep == n + 1) {
-            Check();
-            return ;
-        }
-        for (int i = 0; i < n; i++) {
-            a[dep] = i;
-            Dfs(dep + 1);
-        }
-    }
-} 
-namespace Pts2 {
-    int Pow(int a, int b) {
-        if (b < 0) return 0;
-        int sum = 1;
-        while (b) {
-            if (b & 1) sum = (ll)sum * a % Mod;
-            a = (ll)a * a % Mod;
-            b >>= 1;
-        }
-        return sum;
-    }
-}
-signed main() {
-    cin.tie(nullptr) -> ios::sync_with_stdio(false);
-    cin >> C >> T;
-    if (C == 1) {
-        using namespace Pts1;
-        while (T--) {
-            cin >> n >> m;
-            ans = 0;
-            for (int i = 1; i <= n; i++) {
-                for (int j = 1; j <= n; j++) {
-                    vis[i][j] = false;
-                }
-            }
-            for (int i = 1; i <= m; i++) {
-                int u, v;
-                cin >> u >> v;
-                vis[u][v] = vis[v][u] = true;
-            }
-            Dfs(1);
-            printf("%d\n", ans);
-        }
-    }
-    if (C == 2) {
-        using namespace Pts2;
-        while (T--) {
-            cin >> n >> m;
-            for (int i = 1; i <= m; i++) {
-                int u, v;
-                cin >> u >> v;
-            }
-            if (n & 1) printf("%d\n", Pow(2, n / 2 + 1) - 1 + Pow(2, n / 2) - 1);
-            else printf("%d\n", (ll)2 * (Pow(2, n / 2) - 1 + Mod) % Mod);
-        }
-    }
-    return 0;
+void Div() {
+	memset(c, 0, sizeof(c));
+	int l = 1, r = 0, top = 0;
+	for (int i = lena; i; i--) {
+		c[++r] = a[i];
+		while (l < r && !c[l]) l++;
+		int L = 0, R = 9, d = 0;
+		while (L <= R) {
+			int mid = (L + R) >> 1, x = 0;
+			int lent = lenb;
+			for (int j = 1; j <= lenb; j++) {
+				tmp[j] = b[j] * mid + x;
+				x = tmp[j] / 10;
+				tmp[j] %= 10;
+			}
+			while (x) {
+				tmp[++lent] = x % 10;
+				x /= 10;
+			}
+			while (lent > 1 && !tmp[lent]) lent--;
+			int lenc = r - l + 1;
+			bool flag = (lent <= lenc);
+			if (lent == lenc) {
+				for (int k = l; k <= r; k++) {
+					if (tmp[r - k + 1] > c[k]) {
+						flag = false;
+						break;
+					} else if (tmp[r - k + 1] < c[k]) break;
+				}
+			}
+			if (flag) {
+				d = mid;
+				L = mid + 1;
+			} else R = mid - 1;
+		}
+		q[++top] = d;
+		if (d) {
+			int lent = lenb, x = 0;
+			for (int j = 1; j <= lenb; j++) {
+				tmp[j] = b[j] * d + x;
+				x = tmp[j] / 10;
+				tmp[j] %= 10;
+			}
+			while (x) {
+				tmp[++lent] = x % 10;
+				x /= 10;
+			}
+			while (lent > 1 && !tmp[lent]) lent--;
+			for (int k = r; k >= l; k--) {
+				int idx = r - k + 1;
+				if (idx <= lent) c[k] -= tmp[idx];
+				if (c[k] < 0) {
+					c[k] += 10;
+					c[k - 1]--;
+				}
+			}
+		}
+	}
+	int lpos = 1;
+	while (lpos < top && !q[lpos]) lpos++;
+	for (int i = lpos; i <= top; i++) printf("%d", q[i]);
+	printf("\n");
+	while (l < r && !c[l]) l++;
+	for (int i = l; i <= r; i++) printf("%lld", c[i]);
+	printf("\n");
 }

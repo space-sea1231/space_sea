@@ -1,39 +1,65 @@
 #include "testlib.h"
-#include <bits/stdc++.h>
-using namespace std;
+
+#include <deque>
+#include <vector>
 
 int main(int argc, char* argv[]) {
-    registerInteraction(argc, argv);
-    int n    = inf.readInt();
-    int maxk = inf.readInt();
-    int x    = inf.readInt();   // 毒水
-    int y    = inf.readInt();   // 变异鼠选择参数
+    registerTestlibCmd(argc, argv);
 
-    cout << n << " " << maxk << endl;   // endl 会刷新
+    const int T = inf.readInt();
+    for (int tc = 1; tc <= T; ++tc) {
+        const int n = inf.readInt();
+        const int m = inf.readInt();
+        const int k = inf.readInt();
+        std::vector<int> a(m);
+        for (int& x : a) x = inf.readInt(1, k, "a_i");
 
-    vector<vector<int>> mice;
-    while (true) {
-        int op = ouf.readInt(1, 2, "op");
-        if (op == 2) break;
-        if ((int)mice.size() >= maxk)
-            quitf(_wa, "too many mice, maxk = %d", maxk);
-        int m = ouf.readInt(0, n, "m");
-        vector<int> b(m);
-        for (int &v : b) v = ouf.readInt(1, n, "B");
-        mice.push_back(b);
+        const int op = ouf.readInt(m, 2 * m, "op");
+        // front is the bottom; back is the top.
+        std::vector<std::deque<int>> stacks(n + 1);
+        int used = 0;
+        for (int step = 1; step <= op; ++step) {
+            const int type = ouf.readInt(1, 2, "type");
+            const int s = ouf.readInt(1, n, "s");
+            if (type == 1) {
+                if (used == m) {
+                    quitf(_wa, "Case %d, operation %d: the deck is empty",
+                          tc, step);
+                }
+                const int x = a[used++];
+                auto& st = stacks[s];
+                if (!st.empty() && st.back() == x) {
+                    st.pop_back();
+                } else {
+                    st.push_back(x);
+                }
+            } else {
+                const int t = ouf.readInt(1, n, "t");
+                if (s == t) {
+                    quitf(_wa, "Case %d, operation %d: stacks must be distinct",
+                          tc, step);
+                }
+                auto& lhs = stacks[s];
+                auto& rhs = stacks[t];
+                // No matching bottom cards (including an empty stack): no-op.
+                if (!lhs.empty() && !rhs.empty() && lhs.front() == rhs.front()) {
+                    lhs.pop_front();
+                    rhs.pop_front();
+                }
+            }
+        }
+
+        if (used != m) {
+            quitf(_wa, "Case %d: %d cards remain in the deck", tc, m - used);
+        }
+        for (int s = 1; s <= n; ++s) {
+            if (!stacks[s].empty()) {
+                quitf(_wa, "Case %d: stack %d still contains %d cards",
+                      tc, s, static_cast<int>(stacks[s].size()));
+            }
+        }
     }
 
-    int k = mice.size();
-    int mut = k ? (y - 1) % k : -1;
-    for (int i = 0; i < k; i++) {
-        bool has = find(mice[i].begin(), mice[i].end(), x) != mice[i].end();
-        bool dead = (i == mut) ? !has : has;   // 变异鼠相反
-        cout << (dead ? 0 : 1) << (i + 1 < k ? ' ' : '\n');
-    }
-    if (k == 0) cout << "\n";
-    cout.flush();
-
-    int ans = ouf.readInt(1, n, "answer");
-    if (ans != x) quitf(_wa, "wrong answer: expected %d, found %d", x, ans);
-    quitf(_ok, "n=%d, used %d mice", n, k);
+    if (!ouf.seekEof()) quitf(_wa, "Extra output after the last case");
+    quitf(_ok, "All %d cases cleared", T);
 }

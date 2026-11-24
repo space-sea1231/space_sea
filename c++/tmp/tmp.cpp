@@ -10,20 +10,11 @@ typedef long long ll;
 
 const int INF = sizeof(int) == 4 ? (int)1e9 + 1 : (int)1e18 + 1;
 
-int T;
-int n;
-int a[N];
-
-void Solve() {
-	cin >> n;
-	for (int i = 1; i <= n; i++) cin >> a[i];
-	sort(a + 1, a + n + 1, [&](int a, int b) {
-		re
-	})
-}
+int a[2];
+int num;
 signed main() {
-	cin.tie(nullptr) -> ios::sync_with_stdio(false);
-	cin >> T;
-	while (T--) Solve();
-	return 0;
+    cin.tie(nullptr) -> ios::sync_with_stdio(false);
+    a[++num] = 2, a[num] = 1;
+	cerr << a[0] << " " << a[1] << "\n";
+    return 0;
 }
